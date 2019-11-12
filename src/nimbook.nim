@@ -1,6 +1,8 @@
 #
 import sequtils, strutils
 
+include net
+
 type
   Offer = object
     base_qty: float
@@ -18,7 +20,6 @@ type
     a: Market
     b: Market
 
-include net
 
 proc markets(source: Source): seq[Market] =
   var markets: seq[Market]

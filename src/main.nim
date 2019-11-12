@@ -3,27 +3,26 @@ import os
 include config
 include nimbook
 
-
 proc match(config: Config) =
-    var markets: seq[Market]
+  var markets: seq[Market]
 
-    for source in config.sources:
-      var source_markets = marketlistload(source.market_list, source.name)
-      markets.add(source_markets)
+  for source in config.sources:
+    var source_markets = marketlistload(source.market_list, source.name)
+    markets.add(source_markets)
 
-    for market in markets:
-      echo market.source, market
+  for market in markets:
+    echo market.source, market
 
-    var matches = markets_match(markets)
+  var matches = markets_match(markets)
 
 proc book(config: Config) =
-    var matches: seq[MarketPair]
-    echo "seq wut 1"
-    for matched_pair in matches:
-      echo "seq wut 2"
-      var bid_book = marketload(config, matched_pair.a, Bid)
-      var ask_book = marketload(config, matched_pair.b, Ask)
-      var winners = overlap(bid_book, ask_book)
+  var matches: seq[MarketPair]
+  echo "seq wut 1"
+  for matched_pair in matches:
+    echo "seq wut 2"
+    var bid_book = marketload(config, matched_pair.a, Bid)
+    var ask_book = marketload(config, matched_pair.b, Ask)
+    var winners = overlap(bid_book, ask_book)
 
 proc help_closest(word: string) =
   echo word, "not understood"

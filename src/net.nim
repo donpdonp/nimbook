@@ -22,12 +22,12 @@ proc jqArrayToSeqFloat(jqarray: libjq.jq_Value): seq[seq[float]] =
       array.add(twofloats)
   array
 
-proc jqArrayAddSeqMarket(markets: var seq[MarketNim], jqarray: libjq.jq_Value, source_name: string) =
+proc jqArrayAddSeqMarket(markets: var seq[Market], jqarray: libjq.jq_Value, source_name: string) =
   for idx in 0..libjq.jv_array_length(libjq.jv_copy(jqarray))-1:
     var element = libjq.jv_array_get(libjq.jv_copy(jqarray), idx)
-    var nim_elements = (source_name,
-      $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0)),
-      $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1)))
+    var nim_elements = Market(source: source_name,
+      base: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0)),
+      quote: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1)))
     markets.add(nim_elements)
 
 proc marketlistload(jqurl: JqUrl, source_name: string): seq[Market] =

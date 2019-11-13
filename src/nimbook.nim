@@ -1,13 +1,10 @@
-#
+# nim
 import sequtils, strutils
-
+# nimble
+# local
+import types
 
 type
-  Offer = object
-    base_qty: float
-    quote_qty: float
-    time: string
-
   BidAsk = enum Bid, Ask
 
   MarketBook = object

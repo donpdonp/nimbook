@@ -1,7 +1,6 @@
 #
 import sequtils, strutils
 
-include net
 
 type
   Offer = object
@@ -20,6 +19,7 @@ type
     a: Market
     b: Market
 
+include net
 
 proc markets(source: Source): seq[Market] =
   var markets: seq[Market]

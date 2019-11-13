@@ -1,4 +1,5 @@
 import yaml/serialization, streams
+import types
 
 type
   JqBidAsk = object
@@ -14,12 +15,6 @@ type
     url : string
     jq  : JqBidAsk
     market_list: JqUrl
-
-type
-  Market = object
-    source: string
-    base: string
-    quote: string
 
 type
   Config = object

@@ -65,9 +65,11 @@ proc markets_match(markets: seq[Market]): seq[MarketPair] =
           b = m1
         var candidate = MarketPair(a: a, b: b)
         if not winners.any(proc (mp: MarketPair): bool =
-            return  mp.a.source == a.source and mp.b.source == b.source and
-                    mp.a.base == a.base and mp.a.quote == a.quote and
-                    mp.b.base == b.base and mp.b.quote == b.quote) :
+            return  (mp.a.source == a.source and mp.b.source == b.source and
+                     ((ticker_equivs(mp.a.base) == ticker_equivs(a.base) and ticker_equivs(mp.a.quote) == ticker_equivs(a.quote) and
+                       ticker_equivs(mp.b.base) == ticker_equivs(b.base) and ticker_equivs(mp.b.quote) == ticker_equivs(b.quote)) or
+                      (ticker_equivs(mp.a.base) == ticker_equivs(a.quote) and ticker_equivs(mp.a.quote) == ticker_equivs(a.base) and
+                       ticker_equivs(mp.b.base) == ticker_equivs(b.quote) and ticker_equivs(mp.b.quote) == ticker_equivs(b.base))))):
           winners.add(candidate)
           echo "WINNER ", m1.source, ":", m1.base, "/", m1.quote, " ", m2.source, ":", m2.base,"/",m2.quote
   winners

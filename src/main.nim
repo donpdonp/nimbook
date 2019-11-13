@@ -3,7 +3,7 @@ import os
 include config
 include nimbook
 
-proc match(config: Config) =
+proc markets(config: Config) =
   var markets: seq[Market]
 
   for source in config.sources:
@@ -28,7 +28,7 @@ proc help_closest(word: string) =
   echo word, "not understood"
 
 proc help(config: Config) =
-  echo "nimbook match - find matching markets"
+  echo "nimbook markets - find matching markets"
   echo "nimbook book - compare orderbooks"
 
 proc main(args: seq[string]) =
@@ -37,7 +37,7 @@ proc main(args: seq[string]) =
 
   if len(args) > 0:
     case args[0]
-      of "match": match(config)
+      of "markets": markets(config)
       of "book": book(config)
       else: help_closest(args[0])
   else:

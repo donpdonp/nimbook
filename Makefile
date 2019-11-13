@@ -4,7 +4,7 @@ all: jq
 	nim c --threads:on --out:nimbook src/main.nim
 
 run: all
-	./nimbook
+	./nimbook markets
 
 jq:
 	echo building jq

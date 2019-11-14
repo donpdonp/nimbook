@@ -15,11 +15,9 @@ proc markets(config: Config) =
 
   var matches = markets_match(markets)
 
-proc book(config: Config) =
-  var matches: seq[MarketPair]
-  echo "seq wut 1"
+# proc book(config: Config) =
+#   var matches: seq[MarketPair]
   for matched_pair in matches:
-    echo "seq wut 2"
     var bid_book = marketload(config, matched_pair.a, Bid)
     var ask_book = marketload(config, matched_pair.b, Ask)
     var winners = overlap(bid_book, ask_book)
@@ -38,8 +36,8 @@ proc main(args: seq[string]) =
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)
-      of "book": book(config)
-      else: help_closest(args[0])
+      #of "book": book(config)
+      else: markets(config) #help_closest(args[0])
   else:
     help(config)
 
@@ -48,4 +46,6 @@ if isMainModule:
   try:
     main(os.commandLineParams())
   except:
-    echo getCurrentExceptionMsg()
+    let ex = getCurrentException()
+    echo "isMainModule: ", ex.name, ": ", ex.msg
+    echo getStackTrace(ex)

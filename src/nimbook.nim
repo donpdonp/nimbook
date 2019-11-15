@@ -1,5 +1,5 @@
 # nim
-import sequtils, strutils
+import sequtils, strutils, tables, algorithm
 # nimble
 # local
 import types
@@ -11,10 +11,6 @@ type
     market: Market
     bidask: BidAsk
     offers: seq[Offer]
-
-  MarketPair = object
-    a: Market
-    b: Market
 
 include net
 
@@ -57,29 +53,13 @@ proc ticker_equivs(ticker: string): string =
     of "USDC", "DAI", "USDT": "USD"
     else: ticker
 
-proc markets_match(markets: seq[Market]): seq[MarketPair] =
-  var winners: seq[MarketPair]
+proc markets_match(markets: seq[Market]): Table[(string, string), seq[Market]] =
+  var winners: Table[(string, string), seq[Market]]
   for m1 in markets:
-    for m2 in markets:
-      var m1_base = ticker_equivs(m1.base)
-      var m1_quote = ticker_equivs(m1.quote)
-      var m2_base = ticker_equivs(m2.base)
-      var m2_quote = ticker_equivs(m2.quote)
-      if m1.source != m2.source and m1_base == m2_quote and m1_quote == m2_base:
-        var a,b: Market
-        if m1.source < m2.source:
-          a = m1
-          b = m2
-        else:
-          a = m2
-          b = m1
-        var candidate = MarketPair(a: a, b: b)
-        if not winners.any(proc (mp: MarketPair): bool =
-            return  (mp.a.source == a.source and mp.b.source == b.source and
-                     ((ticker_equivs(mp.a.base) == ticker_equivs(a.base) and ticker_equivs(mp.a.quote) == ticker_equivs(a.quote) and
-                       ticker_equivs(mp.b.base) == ticker_equivs(b.base) and ticker_equivs(mp.b.quote) == ticker_equivs(b.quote)) or
-                      (ticker_equivs(mp.a.base) == ticker_equivs(a.quote) and ticker_equivs(mp.a.quote) == ticker_equivs(a.base) and
-                       ticker_equivs(mp.b.base) == ticker_equivs(b.quote) and ticker_equivs(mp.b.quote) == ticker_equivs(b.base))))):
-          winners.add(candidate)
-          echo "WINNER ", m1.source, ":", m1.base, "/", m1.quote, " ", m2.source, ":", m2.base,"/",m2.quote
+    let key_parts = sorted([ticker_equivs(m1.base), ticker_equivs(m1.quote)])
+    let key = (key_parts[0], key_parts[1])
+    if not winners.hasKey(key):
+      winners[key] = @[m1]
+    else:
+      winners[key].add(m1)
   winners

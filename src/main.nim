@@ -1,5 +1,6 @@
-import os
-
+# nim
+import os, strformat
+# local
 include config
 include nimbook
 
@@ -17,10 +18,11 @@ proc markets(config: Config) =
 
 # proc book(config: Config) =
 #   var matches: seq[MarketPair]
-  for matched_pair in matches:
-    var bid_book = marketload(config, matched_pair.a, Bid)
-    var ask_book = marketload(config, matched_pair.b, Ask)
-    var winners = overlap(bid_book, ask_book)
+  for k,v in matches.pairs:
+    echo(&"{k} = {v}")
+    # var bid_book = marketload(config, matched_pair.a, Bid)
+    # var ask_book = marketload(config, matched_pair.b, Ask)
+    # var winners = overlap(bid_book, ask_book)
 
 proc help_closest(word: string) =
   echo word, "not understood"
@@ -47,5 +49,5 @@ if isMainModule:
     main(os.commandLineParams())
   except:
     let ex = getCurrentException()
-    echo "isMainModule: ", ex.name, ": ", ex.msg
+    echo &"isMainModule: {ex.name} : {ex.msg}"
     echo getStackTrace(ex)

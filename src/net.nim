@@ -1,5 +1,5 @@
 # nim
-import httpClient, strutils, sequtils, sugar
+import httpClient
 # nimble
 import libjq
 # local
@@ -25,7 +25,7 @@ proc jqArrayToSeqFloat(jqarray: libjq.jq_Value): seq[seq[float]] =
 proc jqArrayAddSeqMarket(markets: var seq[Market], jqarray: libjq.jq_Value, source_name: string) =
   for idx in 0..libjq.jv_array_length(libjq.jv_copy(jqarray))-1:
     var element = libjq.jv_array_get(libjq.jv_copy(jqarray), idx)
-    var nim_elements = Market(source: source_name,
+    var nim_elements = Market(source_name: source_name,
       base: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0)),
       quote: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1)))
     markets.add(nim_elements)

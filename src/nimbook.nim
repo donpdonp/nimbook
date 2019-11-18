@@ -1,12 +1,8 @@
 # nim
-import sequtils, strutils, tables, algorithm
+import strutils, tables, algorithm
 # nimble
 # local
 import types, net
-
-proc markets(source: Source): seq[Market] =
-  var markets: seq[Market]
-  markets.add(Market(source: source.name, base: "TSTB", quote: "TSTQ"))
 
 proc overlap(markets: seq[Market]): seq[Offer] =
   @[Offer(base_qty: 1, quote_qty: 1)]

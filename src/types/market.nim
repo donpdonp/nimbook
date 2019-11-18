@@ -1,10 +1,10 @@
 type
   Market* = object
-    source*: string
+    source_name*: string
     base*: string
     quote*: string
     bqbook*: seq[Offer]
     qbbook*: seq[Offer]
 
-proc MarketFromJq(source: string, base: string, quote: string): Market =
-  Market(source: source, base: base, quote: quote)
+proc MarketFromJq(source_name: string, base: string, quote: string): Market =
+  Market(source_name: source_name, base: base, quote: quote)

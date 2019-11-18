@@ -30,13 +30,13 @@ proc markets(config: Config) =
       echo(&"{k} = {v}")
       for m in v.mitems:
         try:
-          echo m.source
+          echo m.source_name
           marketload(m, config)
-          echo &"{m.source}:{m.base}/{m.quote} {m.bqbook}"
-          echo &"{m.source}:{m.quote}/{m.base} {m.qbbook}"
+          echo &"{m.source_name}:{m.base}/{m.quote} {m.bqbook}"
+          echo &"{m.source_name}:{m.quote}/{m.base} {m.qbbook}"
         except:
           let ex = getCurrentException()
-          echo &"{m.source}:{m.base}/{m.quote} : {ex.msg}"
+          echo &"{m.source_name}:{m.base}/{m.quote} : {ex.msg}"
     var winners = overlap(v)
 
 proc help_closest(word: string) =

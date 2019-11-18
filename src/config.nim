@@ -19,5 +19,5 @@ proc load(filename: string): Config =
 
 proc findSource(market: Market, config: Config): Source =
   for idx, source in config.sources:
-    if source.name == market.source:
+    if source.name == market.source_name:
       return source

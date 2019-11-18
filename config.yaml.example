@@ -17,12 +17,37 @@ sources:
         sort_by(.[1])
 
   -
-    name: ddex
+    name: idex
+    market_list:
+      url: https://api.idex.market/return24Volume
+      jq: . | keys | map(split("_"))
+    url: https://api.idex.market/returnOrderBook?market=%base%_%quote%
+    jq:
+      bids: .bids | map([(.amount | tonumber), (.price | tonumber)])
+      asks: .asks | map([(.amount | tonumber), (.price | tonumber)])
+
+  -
+    name: ddex-v4
     market_list:
       url: https://api.ddex.io/v4/markets
       jq: .data.markets | map([.baseAsset, .quoteAsset])
 
     url: https://api.ddex.io/v4/markets/%base%-%quote%/orderbook?level=3
+    jq:
+      bids: >-
+        .data.orderbook.bids |
+        map([(.amount | tonumber), (.price | tonumber)])
+      asks: >-
+        .data.orderbook.asks |
+        map([(.amount | tonumber), (.price | tonumber)])
+
+  -
+    name: ddex-v3
+    market_list:
+      url: https://api.ddex.io/v3/markets
+      jq: .data.markets | map([.baseToken, .quoteToken])
+
+    url: https://api.ddex.io/v4/markets/%base%-%quote%/orderbook
     jq:
       bids: >-
         .data.orderbook.bids |

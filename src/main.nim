@@ -18,9 +18,12 @@ proc markets(config: Config) =
 
 # proc book(config: Config) =
 #   var matches: seq[MarketPair]
-  for k,v in matches.pairs:
+  for k,v in matches.mpairs:
     if len(v) > 1:
       echo(&"{k} = {v}")
+      for m in v.mitems:
+        echo m.source
+        marketload(m, config)
     # var bid_book = marketload(config, matched_pair.a, Bid)
     # var ask_book = marketload(config, matched_pair.b, Ask)
     # var winners = overlap(bid_book, ask_book)

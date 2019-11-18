@@ -30,7 +30,17 @@ proc jqArrayAddSeqMarket(markets: var seq[Market], jqarray: libjq.jq_Value, sour
       quote: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1)))
     markets.add(nim_elements)
 
-proc marketlistload(jqurl: JqUrl, source_name: string): seq[Market] =
+proc jqrun(json: string, jq_code: string): libjq.jq_Value =
+  var jq_state = libjq.jq_init()
+  var compile_success = libjq.jq_compile(jq_state, jq_code)
+  if compile_success == 1:
+    var jdata = libjq.jv_parse(json)
+    libjq.jq_start(jq_state, jdata, 0)
+    var jq_result = libjq.jq_next(jq_state)
+    libjq.jq_teardown(addr jq_state)
+    return jq_result
+
+proc marketlistload*(jqurl: JqUrl, source_name: string): seq[Market] =
   echo "marketlistload ", jqurl.url
   var markets: seq[Market]
   var json:string = client.getContent(jqurl.url)
@@ -47,19 +57,11 @@ proc marketlistload(jqurl: JqUrl, source_name: string): seq[Market] =
     echo "marketlistload jq compile fail ", jqurl.jq
   markets
 
-proc sourceload(source: Source, url: string, bidask: BidAsk): seq[seq[float]] =
-  echo "sourceload ", url
-  var jq_state = libjq.jq_init()
-  var jqcode = if bidask == Bid: source.jq.bids else: source.jq.asks
-  echo jqcode
-  var compile_success = libjq.jq_compile(jq_state, jqcode)
-  if compile_success == 1:
-    var json:string = client.getContent(url)
-    var jdata = libjq.jv_parse(json)
-    libjq.jq_start(jq_state, jdata, 0)
-    var jqoffers = libjq.jq_next(jq_state)
-    var twofloats = jqArrayToSeqFloat(jqoffers)
-    libjq.jv_free(jqoffers)
-    libjq.jq_teardown(addr jq_state)
-    return twofloats
-
+proc marketbooksload*(source: Source, url: string): (seq[Offer], seq[Offer]) =
+  echo "marketbooksload ", url
+  let html:string = client.getContent(url)
+  let jq_bids = jqrun(html, source.jq.bids)
+  var twofloats = jqArrayToSeqFloat(jq_bids)
+  libjq.jv_free(jq_bids)
+  let jq_asks = jqrun(html, source.jq.asks)
+  libjq.jv_free(jq_asks)

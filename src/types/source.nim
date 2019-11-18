@@ -1,11 +1,11 @@
 type
-  JqBidAsk = object
-    bids: string
-    asks: string
+  JqBidAsk* = object
+    bids*: string
+    asks*: string
 
-  JqUrl = object
-    url: string
-    jq: string
+  JqUrl* = object
+    url*: string
+    jq*: string
 
   Source* = object
     name* : string

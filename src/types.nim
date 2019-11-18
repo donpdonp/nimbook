@@ -1,3 +1,3 @@
-include types/market,
-        types/offer,
+include types/offer,
+        types/market,
         types/source

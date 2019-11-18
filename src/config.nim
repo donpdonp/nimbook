@@ -2,10 +2,6 @@ import yaml/serialization, streams
 import types
 
 type
-  JqBidAsk = object
-    bids: string
-    asks: string
-
   Config = object
     sources: seq[Source]
 

@@ -37,7 +37,10 @@ proc markets(config: Config) =
         except:
           let ex = getCurrentException()
           echo &"{m.source_name}:{m.base}/{m.quote} : {ex.msg}"
-    var winners = overlap(v)
+    var (best_ask, best_bid) = bestes(v)
+    var ask_winners = [0]
+    if len(ask_winners) > 0:
+      echo &"WIN {k}: {ask_winners}"
 
 proc help_closest(word: string) =
   echo word, "not understood"

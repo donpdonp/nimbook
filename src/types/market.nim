@@ -1,4 +1,6 @@
 type
+  AskBid* = enum ask, bid
+
   Market* = object
     source_name*: string
     base*: string

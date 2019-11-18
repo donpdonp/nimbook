@@ -1,12 +1,28 @@
 # nim
-import strutils, tables, algorithm
+import strutils, tables, algorithm, sequtils
 # nimble
 # local
 import types, net
 
-proc overlap(markets: seq[Market]): seq[Offer] =
-  @[Offer(base_qty: 1, quote_qty: 1)]
-  #filter(a, proc(x: Offer): bool = x.quote_qty < b[0].quote_qty)
+proc bestes(markets: seq[Market]): (float, float) =
+  var overlaps: seq[(string, Offer)] #
+  var best_ask:float = high(float)
+  var best_bid:float
+  for m in markets:
+    if len(m.bqbook) > 0:
+      if m.bqbook[0].quote_qty < best_ask:
+        best_ask = m.bqbook[0].quote_qty
+    if len(m.qbbook) > 0:
+      if m.qbbook[0].quote_qty > best_bid:
+        best_bid = m.qbbook[0].quote_qty
+  (best_ask, best_bid)
+
+proc overlap(offers: seq[Offer], best:float, askbid: AskBid): seq[Offer] =
+  filter(offers, proc(o: Offer): bool =
+    if askbid == AskBid.bid:
+      o.quote_qty < best
+    else:
+      o.quote_qty < best)
 
 proc marketload(market: var Market, config: Config) =
   var source = market.findSource(config)

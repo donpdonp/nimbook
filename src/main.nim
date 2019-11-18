@@ -17,6 +17,11 @@ proc markets(config: Config) =
       echo &"{source.name} : {ex.msg}"
 
   var matches = markets_match(markets)
+  var matches_count = 0
+  for k,v in matches.mpairs:
+    if len(v) > 1:
+      matches_count += 1
+  echo &"{matches_count} matching markets!"
 
 # proc book(config: Config) =
 #   var matches: seq[MarketPair]
@@ -27,9 +32,11 @@ proc markets(config: Config) =
         try:
           echo m.source
           marketload(m, config)
+          echo &"{m.source}:{m.base}/{m.quote} {m.bqbook}"
+          echo &"{m.source}:{m.quote}/{m.base} {m.qbbook}"
         except:
           let ex = getCurrentException()
-          echo &"{m.source}/{m.base}/{m.quote} : {ex.msg}"
+          echo &"{m.source}:{m.base}/{m.quote} : {ex.msg}"
     var winners = overlap(v)
 
 proc help_closest(word: string) =

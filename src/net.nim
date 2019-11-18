@@ -40,6 +40,8 @@ proc jqrun(json: string, jq_code: string): libjq.jq_Value =
     libjq.jq_teardown(addr jq_state)
     return jq_result
 
+#proc jqfor(array: libjq.jq_Value, p: proc()...
+
 proc marketlistload*(jqurl: JqUrl, source_name: string): seq[Market] =
   echo "marketlistload ", jqurl.url
   var markets: seq[Market]
@@ -63,7 +65,15 @@ proc marketbooksload*(source: Source, url: string): (seq[Offer], seq[Offer]) =
   echo "marketbooksload ", url
   let html:string = client.getContent(url)
   let jq_bids = jqrun(html, source.jq.bids)
-  var twofloats = jqArrayToSeqFloat(jq_bids)
+  var asks:seq[Offer]
+  var bids:seq[Offer]
+  var bid_floats = jqArrayToSeqFloat(jq_bids)
+  for bfloat in bid_floats:
+    bids.add(Offer(base_qty: bfloat[0], quote_qty: bfloat[1]))
   libjq.jv_free(jq_bids)
   let jq_asks = jqrun(html, source.jq.asks)
+  var ask_floats = jqArrayToSeqFloat(jq_bids)
+  for afloat in ask_floats:
+    asks.add(Offer(base_qty: afloat[0], quote_qty: afloat[1]))
   libjq.jv_free(jq_asks)
+  (asks, bids)

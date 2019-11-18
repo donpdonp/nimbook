@@ -24,6 +24,7 @@ proc marketload(market: var Market, config: Config) =
       echo source.name, " Warning, Ask array is reversed ",bids[0].quote_qty, " < ", bids[1].quote_qty
   echo &"{len(asks)} asks found {len(bids)} bids found"
   market.bqbook.add(asks)
+  market.qbbook.add(bids)
 
 proc ticker_equivs(ticker: string): string =
   case ticker

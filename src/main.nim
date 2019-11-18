@@ -8,12 +8,13 @@ proc markets(config: Config) =
   var markets: seq[Market]
 
   for source in config.sources:
-    var source_markets = marketlistload(source.market_list, source.name)
-    markets.add(source_markets)
-    echo &"{source.name} loaded {len(source_markets)} markets"
-
-  for market in markets:
-    echo market.source, market
+    try:
+      var source_markets = marketlistload(source.market_list, source.name)
+      markets.add(source_markets)
+      echo &"{source.name} loaded {len(source_markets)} markets"
+    except:
+      let ex = getCurrentException()
+      echo &"{source.name} : {ex.msg}"
 
   var matches = markets_match(markets)
 
@@ -23,11 +24,13 @@ proc markets(config: Config) =
     if len(v) > 1:
       echo(&"{k} = {v}")
       for m in v.mitems:
-        echo m.source
-        marketload(m, config)
-    # var bid_book = marketload(config, matched_pair.a, Bid)
-    # var ask_book = marketload(config, matched_pair.b, Ask)
-    # var winners = overlap(bid_book, ask_book)
+        try:
+          echo m.source
+          marketload(m, config)
+        except:
+          let ex = getCurrentException()
+          echo &"{m.source}/{m.base}/{m.quote} : {ex.msg}"
+    var winners = overlap(v)
 
 proc help_closest(word: string) =
   echo word, "not understood"

@@ -8,8 +8,9 @@ proc markets(source: Source): seq[Market] =
   var markets: seq[Market]
   markets.add(Market(source: source.name, base: "TSTB", quote: "TSTQ"))
 
-proc overlap(a: seq[Offer], b: seq[Offer]): seq[Offer] =
-  filter(a, proc(x: Offer): bool = x.quote_qty < b[0].quote_qty)
+proc overlap(markets: seq[Market]): seq[Offer] =
+  @[Offer(base_qty: 1, quote_qty: 1)]
+  #filter(a, proc(x: Offer): bool = x.quote_qty < b[0].quote_qty)
 
 proc marketload(market: var Market, config: Config) =
   var source = market.findSource(config)

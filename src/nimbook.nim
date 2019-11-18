@@ -18,10 +18,10 @@ proc marketload(market: var Market, config: Config) =
   var (asks, bids) = marketbooksload(source, url)
   if len(asks) > 1:
     if asks[0].quote_qty < asks[1].quote_qty:
-      echo source.name, " Warning, Bid array is reversed ",asks[0].quote_qty, " > ", asks[1].quote_qty
+      echo source.name, " Warning, Bid array is reversed [0]",asks[0].quote_qty, " > [1]", asks[1].quote_qty
   if len(bids) > 1:
     if bids[0].quote_qty > bids[1].quote_qty:
-      echo source.name, " Warning, Ask array is reversed ",bids[0].quote_qty, " < ", bids[1].quote_qty
+      echo source.name, " Warning, Ask array is reversed [0]",bids[0].quote_qty, " < [1]", bids[1].quote_qty
   echo &"{len(asks)} asks found {len(bids)} bids found"
   market.bqbook.add(asks)
   market.qbbook.add(bids)

@@ -10,6 +10,7 @@ proc markets(config: Config) =
   for source in config.sources:
     var source_markets = marketlistload(source.market_list, source.name)
     markets.add(source_markets)
+    echo &"{source.name} loaded {len(source_markets)} markets"
 
   for market in markets:
     echo market.source, market

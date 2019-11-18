@@ -5,7 +5,7 @@ import libjq
 # local
 import types
 
-var client = newHttpClient()
+var client = newHttpClient(timeout=800)
 
 # libjq - jv_copy() [increment refcount] before every non-final use
 
@@ -43,6 +43,8 @@ proc jqrun(json: string, jq_code: string): libjq.jq_Value =
 proc marketlistload*(jqurl: JqUrl, source_name: string): seq[Market] =
   echo "marketlistload ", jqurl.url
   var markets: seq[Market]
+  client.headers = newHttpHeaders({ "User-Agent": "curl/7.58.0",
+                                    "Accept": "*/*" })
   var json:string = client.getContent(jqurl.url)
   var jq_state = libjq.jq_init()
   var compile_success = libjq.jq_compile(jq_state, jqurl.jq)

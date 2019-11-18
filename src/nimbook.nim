@@ -17,12 +17,14 @@ proc bestes(markets: seq[Market]): (float, float) =
         best_bid = m.qbbook[0].quote_qty
   (best_ask, best_bid)
 
-proc overlap(offers: seq[Offer], best:float, askbid: AskBid): seq[Offer] =
-  filter(offers, proc(o: Offer): bool =
-    if askbid == AskBid.bid:
-      o.quote_qty < best
+proc overlap(markets: seq[Market], best:float, askbid: AskBid): seq[Offer] =
+  var winners:seq[Offer]
+  for m in markets:
+    if askbid == AskBid.ask:
+      winners.add(m.bqbook.filter(proc (o: Offer): bool = o.quote_qty < best))
     else:
-      o.quote_qty < best)
+      winners.add(m.qbbook.filter(proc (o: Offer): bool = o.quote_qty > best))
+  winners
 
 proc marketload(market: var Market, config: Config) =
   var source = market.findSource(config)
@@ -34,7 +36,6 @@ proc marketload(market: var Market, config: Config) =
   if len(bids) > 1:
     if bids[0].quote_qty < bids[1].quote_qty:
       echo source.name, " Warning, bids are reversed [0]",bids[0].quote_qty, " < [1]", bids[1].quote_qty
-  echo &"{len(asks)} asks found {len(bids)} bids found"
   market.bqbook.add(asks)
   market.qbbook.add(bids)
 

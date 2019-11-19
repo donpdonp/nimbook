@@ -36,13 +36,13 @@ proc markets(config: Config) =
         except:
           let ex = getCurrentException()
           echo &"{m.source_name}:{m.base}/{m.quote} : {ex.msg}"
-    var (best_ask, best_bid) = bestes(v)
-    var ask_winners = overlap(v, best_bid, AskBid.ask)
-    if len(ask_winners) > 0:
-      echo &"!ASKWIN {k}: <{best_bid} {ask_winners}"
-    var bid_winners = overlap(v, best_ask, AskBid.bid)
-    if len(bid_winners) > 0:
-      echo &"!BIDWIN {k}: >{best_ask} {bid_winners}"
+      var (best_ask, best_bid) = bestes(v)
+      var ask_winners = overlap(k, v, best_bid, AskBid.ask)
+      if len(ask_winners) > 0:
+        echo &"!ASKWIN {k}: <{best_bid} {ask_winners}"
+      var bid_winners = overlap(k, v, best_ask, AskBid.bid)
+      if len(bid_winners) > 0:
+        echo &"!BIDWIN {k}: >{best_ask} {bid_winners}"
 
 proc help_closest(word: string) =
   echo word, "not understood"

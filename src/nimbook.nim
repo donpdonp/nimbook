@@ -4,6 +4,8 @@ import strutils, tables, algorithm, sequtils
 # local
 import types, net
 
+proc ticker_equivs(ticker: string): string
+
 proc bestes(markets: seq[Market]): (float, float) =
   var overlaps: seq[(string, Offer)] #
   var best_ask:float = high(float)
@@ -17,13 +19,17 @@ proc bestes(markets: seq[Market]): (float, float) =
         best_bid = m.qbbook[0].quote_qty
   (best_ask, best_bid)
 
-proc overlap(markets: seq[Market], best:float, askbid: AskBid): seq[Offer] =
+proc overlap(bqnames: (string, string), markets: seq[Market], best:float, askbid: AskBid): seq[Offer] =
   var winners:seq[Offer]
+  echo &"{bqnames} overlap check for {len(markets)} markets {askbid}"
   for m in markets:
+    let matched = bqnames[0] == ticker_equivs(m.base) and bqnames[1] == ticker_equivs(m.quote)
+    let flipped = not matched
+    echo &"overlap check {bqnames[0]}/{bqnames[1]} {m.base}/{m.quote} flipped {flipped}"
     if askbid == AskBid.ask:
-      winners.add(m.bqbook.filter(proc (o: Offer): bool = o.quote_qty < best))
+      winners.add(m.bqbook.filter(proc (o: Offer): bool = o.quote(flipped) < best))
     else:
-      winners.add(m.qbbook.filter(proc (o: Offer): bool = o.quote_qty > best))
+      winners.add(m.qbbook.filter(proc (o: Offer): bool = o.quote(flipped) > best))
   winners
 
 proc marketload(market: var Market, config: Config) =

@@ -28,22 +28,25 @@ proc markets(config: Config) =
   for k,v in matches.mpairs:
     if len(v) > 1:
       echo(&"{k} = {v}")
+      var askbooks = Books(askbid: AskBid.ask)
+      var bidbooks = Books(askbid: AskBid.bid)
       for m in v.mitems:
         try:
-          echo m.source_name
-          let (askbooks, bidbooks) = marketload(m, config)
-          echo &"{m.source_name}:{m.base}/{m.quote} {len(m.bqbook)} asks {len(m.qbbook)} bids"
+          echo m.source.name
+          let (askoffers, bidoffers) = marketload(m, config)
+          let askbook = Book(market: m, offers: askoffers)
+          let bidbook = Book(market: m, offers: askoffers)
+          askbooks.books.add(askbook)
+          bidbooks.books.add(bidbook)
+          echo &"{m.source.name}:{m.base}/{m.quote} {len(askoffers)} asks {len(bidoffers)} bids"
         except:
           let ex = getCurrentException()
-          echo &"{m.source_name}:{m.base}/{m.quote} : {ex.msg}"
-      var best_ask = askbooks.bestprice(AskBid.ask)
-      var best_bid = bidbooks.bestprice(AskBid.bid)
-      var ask_winners = overlap(k, v, best_bid, AskBid.ask)
-      if len(ask_winners) > 0:
-        echo &"!ASKWIN {k}: <{best_bid} {ask_winners}"
-      var bid_winners = overlap(k, v, best_ask, AskBid.bid)
-      if len(bid_winners) > 0:
-        echo &"!BIDWIN {k}: >{best_ask} {bid_winners}"
+          echo &"{m.source.name}:{m.base}/{m.quote} : {ex.msg}"
+      var (ask_wins, bid_wins) = overlap(k, askbooks, bidbooks)
+      if len(ask_wins.books) > 0:
+        echo &"!ASKWIN {k}: <unk {ask_wins}"
+      if len(bid_wins.books) > 0:
+        echo &"!BIDWIN {k}: >unk {bid_wins}"
 
 proc help_closest(word: string) =
   echo word, "not understood"

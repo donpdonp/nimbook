@@ -16,7 +16,7 @@ proc markets(config: Config) =
       let ex = getCurrentException()
       echo &"{source.name} : {ex.msg}"
 
-  var matches = markets_match(markets)
+  var matches:Table[(string, string), seq[Market]] = markets_match(markets)
   var matches_count = 0
   for k,v in matches.mpairs:
     if len(v) > 1:
@@ -38,10 +38,10 @@ proc markets(config: Config) =
           let bidbook = Book(market: m, offers: askoffers)
           askbooks.books.add(askbook)
           bidbooks.books.add(bidbook)
-          echo &"{m.source.name}:{m.base}/{m.quote} {len(askoffers)} asks {len(bidoffers)} bids"
+          echo &"{m} {len(askoffers)} asks {len(bidoffers)} bids"
         except:
           let ex = getCurrentException()
-          echo &"{m.source.name}:{m.base}/{m.quote} : {ex.msg}"
+          echo &"{m} : {ex.msg}"
       var (ask_wins, bid_wins) = overlap(k, askbooks, bidbooks)
       if len(ask_wins.books) > 0:
         echo &"!ASKWIN {k}: <unk {ask_wins}"

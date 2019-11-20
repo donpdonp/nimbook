@@ -21,7 +21,6 @@ proc bestes(markets: seq[Market]): (float, float) =
 
 proc overlap(bqnames: (string, string), markets: seq[Market], best:float, askbid: AskBid): seq[Offer] =
   var winners:seq[Offer]
-  echo &"{bqnames} overlap check for {len(markets)} markets {askbid}"
   for m in markets:
     let matched = bqnames[0] == ticker_equivs(m.base) and bqnames[1] == ticker_equivs(m.quote)
     let flipped = not matched
@@ -49,7 +48,8 @@ proc ticker_equivs(ticker: string): string =
   case ticker
     of "WETH": "ETH"
     of "WBTC": "BTC"
-    of "USDC", "DAI", "USDT": "USD"
+    of "SAI": "DAI"
+    of "USDC", "DAI", "USDT", "TUSD": "USD"
     else: ticker
 
 proc markets_match(markets: seq[Market]): Table[(string, string), seq[Market]] =

@@ -12,8 +12,3 @@ proc load(filename: string): Config =
   load(stream, config)
   stream.close()
   config
-
-proc findSource(market: Market, config: Config): Source =
-  for idx, source in config.sources:
-    if source.name == market.source_name:
-      return source

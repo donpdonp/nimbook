@@ -9,7 +9,7 @@ proc markets(config: Config) =
 
   for source in config.sources:
     try:
-      var source_markets = marketlistload(source.market_list, source.name)
+      var source_markets = marketlistload(source.market_list, source)
       markets.add(source_markets)
       echo &"{source.name} loaded {len(source_markets)} markets"
     except:
@@ -31,12 +31,13 @@ proc markets(config: Config) =
       for m in v.mitems:
         try:
           echo m.source_name
-          marketload(m, config)
+          let (askbooks, bidbooks) = marketload(m, config)
           echo &"{m.source_name}:{m.base}/{m.quote} {len(m.bqbook)} asks {len(m.qbbook)} bids"
         except:
           let ex = getCurrentException()
           echo &"{m.source_name}:{m.base}/{m.quote} : {ex.msg}"
-      var (best_ask, best_bid) = bestes(v)
+      var best_ask = askbooks.bestprice(AskBid.ask)
+      var best_bid = bidbooks.bestprice(AskBid.bid)
       var ask_winners = overlap(k, v, best_bid, AskBid.ask)
       if len(ask_winners) > 0:
         echo &"!ASKWIN {k}: <{best_bid} {ask_winners}"

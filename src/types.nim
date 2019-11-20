@@ -1,3 +1,4 @@
 include types/offer,
+        types/source,
         types/market,
-        types/source
+        types/book

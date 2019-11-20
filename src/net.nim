@@ -22,10 +22,10 @@ proc jqArrayToSeqFloat(jqarray: libjq.jq_Value): seq[seq[float]] =
       array.add(twofloats)
   array
 
-proc jqArrayAddSeqMarket(markets: var seq[Market], jqarray: libjq.jq_Value, source_name: string) =
+proc jqArrayAddSeqMarket(markets: var seq[Market], jqarray: libjq.jq_Value, source: Source) =
   for idx in 0..libjq.jv_array_length(libjq.jv_copy(jqarray))-1:
     var element = libjq.jv_array_get(libjq.jv_copy(jqarray), idx)
-    var nim_elements = Market(source_name: source_name,
+    var nim_elements = Market(source: source,
       base: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0)),
       quote: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1)))
     markets.add(nim_elements)
@@ -42,7 +42,7 @@ proc jqrun(json: string, jq_code: string): libjq.jq_Value =
 
 #proc jqfor(array: libjq.jq_Value, p: proc()...
 
-proc marketlistload*(jqurl: JqUrl, source_name: string): seq[Market] =
+proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
   echo "marketlistload ", jqurl.url
   var markets: seq[Market]
   client.headers = newHttpHeaders({ "User-Agent": "curl/7.58.0",
@@ -54,7 +54,7 @@ proc marketlistload*(jqurl: JqUrl, source_name: string): seq[Market] =
     var jdata = libjq.jv_parse(json)
     libjq.jq_start(jq_state, jdata, 0)
     var jqmarkets = libjq.jq_next(jq_state)
-    jqArrayAddSeqMarket(markets, jqmarkets, source_name)
+    jqArrayAddSeqMarket(markets, jqmarkets, source)
     libjq.jv_free(jqmarkets)
     libjq.jq_teardown(addr jq_state)
   else:

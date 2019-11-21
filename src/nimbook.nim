@@ -6,26 +6,30 @@ import types, net
 
 proc ticker_equivs(ticker: string): string
 
-proc bestprice(books: seq[Book], askbid: AskBid): float =
-  var last_best:float = if askbid == AskBid.ask: high(float) else: 0
-  for b in books:
+proc bestprice(books: Books): float =
+  var last_best:float = if books.askbid == AskBid.ask: high(float) else: 0
+  for b in books.books:
     if len(b.offers) > 0:
       let best = b.offers[0].quote_qty
-      if (askbid == AskBid.ask and best < last_best) or (best > last_best):
+      if (books.askbid == AskBid.ask and best < last_best) or (best > last_best):
         last_best = best
   last_best
 
 proc overlap(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
+  # phase 1: select all price-winning asks/bids
   var askwins = Books(askbid: AskBid.ask)
+  var best_ask = bestprice(askbooks)
   var bidwins = Books(askbid: AskBid.bid)
-  for b in askbooks.books:
+  var best_bid = bestprice(bidbooks)
+  askwins.books = askbooks.books.map(proc (b:Book): Book =
     let matched = bqnames[0] == ticker_equivs(b.market.base) and bqnames[1] == ticker_equivs(b.market.quote)
     let flipped = not matched
-    # echo &"overlap check {bqnames[0]}/{bqnames[1]} {m.base}/{m.quote} flipped {flipped}"
-    # if askbid == AskBid.ask:
-    #   winners.add(m.bqbook.filter(proc (o: Offer): bool = o.quote(flipped) < best))
-    # else:
-    #   winners.add(m.qbbook.filter(proc (o: Offer): bool = o.quote(flipped) > best))
+    Book(market: b.market, offers: b.offers.filter(proc (o: Offer): bool = o.quote(flipped) < best_bid)))
+  bidwins.books = bidbooks.books.map(proc (b:Book): Book =
+    let matched = bqnames[0] == ticker_equivs(b.market.base) and bqnames[1] == ticker_equivs(b.market.quote)
+    let flipped = not matched
+    Book(market: b.market, offers: b.offers.filter(proc (o: Offer): bool = o.quote(flipped) > best_ask)))
+  # phase 2: spend asks on bids
   (askwins, bidwins)
 
 proc marketload(market: var Market, config: Config): (seq[Offer], seq[Offer]) =

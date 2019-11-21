@@ -15,21 +15,27 @@ proc bestprice(books: Books): float =
         last_best = best
   last_best
 
+proc add_good_books(bqnames: (string, string), books: Books): Books =
+  var wins = Books(askbid: AskBid.bid)
+  var best = bestprice(books)
+  var offer_filter:proc (o: Offer): bool
+  for b in books.books:
+    let matched = bqnames[0] == ticker_equivs(b.market.base) and bqnames[1] == ticker_equivs(b.market.quote)
+    let flipped = not matched
+    if books.askbid == AskBid.ask:
+      offer_filter = proc (o: Offer): bool = o.quote(flipped) < best
+    else:
+      offer_filter = proc (o: Offer): bool = o.quote(flipped) > best
+    let good_offers = b.offers.filter(offer_filter)
+    if len(good_offers) > 0:
+      wins.books.add(Book(market: b.market, offers: good_offers))
+  wins
+
 proc overlap(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   # phase 1: select all price-winning asks/bids
-  var askwins = Books(askbid: AskBid.ask)
-  var best_ask = bestprice(askbooks)
-  var bidwins = Books(askbid: AskBid.bid)
-  var best_bid = bestprice(bidbooks)
-  askwins.books = askbooks.books.map(proc (b:Book): Book =
-    let matched = bqnames[0] == ticker_equivs(b.market.base) and bqnames[1] == ticker_equivs(b.market.quote)
-    let flipped = not matched
-    Book(market: b.market, offers: b.offers.filter(proc (o: Offer): bool = o.quote(flipped) < best_bid)))
-  bidwins.books = bidbooks.books.map(proc (b:Book): Book =
-    let matched = bqnames[0] == ticker_equivs(b.market.base) and bqnames[1] == ticker_equivs(b.market.quote)
-    let flipped = not matched
-    Book(market: b.market, offers: b.offers.filter(proc (o: Offer): bool = o.quote(flipped) > best_ask)))
-  # phase 2: spend asks on bids
+  var askwins = add_good_books(bqnames, askbooks)
+  var bidwins = add_good_books(bqnames, bidbooks)
+  # phase 2: spend asks on bids todo
   (askwins, bidwins)
 
 proc marketload(market: var Market, config: Config): (seq[Offer], seq[Offer]) =

@@ -22,6 +22,7 @@ proc markets(config: Config) =
     if len(v) > 1:
       matches_count += 1
   echo &"{matches_count} matching markets!"
+  echo &""
 
 # proc book(config: Config) =
 #   var matches: seq[MarketPair]
@@ -37,7 +38,7 @@ proc markets(config: Config) =
           let bidbook = Book(market: m, offers: askoffers)
           askbooks.books.add(askbook)
           bidbooks.books.add(bidbook)
-          echo &"{m} {len(askoffers)} asks {len(bidoffers)} bids"
+          echo &"{m} asks {askbook} bids {bidbook}"
         except:
           let ex = getCurrentException()
           echo &"{m} : {ex.msg}"

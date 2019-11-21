@@ -32,7 +32,6 @@ proc markets(config: Config) =
       var bidbooks = Books(askbid: AskBid.bid)
       for m in v.mitems:
         try:
-          echo m.source.name
           let (askoffers, bidoffers) = marketload(m, config)
           let askbook = Book(market: m, offers: askoffers)
           let bidbook = Book(market: m, offers: askoffers)
@@ -44,9 +43,9 @@ proc markets(config: Config) =
           echo &"{m} : {ex.msg}"
       var (ask_wins, bid_wins) = overlap(k, askbooks, bidbooks)
       if len(ask_wins.books) > 0:
-        echo &"!ASKWIN {k}: <unk {ask_wins}"
+        echo &"!ASKWIN {k}: {ask_wins}"
       if len(bid_wins.books) > 0:
-        echo &"!BIDWIN {k}: >unk {bid_wins}"
+        echo &"!BIDWIN {k}: {bid_wins}"
 
 proc help_closest(word: string) =
   echo word, "not understood"

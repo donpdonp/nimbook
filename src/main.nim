@@ -35,7 +35,7 @@ proc markets(config: Config) =
         try:
           let (askoffers, bidoffers) = marketload(m, config)
           let askbook = Book(market: m, offers: askoffers)
-          let bidbook = Book(market: m, offers: askoffers)
+          let bidbook = Book(market: m, offers: bidoffers)
           askbooks.books.add(askbook)
           bidbooks.books.add(bidbook)
           echo &"{m} asks {askbook} bids {bidbook}"

@@ -67,6 +67,11 @@ proc main(args: seq[string]) =
   else:
     help(config)
 
+proc ctrlc() {.noconv.} =
+  quit("done")
+
+setControlCHook(ctrlc)
+
 ## main
 if isMainModule:
   try:

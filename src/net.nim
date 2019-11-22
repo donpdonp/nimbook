@@ -62,7 +62,6 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
   markets
 
 proc marketbooksload*(source: Source, url: string): (seq[Offer], seq[Offer]) =
-  echo "marketbooksload ", url
   let json:string = client.getContent(url)
 
   var bids:seq[Offer]

@@ -7,10 +7,10 @@ type
     time*: string
 
 proc `$`*(o: Offer): string =
-  o.base_qty.formatFloat(ffDecimal, 4) & "@" & o.quote_qty.formatFloat(ffDecimal, 4)
+  o.base_qty.formatFloat(ffDecimal, 6) & "@" & o.quote_qty.formatFloat(ffDecimal, 6)
 
 proc `quote$`*(o: Offer): string =
-  o.quote_qty.formatFloat(ffDecimal, 4)
+  o.quote_qty.formatFloat(ffDecimal, 6)
 
 proc quote*(o: Offer, flipped: bool): float =
   if flipped:

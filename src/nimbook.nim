@@ -6,35 +6,45 @@ import types, net
 
 proc ticker_equivs(ticker: string): string
 
-proc bestprice(books: Books): float =
+proc bestprice(books: Books): Offer =
   var last_best:float = if books.askbid == AskBid.ask: high(float) else: 0
+  var winner:Offer
   for b in books.books:
     if len(b.offers) > 0:
-      let best = b.offers[0].quote_qty
-      if (books.askbid == AskBid.ask and best < last_best) or (best > last_best):
-        last_best = best
-  last_best
+      let best = b.offers[0]
+      if (books.askbid == AskBid.ask and best.quote_qty < last_best) or (best.quote_qty > last_best):
+        last_best = best.quote_qty
+        winner = best
+  winner
 
-proc add_good_books(bqnames: (string, string), books: Books): Books =
-  var wins = Books(askbid: AskBid.bid)
-  var best = bestprice(books)
+proc add_good_books(bqnames: (string, string), books: Books, best: Offer): seq[Book] =
+  var wins: seq[Book]
   var offer_filter:proc (o: Offer): bool
   for b in books.books:
     let matched = bqnames[0] == ticker_equivs(b.market.base) and bqnames[1] == ticker_equivs(b.market.quote)
     let flipped = not matched
     if books.askbid == AskBid.ask:
-      offer_filter = proc (o: Offer): bool = o.quote(flipped) < best
+      offer_filter = proc (o: Offer): bool = o.quote(flipped) < best.quote_qty
     else:
-      offer_filter = proc (o: Offer): bool = o.quote(flipped) > best
+      offer_filter = proc (o: Offer): bool = o.quote(flipped) > best.quote_qty
     let good_offers = b.offers.filter(offer_filter)
     if len(good_offers) > 0:
-      wins.books.add(Book(market: b.market, offers: good_offers))
+      wins.add(Book(market: b.market, offers: good_offers))
   wins
 
 proc overlap(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   # phase 1: select all price-winning asks/bids
-  var askwins = add_good_books(bqnames, askbooks)
-  var bidwins = add_good_books(bqnames, bidbooks)
+  var best_ask = bestprice(askbooks)
+  var best_bid = bestprice(bidbooks)
+  var askwins = Books(askbid: AskBid.ask)
+  var bidwins = Books(askbid: AskBid.bid)
+  if best_ask.quote_qty < best_bid.quote_qty:
+    echo &"{bqnames} best_ask {best_ask} best_bid {best_bid} CROSSING"
+    askwins.books.add(add_good_books(bqnames, askbooks, best_bid))
+    bidwins.books.add(add_good_books(bqnames, bidbooks, best_ask))
+  else:
+    echo &"{bqnames} best_ask {best_ask} best_bid {best_bid} no opportunity"
+
   # phase 2: spend asks on bids todo
   (askwins, bidwins)
 

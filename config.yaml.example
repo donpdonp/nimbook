@@ -9,22 +9,10 @@ sources:
     jq:
       bids: >-
         .bids |
-        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate]) |
-        sort_by(.[1])
+        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
       asks: >-
         .asks |
-        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate]) |
-        sort_by(.[1])
-
-  -
-    name: idex
-    market_list:
-      url: https://api.idex.market/return24Volume
-      jq: . | keys | map(split("_"))
-    url: https://api.idex.market/returnOrderBook?market=%base%_%quote%
-    jq:
-      bids: .bids | map([(.amount | tonumber), (.price | tonumber)])
-      asks: .asks | map([(.amount | tonumber), (.price | tonumber)])
+        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
 
   -
     name: ddex-v4

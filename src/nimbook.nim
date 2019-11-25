@@ -43,20 +43,25 @@ proc overlap(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Book
     askwins.books.add(add_good_books(bqnames, askbooks, best_bid))
     bidwins.books.add(add_good_books(bqnames, bidbooks, best_ask))
   else:
-    echo &"{bqnames} best_ask {best_ask} best_bid {best_bid} no opportunity"
+    echo &"{bqnames} best_ask {best_ask.quote_qty} | {best_bid.quote_qty} best_bid no opportunity"
 
   # phase 2: spend asks on bids todo
   (askwins, bidwins)
 
 proc marketload(market: var Market, config: Config): (seq[Offer], seq[Offer]) =
   var url = market.source.url.replace("%base%", market.base).replace("%quote%", market.quote)
+  echo url
   var (asks, bids) = marketbooksload(market.source, url)
   if len(asks) > 1:
-    if asks[0].quote_qty > asks[1].quote_qty:
-      echo market.source.name, " Warning, asks are reversed [0]",asks[0].quote_qty, " > [1]", asks[1].quote_qty
+    let best_ask = asks[low(asks)]
+    let worst_ask = asks[high(asks)]
+    if best_ask.quote_qty > worst_ask.quote_qty:
+      echo &"{market.source.name}, Warning, asks are reversed {best_ask.quote_qty} > {worst_ask.quote_qty}"
   if len(bids) > 1:
-    if bids[0].quote_qty < bids[1].quote_qty:
-      echo market.source.name, " Warning, bids are reversed [0]",bids[0].quote_qty, " < [1]", bids[1].quote_qty
+    let best_bid = bids[low(bids)]
+    let worst_bid = bids[high(bids)]
+    if best_bid.quote_qty < worst_bid.quote_qty:
+      echo &"{market.source.name},  Warning, bids are reversed {best_bid.quote_qty} < {worst_bid.quote_qty}"
   (asks, bids)
 
 proc ticker_equivs(ticker: string): string =

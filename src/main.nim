@@ -27,30 +27,32 @@ proc markets(config: Config) =
   echo &"saved."
 
 proc compare(config: Config, mpair: (string, string), matchingMarkets: var seq[Market]) =
-      var askbooks = Books(askbid: AskBid.ask)
-      var bidbooks = Books(askbid: AskBid.bid)
-      for m in matchingMarkets.mitems:
-        try:
-          let (askoffers, bidoffers) = marketload(m, config)
-          let askbook = Book(market: m, offers: askoffers)
-          let bidbook = Book(market: m, offers: bidoffers)
-          askbooks.books.add(askbook)
-          bidbooks.books.add(bidbook)
-          echo &"{m} asks {askbook} bids {bidbook}"
-        except:
-          let ex = getCurrentException()
-          echo &"{m} : {ex.msg}"
-      var (ask_wins, bid_wins) = overlap(mpair, askbooks, bidbooks)
-      if len(ask_wins.books) > 0 or  len(bid_wins.books) > 0:
-        echo &"**ASKWIN {mpair}: {ask_wins}"
-        echo &"**BIDWIN {mpair}: {bid_wins}"
-      echo ""
+  var askbooks = Books(askbid: AskBid.ask)
+  var bidbooks = Books(askbid: AskBid.bid)
+  for m in matchingMarkets.mitems:
+    try:
+      let (askoffers, bidoffers) = marketload(m, config)
+      let askbook = Book(market: m, offers: askoffers)
+      let bidbook = Book(market: m, offers: bidoffers)
+      askbooks.books.add(askbook)
+      bidbooks.books.add(bidbook)
+      echo &"{m} asks {askbook} bids {bidbook}"
+    except:
+      let ex = getCurrentException()
+      echo &"{m} : {ex.msg}"
+  var (ask_wins, bid_wins) = overlap(mpair, askbooks, bidbooks)
+  if len(ask_wins.books) > 0 or  len(bid_wins.books) > 0:
+    echo &"**ASKWIN {mpair}: {ask_wins}"
+    echo &"**BIDWIN {mpair}: {bid_wins}"
+  echo ""
 
 proc book(config: Config, base: string, quote: string) =
   var matches = marketload()
   echo &"loaded {len(matches)}"
   let mpair = (base, quote)
-  compare(config, mpair, matches[mpair])
+  var mmatches = matches[mpair]
+  echo &"{mpair} {mmatches}"
+  compare(config, mpair, mmatches)
 
 proc bookall(config: Config) =
   var matches = marketload()

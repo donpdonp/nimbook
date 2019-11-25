@@ -43,10 +43,10 @@ proc markets(config: Config) =
           let ex = getCurrentException()
           echo &"{m} : {ex.msg}"
       var (ask_wins, bid_wins) = overlap(k, askbooks, bidbooks)
-      if len(ask_wins.books) > 0:
+      if len(ask_wins.books) > 0 or  len(bid_wins.books) > 0:
         echo &"**ASKWIN {k}: {ask_wins}"
-      if len(bid_wins.books) > 0:
         echo &"**BIDWIN {k}: {bid_wins}"
+      echo ""
 
 proc help_closest(word: string) =
   echo word, "not understood"

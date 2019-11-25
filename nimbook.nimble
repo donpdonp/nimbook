@@ -5,7 +5,7 @@ author        = "donpdonp"
 description   = "orderbook juggler"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["main"]
+bin           = @["nimbook"]
 skipDirs      = @["tests"]
 
 # Dependencies

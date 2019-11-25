@@ -21,17 +21,15 @@ proc markets(config: Config) =
   for k,v in matches.mpairs:
     if len(v) > 1:
       matches_count += 1
+      echo &"{k} {v}"
   echo &"{matches_count} matching markets!"
-  echo &""
+  marketsave(matches)
+  echo &"saved."
 
-# proc book(config: Config) =
-#   var matches: seq[MarketPair]
-  for k,v in matches.mpairs:
-    if len(v) > 1:
-      echo(&"{k} = {v}")
+proc compare(config: Config, mpair: (string, string), matchingMarkets: var seq[Market]) =
       var askbooks = Books(askbid: AskBid.ask)
       var bidbooks = Books(askbid: AskBid.bid)
-      for m in v.mitems:
+      for m in matchingMarkets.mitems:
         try:
           let (askoffers, bidoffers) = marketload(m, config)
           let askbook = Book(market: m, offers: askoffers)
@@ -42,11 +40,25 @@ proc markets(config: Config) =
         except:
           let ex = getCurrentException()
           echo &"{m} : {ex.msg}"
-      var (ask_wins, bid_wins) = overlap(k, askbooks, bidbooks)
+      var (ask_wins, bid_wins) = overlap(mpair, askbooks, bidbooks)
       if len(ask_wins.books) > 0 or  len(bid_wins.books) > 0:
-        echo &"**ASKWIN {k}: {ask_wins}"
-        echo &"**BIDWIN {k}: {bid_wins}"
+        echo &"**ASKWIN {mpair}: {ask_wins}"
+        echo &"**BIDWIN {mpair}: {bid_wins}"
       echo ""
+
+proc book(config: Config, base: string, quote: string) =
+  var matches = marketload()
+  echo &"loaded {len(matches)}"
+  let mpair = (base, quote)
+  compare(config, mpair, matches[mpair])
+
+proc bookall(config: Config) =
+  var matches = marketload()
+  echo &"loaded {len(matches)}"
+  for k,v in matches.mpairs:
+    if len(v) > 1:
+      echo(&"{k} = {v}")
+      compare(config, k, v)
 
 proc help_closest(word: string) =
   echo word, "not understood"
@@ -62,7 +74,8 @@ proc main(args: seq[string]) =
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)
-      #of "book": book(config)
+      of "book": book(config, args[1], args[2])
+      of "bookall": bookall(config)
       else: markets(config) #help_closest(args[0])
   else:
     help(config)

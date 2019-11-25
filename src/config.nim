@@ -1,4 +1,4 @@
-import yaml/serialization, streams
+import yaml/serialization, streams, tables
 import types
 
 type
@@ -12,3 +12,15 @@ proc load(filename: string): Config =
   load(stream, config)
   stream.close()
   config
+
+proc marketload(): Table[(string, string), seq[Market]] =
+  var mt: Table[(string, string), seq[Market]]
+  var stream = newFileStream("test.yaml")
+  load(stream, mt)
+  stream.close()
+  mt
+
+proc marketsave(mt: Table[(string, string), seq[Market]]) =
+  var stream = newFileStream("test.yaml", fmWrite)
+  dump(mt, stream)
+  stream.close()

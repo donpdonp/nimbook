@@ -67,7 +67,8 @@ proc help_closest(word: string) =
 
 proc help(config: Config) =
   echo "nimbook markets - find matching markets"
-  echo "nimbook book - compare orderbooks"
+  echo "nimbook book <base> <quote> - compare orderbooks"
+  echo "nimbook books - compare all orderbooks"
 
 proc main(args: seq[string]) =
   echo "nimbook v0.1"
@@ -77,8 +78,8 @@ proc main(args: seq[string]) =
     case args[0]
       of "markets": markets(config)
       of "book": book(config, args[1], args[2])
-      of "bookall": bookall(config)
-      else: markets(config) #help_closest(args[0])
+      of "books": bookall(config)
+      else: help(config) #help_closest(args[0])
   else:
     help(config)
 

@@ -15,12 +15,12 @@ proc load(filename: string): Config =
 
 proc marketload(): Table[(string, string), seq[Market]] =
   var mt: Table[(string, string), seq[Market]]
-  var stream = newFileStream("test.yaml")
+  var stream = newFileStream("all_markets.yaml")
   load(stream, mt)
   stream.close()
   mt
 
 proc marketsave(mt: Table[(string, string), seq[Market]]) =
-  var stream = newFileStream("test.yaml", fmWrite)
+  var stream = newFileStream("all_markets.yaml", fmWrite)
   dump(mt, stream)
   stream.close()

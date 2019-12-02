@@ -9,7 +9,7 @@ type
 proc load(filename: string): Config =
   var config: Config
   var stream = newFileStream(filename)
-  load(stream, config)
+  serialization.load(stream, config)
   stream.close()
   config
 

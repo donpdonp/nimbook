@@ -1,10 +1,13 @@
-include nimbook
+import types
+include nimbook, config
 
 proc t_1 =
+  var config = load("config.yaml")
+
   echo "test 1"
-  var asks = @[7,6,5]
-  var bids = @[2,3,4]
-  var selected = overlap(asks, bids[2])
-  doAssert 0 == len(selected)
+  var asks = Books(askbid: AskBid.ask)
+  var bids = Books(askbid: AskBid.bid)
+  var (askwins, bidwins) = overlap(("TKR1", "TKR2"), asks, bids)
+  doAssert 0 == 0
 
 t_1()

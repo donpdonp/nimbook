@@ -1,8 +1,8 @@
 # nim
-import strutils, tables, algorithm, sequtils
+import strformat, strutils, tables, algorithm, sequtils
 # nimble
 # local
-import types, net
+import types, net, config
 
 proc ticker_equivs(ticker: string): string
 

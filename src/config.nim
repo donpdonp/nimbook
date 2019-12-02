@@ -2,7 +2,7 @@ import yaml/serialization, streams, tables
 import types
 
 type
-  Config = object
+  Config* = object
     sources: seq[Source]
 
 

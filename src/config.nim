@@ -1,4 +1,4 @@
-import yaml/serialization, streams, tables
+import yaml/serialization, yaml/presenter, streams, tables, sequtils
 import types
 
 type
@@ -24,3 +24,7 @@ proc marketsave(mt: Table[(string, string), seq[Market]]) =
   var stream = newFileStream("all_markets.yaml", fmWrite)
   dump(mt, stream)
   stream.close()
+  var vals = filter(toSeq(mt.values()), proc(ms: seq[Market]): bool = len(ms) > 1 )
+  var jstream = newFileStream("all_markets.json", fmWrite)
+  dump(vals, jstream, options = defineOptions(style = psJson))
+  jstream.close()

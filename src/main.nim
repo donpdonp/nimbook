@@ -1,8 +1,7 @@
 # nim
 import os, strformat
 # local
-include config
-include nimbook
+include config, nimbook
 
 proc markets(config: Config) =
   var markets: seq[Market]

@@ -24,3 +24,9 @@ proc `$`*(bs: Books): string =
 
 proc best(book: Book): float =
   book.offers[0].quote_qty
+
+proc offers_better_than*(books: Books, quote: float): Books =
+  var newbooks = Books(askbid: books.askbid)
+  #for book in books:
+  newbooks
+

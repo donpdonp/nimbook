@@ -2,12 +2,12 @@ import types
 include nimbook, config
 
 proc setup_empty(): (Books, Books) =
-  var sourceA = Source(name:"Exchange A")
+  var sourceA = Source(name:"TestExchA")
   var marketA = Market(source: sourceA, base: "TKR1", quote: "TKR2")
   var offersA = @[Offer(base_qty: 1, quote_qty: 2)]
   var bookA = Book(market: marketA, offers: offersA)
 
-  var sourceB = Source(name:"Exchange B")
+  var sourceB = Source(name:"TestExchA")
   var marketB = Market(source: sourceB, base: "TKR1", quote: "TKR2")
   var offersB = @[Offer(base_qty: 1, quote_qty: 1.1)]
   var bookB = Book(market: marketB, offers: offersB)
@@ -17,12 +17,12 @@ proc setup_empty(): (Books, Books) =
   (asks,bids)
 
 proc setup_cross(): (Books, Books) =
-  var sourceA = Source(name:"Exchange A")
+  var sourceA = Source(name:"TestExchA")
   var marketA = Market(source: sourceA, base: "TKR1", quote: "TKR2")
   var offersA = @[Offer(base_qty: 1, quote_qty: 1.3)]
   var bookA = Book(market: marketA, offers: offersA)
 
-  var sourceB = Source(name:"Exchange B")
+  var sourceB = Source(name:"TestExchB")
   var marketB = Market(source: sourceB, base: "TKR1", quote: "TKR2")
   var offersB = @[Offer(base_qty: 1, quote_qty: 1.4)]
   var bookB = Book(market: marketB, offers: offersB)
@@ -43,5 +43,11 @@ proc t_2 =
   assert 1 == len(askwins.books)
   assert 1 == len(bidwins.books)
 
+proc t_3 =
+  var (asks,bids) = setup_cross()
+  var (askwins, bidwins) = overlap(("TKR1", "TKR2"), asks, bids)
+  opportunity(askwins, bidwins)
+
 t_1()
 t_2()
+t_3()

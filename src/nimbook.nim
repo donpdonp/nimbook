@@ -32,6 +32,14 @@ proc add_good_books(bqnames: (string, string), books: Books, best: Offer): seq[B
       wins.add(Book(market: b.market, offers: good_offers))
   wins
 
+proc opportunity(askbooks: Books, bidbooks: Books) =
+  # buy the asks, sell to the bids
+  for abook in askbooks.books:
+    for aof in abook.offers:
+      echo &"{abook.market} BUY {aof}"
+      # market simulation
+      var bids_to_buy = bidbooks.offers_better_than(aof.quote_qty)
+
 proc overlap(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   # phase 1: select all price-winning asks/bids
   var best_ask = bestprice(askbooks)

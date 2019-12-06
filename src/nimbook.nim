@@ -16,13 +16,16 @@ proc bestprice*(books: Books): Offer =
   winner
 
 proc trade*(askbooks: Books, bidbooks: Books) =
-  # buy the asks, sell to the bids
+  # buy from the asks
+  # sell to the bids
   for abook in askbooks.books:
+    var base_qty = 0f
     for aof in abook.offers:
       echo &"{abook.market} BUY {aof}"
       # market simulation
       var bids_to_buy = bidbooks.offers_better_than(aof.quote_qty, abook.market.quote)
-      echo bids_to_buy
+      base_qty += bids_to_buy.base_total()
+    echo &"{abook.market} TOTAL BUY {base_qty}"
 
 proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   var quote_symbol = bqnames[1]
@@ -55,7 +58,7 @@ proc marketload(market: var Market, config: config.Config): (seq[Offer], seq[Off
       echo &"{market.source.name},  Warning, bids are reversed {best_bid.quote_qty} < {worst_bid.quote_qty}"
   (asks, bids)
 
-proc markets_match(markets: seq[Market]): Table[(string, string), seq[Market]] =
+proc markets_match*(markets: seq[Market]): Table[(string, string), seq[Market]] =
   var winners: Table[(string, string), seq[Market]]
   for m1 in markets:
     let key_parts = m1.tickers()

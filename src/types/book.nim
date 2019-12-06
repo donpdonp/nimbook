@@ -39,3 +39,9 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
       wins.books.add(Book(market: b.market, offers: good_offers))
   wins
 
+proc base_total*(books: Books): float =
+  var total = 0f
+  for book in books.books:
+    for offer in book.offers:
+      total += offer.base_qty
+  total

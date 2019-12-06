@@ -1,35 +1,43 @@
-import types
-import nimbook, config
+import tables
+import types, nimbook, config
+
+proc quick_market(source_name: string, symbol_base: string, symbol_quote: string): Market =
+  var source = Source(name: source_name)
+  var market = Market(source: source, base: Ticker(symbol: symbol_base), quote: Ticker(symbol: symbol_quote))
+  market
 
 proc setup_empty(): (Books, Books) =
-  var sourceA = Source(name: "TestExchA")
-  var marketA = Market(source: sourceA, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
-  var offersA = @[Offer(base_qty: 1, quote_qty: 2)]
-  var bookA = Book(market: marketA, offers: offersA)
+  var marketA = quick_market("TestExchA", "TKR1", "TKR2")
+  var bookA = Book(market: marketA)
+  bookA.offers.add(@[Offer(base_qty: 1, quote_qty: 2)])
 
-  var sourceB = Source(name:"TestExchA")
-  var marketB = Market(source: sourceB, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
-  var offersB = @[Offer(base_qty: 1, quote_qty: 1.1)]
-  var bookB = Book(market: marketB, offers: offersB)
+  var marketB = quick_market("TestExchB", "TKR1", "TKR2")
+  var bookB = Book(market: marketB)
+  bookB.offers.add(@[Offer(base_qty: 1, quote_qty: 1.1)])
 
   var asks = Books(askbid: AskBid.ask, books: @[bookA])
   var bids = Books(askbid: AskBid.bid, books: @[bookB])
   (asks,bids)
 
 proc setup_cross(): (Books, Books) =
-  var sourceA = Source(name:"TestExchA")
-  var marketA = Market(source: sourceA, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
-  var offersA = @[Offer(base_qty: 1, quote_qty: 1.3)]
-  var bookA = Book(market: marketA, offers: offersA)
+  var marketA = quick_market("TestExchA", "TKR1", "TKR2")
+  var bookA = Book(market: marketA)
+  bookA.offers.add(@[Offer(base_qty: 1, quote_qty: 1.3)])
 
-  var sourceB = Source(name:"TestExchB")
-  var marketB = Market(source: sourceB, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
-  var offersB = @[Offer(base_qty: 1, quote_qty: 1.4)]
-  var bookB = Book(market: marketB, offers: offersB)
+  var marketB = quick_market("TestExchB", "TKR1", "TKR2")
+  var bookB = Book(market: marketB)
+  bookB.offers.add(@[Offer(base_qty: 1, quote_qty: 1.4)])
 
   var asks = Books(askbid: AskBid.ask, books: @[bookA])
   var bids = Books(askbid: AskBid.bid, books: @[bookB])
   (asks,bids)
+
+proc t_11 =
+  var markets: seq[Market]
+  markets.add(quick_market("TestExchA", "TKR1", "TKR2"))
+  markets.add(quick_market("TestExchB", "TKR1", "TKR2"))
+  var matches:Table[(string, string), seq[Market]] = markets_match(markets)
+  doAssert 1 == len(matches)
 
 proc t_1 =
   var (asks,bids) = setup_empty()
@@ -48,6 +56,7 @@ proc t_3 =
   var (askwins, bidwins) = overlap(("TKR1", "TKR2"), asks, bids)
   trade(askwins, bidwins)
 
+t_11()
 t_1()
 t_2()
 t_3()

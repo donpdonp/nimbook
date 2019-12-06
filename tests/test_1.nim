@@ -2,13 +2,13 @@ import types
 include nimbook, config
 
 proc setup_empty(): (Books, Books) =
-  var sourceA = Source(name:"TestExchA")
-  var marketA = Market(source: sourceA, base: "TKR1", quote: "TKR2")
+  var sourceA = Source(name: "TestExchA")
+  var marketA = Market(source: sourceA, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
   var offersA = @[Offer(base_qty: 1, quote_qty: 2)]
   var bookA = Book(market: marketA, offers: offersA)
 
   var sourceB = Source(name:"TestExchA")
-  var marketB = Market(source: sourceB, base: "TKR1", quote: "TKR2")
+  var marketB = Market(source: sourceB, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
   var offersB = @[Offer(base_qty: 1, quote_qty: 1.1)]
   var bookB = Book(market: marketB, offers: offersB)
 
@@ -18,12 +18,12 @@ proc setup_empty(): (Books, Books) =
 
 proc setup_cross(): (Books, Books) =
   var sourceA = Source(name:"TestExchA")
-  var marketA = Market(source: sourceA, base: "TKR1", quote: "TKR2")
+  var marketA = Market(source: sourceA, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
   var offersA = @[Offer(base_qty: 1, quote_qty: 1.3)]
   var bookA = Book(market: marketA, offers: offersA)
 
   var sourceB = Source(name:"TestExchB")
-  var marketB = Market(source: sourceB, base: "TKR1", quote: "TKR2")
+  var marketB = Market(source: sourceB, base: Ticker(symbol: "TKR1"), quote: Ticker(symbol: "TKR2"))
   var offersB = @[Offer(base_qty: 1, quote_qty: 1.4)]
   var bookB = Book(market: marketB, offers: offersB)
 

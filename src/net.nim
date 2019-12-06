@@ -25,9 +25,11 @@ proc jqArrayToSeqFloat(jqarray: libjq.jq_Value): seq[seq[float]] =
 proc jqArrayAddSeqMarket(markets: var seq[Market], jqarray: libjq.jq_Value, source: Source) =
   for idx in 0..libjq.jv_array_length(libjq.jv_copy(jqarray))-1:
     var element = libjq.jv_array_get(libjq.jv_copy(jqarray), idx)
+    var base_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0))
+    var quote_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1))
     var nim_elements = Market(source: source,
-      base: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0)),
-      quote: $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1)))
+      base: Ticker(symbol: base_symbol),
+      quote: Ticker(symbol: quote_symbol))
     markets.add(nim_elements)
 
 proc jqrun(json: string, jq_code: string): libjq.jq_Value =

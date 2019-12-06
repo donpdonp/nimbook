@@ -25,8 +25,17 @@ proc `$`*(bs: Books): string =
 proc best(book: Book): float =
   book.offers[0].quote_qty
 
-proc offers_better_than*(books: Books, quote: float): Books =
-  var newbooks = Books(askbid: books.askbid)
-  #for book in books:
-  newbooks
+proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
+  var wins = Books(askbid: books.askbid)
+  var offer_filter:proc (o: Offer): bool
+  for b in books.books:
+    var flipped = ticker != b.market.quote.normal();
+    if books.askbid == AskBid.ask:
+      offer_filter = proc (o: Offer): bool = o.quote(flipped) < price
+    else:
+      offer_filter = proc (o: Offer): bool = o.quote(flipped) > price
+    let good_offers = b.offers.filter(offer_filter)
+    if len(good_offers) > 0:
+      wins.books.add(Book(market: b.market, offers: good_offers))
+  wins
 

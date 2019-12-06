@@ -4,7 +4,7 @@ import strformat, strutils, tables
 # local
 import types, net, config
 
-proc bestprice(books: Books): Offer =
+proc bestprice*(books: Books): Offer =
   var last_best:float = if books.askbid == AskBid.ask: high(float) else: 0
   var winner:Offer
   for b in books.books:
@@ -15,16 +15,16 @@ proc bestprice(books: Books): Offer =
         winner = best
   winner
 
-
-proc opportunity(askbooks: Books, bidbooks: Books) =
+proc trade*(askbooks: Books, bidbooks: Books) =
   # buy the asks, sell to the bids
   for abook in askbooks.books:
     for aof in abook.offers:
       echo &"{abook.market} BUY {aof}"
       # market simulation
       var bids_to_buy = bidbooks.offers_better_than(aof.quote_qty, abook.market.quote)
+      echo bids_to_buy
 
-proc overlap(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
+proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   var quote_symbol = bqnames[1]
   # phase 1: select all price-winning asks/bids
   var best_ask = bestprice(askbooks)

@@ -1,5 +1,5 @@
 import types
-include nimbook, config
+import nimbook, config
 
 proc setup_empty(): (Books, Books) =
   var sourceA = Source(name: "TestExchA")
@@ -33,7 +33,7 @@ proc setup_cross(): (Books, Books) =
 
 proc t_1 =
   var (asks,bids) = setup_empty()
-  var (askwins, bidwins) = overlap(("TKR1", "TKR2"), asks, bids)
+  var (askwins, bidwins) = nimbook.overlap(("TKR1", "TKR2"), asks, bids)
   doAssert 0 == len(askwins.books)
   doAssert 0 == len(bidwins.books)
 
@@ -46,7 +46,7 @@ proc t_2 =
 proc t_3 =
   var (asks,bids) = setup_cross()
   var (askwins, bidwins) = overlap(("TKR1", "TKR2"), asks, bids)
-  opportunity(askwins, bidwins)
+  trade(askwins, bidwins)
 
 t_1()
 t_2()

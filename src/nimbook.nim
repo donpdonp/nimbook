@@ -16,16 +16,24 @@ proc bestprice*(books: Books): Offer =
   winner
 
 proc trade*(askbooks: Books, bidbooks: Books) =
-  # buy from the asks
-  # sell to the bids
+  # Buy from the asks
+  var base_inventory = askbooks.base_total()
+  echo &"base_inventory {base_inventory}"
+  # Sell to the bids
   for abook in askbooks.books:
-    var base_qty = 0f
+    var sell_total = 0f
     for aof in abook.offers:
-      echo &"{abook.market} BUY {aof}"
-      # market simulation
-      var bids_to_buy = bidbooks.offers_better_than(aof.quote_qty, abook.market.quote)
-      base_qty += bids_to_buy.base_total()
-    echo &"{abook.market} TOTAL BUY {base_qty}"
+      echo &"{abook.market} SELL to bid {aof}"
+      var bids_to_sell = bidbooks.offers_better_than(aof.quote_qty, abook.market.quote)
+      var sell_qty = bids_to_sell.base_total()
+      echo &"sell_qty {sell_qty}"
+      let sell_tmp_total = sell_total + sell_qty
+      if sell_tmp_total > base_inventory:
+        sell_qty = base_inventory - sell_total
+        echo &"Ran out of ask inventory. capped sale to qty {sell_qty}"
+      sell_total += sell_qty
+
+    echo &"{abook.market} TOTAL SELL {sell_total} REMAINING BASE INV {base_inventory - sell_total}"
 
 proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   var quote_symbol = bqnames[1]
@@ -42,7 +50,7 @@ proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Boo
   # phase 2: spend asks on bids todo
   (askwins, bidwins)
 
-proc marketload(market: var Market, config: config.Config): (seq[Offer], seq[Offer]) =
+proc marketfetch*(market: var Market, config: config.Config): (seq[Offer], seq[Offer]) =
   var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
   echo url
   var (asks, bids) = marketbooksload(market.source, url)

@@ -26,7 +26,7 @@ proc setup_cross(): (Books, Books) =
 
   var marketB = quick_market("TestExchB", "TKR1", "TKR2")
   var bookB = Book(market: marketB)
-  bookB.offers.add(@[Offer(base_qty: 1, quote_qty: 1.4)])
+  bookB.offers.add(@[Offer(base_qty: 2.01, quote_qty: 1.4)])
 
   var asks = Books(askbid: AskBid.ask, books: @[bookA])
   var bids = Books(askbid: AskBid.bid, books: @[bookB])

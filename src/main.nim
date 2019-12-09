@@ -1,14 +1,14 @@
 # nim
-import os, strformat
+import os, strformat, tables
 # local
-include config, nimbook
+import config, nimbook, net, types
 
-proc markets(config: Config) =
+proc markets(config: config.Config) =
   var markets: seq[Market]
 
   for source in config.sources:
     try:
-      var source_markets = marketlistload(source.market_list, source)
+      var source_markets = net.marketlistload(source.market_list, source)
       markets.add(source_markets)
       echo &"{source.name} loaded {len(source_markets)} markets"
     except:
@@ -22,7 +22,7 @@ proc markets(config: Config) =
       matches_count += 1
       echo &"{k} {v}"
   echo &"{matches_count} matching markets!"
-  marketsave(matches)
+  config.marketsave(matches)
   echo &"saved."
 
 proc compare(config: Config, mpair: (string, string), matchingMarkets: var seq[Market]) =
@@ -30,7 +30,7 @@ proc compare(config: Config, mpair: (string, string), matchingMarkets: var seq[M
   var bidbooks = Books(askbid: AskBid.bid)
   for m in matchingMarkets.mitems:
     try:
-      let (askoffers, bidoffers) = marketload(m, config)
+      let (askoffers, bidoffers) = marketfetch(m, config)
       let askbook = Book(market: m, offers: askoffers)
       let bidbook = Book(market: m, offers: bidoffers)
       askbooks.books.add(askbook)
@@ -43,10 +43,11 @@ proc compare(config: Config, mpair: (string, string), matchingMarkets: var seq[M
   if len(ask_wins.books) > 0 or  len(bid_wins.books) > 0:
     echo &"**ASKWIN {mpair}: {ask_wins}"
     echo &"**BIDWIN {mpair}: {bid_wins}"
+    trade(askbooks, bidbooks)
   echo ""
 
 proc book(config: Config, base: string, quote: string) =
-  var matches = marketload()
+  var matches = config.marketload()
   echo &"loaded {len(matches)}"
   let mpair = (base, quote)
   var mmatches = matches[mpair]
@@ -54,7 +55,7 @@ proc book(config: Config, base: string, quote: string) =
   compare(config, mpair, mmatches)
 
 proc bookall(config: Config) =
-  var matches = marketload()
+  var matches = config.marketload()
   echo &"loaded {len(matches)}"
   for k,v in matches.mpairs:
     if len(v) > 1:
@@ -71,7 +72,7 @@ proc help(config: Config) =
 
 proc main(args: seq[string]) =
   echo "nimbook v0.1"
-  var config = load("config.yaml")
+  var config = config.load("config.yaml")
 
   if len(args) > 0:
     case args[0]

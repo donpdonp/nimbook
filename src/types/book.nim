@@ -20,7 +20,7 @@ proc `$`*(b: Book): string =
       b.offers[highidx].`quote$` else: "")
 
 proc `$`*(bs: Books): string =
-  bs.askbid.`$` & " " & bs.books.map(proc (b:Book): string = b.`$`).join(" ")
+  len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")
 
 proc best(book: Book): float =
   book.offers[0].quote_qty
@@ -30,10 +30,11 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var offer_filter:proc (o: Offer): bool
   for b in books.books:
     var ticker_side = b.market.ticker_side(ticker)
-    echo &"{books.askbid} {b.market} BetterThan:{price}{ticker} ticker_side:{ticker_side} {ticker.normal}<=>{b.market.quote.normal()}"
+    var compare = if ticker_side == TickerSide.Quote: "" else: "FLIPPED"
+    echo &"{books.askbid} from {b.market} BetterThan:{price}/{ticker}/{ticker_side} {ticker.normal} {compare} {b.market.quote.normal}"
     if books.askbid == AskBid.ask:
       offer_filter = proc (o: Offer): bool =
-        echo &"unflipped{o.quote(ticker_side.other_side())} {o.quote(ticker_side)} < {price}"
+        echo &"{o.quote(ticker_side.other_side())}{ticker_side.other_side()} {o.quote(ticker_side)}{ticker_side} < {price}{ticker}"
         o.quote(ticker_side) < price
     else:
       offer_filter = proc (o: Offer): bool =

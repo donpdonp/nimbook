@@ -4,16 +4,26 @@ import strformat, strutils, tables
 # local
 import types, net, config
 
-proc bestprice*(books: Books): Offer =
+proc bestprice*(books: Books, quote_ticker: Ticker): Offer =
+  echo &"Bestprice quoted in {quote_ticker} for {books}"
   var last_best:float = if books.askbid == AskBid.ask: high(float) else: 0
-  var winner:Offer
+  var best_offer:Offer
   for b in books.books:
+    var quote_side = b.market.ticker_side(quote_ticker)
     if len(b.offers) > 0:
       let best = b.offers[0]
-      if (books.askbid == AskBid.ask and best.quote_qty < last_best) or (best.quote_qty > last_best):
-        last_best = best.quote_qty
-        winner = best
-  winner
+      let best_quote_qty = best.quote(quote_side)
+      echo &"comparing best_quote_qty {best_quote_qty} to last_best {last_best}"
+      if books.askbid == AskBid.ask:
+        if best_quote_qty < last_best:
+          last_best = best_quote_qty
+          best_offer = best
+      else:
+        if best_quote_qty > last_best:
+          last_best = best_quote_qty
+          best_offer = best
+    echo &"bestprice quoted in {quote_ticker} for {b} quote_side={quote_side} best_offer {best_offer}"
+  best_offer
 
 proc trade*(askbooks: Books, bidbooks: Books) =
   # Buy from the asks
@@ -37,10 +47,11 @@ proc trade*(askbooks: Books, bidbooks: Books) =
 
 proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   var quote_symbol = bqnames[1]
+  var quote_ticker = Ticker(symbol: quote_symbol)
   # all price-winning asks/bids
-  var best_ask = bestprice(askbooks)
-  var best_bid = bestprice(bidbooks)
-  var askwins = askbooks.offers_better_than(best_bid.quote_qty, Ticker(symbol: quote_symbol))
+  var best_ask = bestprice(askbooks, quote_ticker)
+  var best_bid = bestprice(bidbooks, quote_ticker)
+  var askwins = askbooks.offers_better_than(best_bid.quote_qty, quote_ticker)
   var bidwins = bidbooks.offers_better_than(best_ask.quote_qty, Ticker(symbol: quote_symbol))
   if best_ask.quote_qty < best_bid.quote_qty:
     echo &"{bqnames} best_ask {best_ask} best_bid {best_bid} CROSSING"
@@ -53,12 +64,12 @@ proc marketfetch*(market: var Market, config: config.Config): (seq[Offer], seq[O
   var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
   echo url
   var (asks, bids) = marketbooksload(market.source, url)
-  if len(asks) > 1:
+  if len(asks) > 0:
     let best_ask = asks[low(asks)]
     let worst_ask = asks[high(asks)]
     if best_ask.quote_qty > worst_ask.quote_qty:
       echo &"{market.source.name}, Warning, asks are reverse-order {best_ask.quote_qty} > {worst_ask.quote_qty}"
-  if len(bids) > 1:
+  if len(bids) > 0:
     let best_bid = bids[low(bids)]
     let worst_bid = bids[high(bids)]
     if best_bid.quote_qty < worst_bid.quote_qty:

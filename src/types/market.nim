@@ -20,7 +20,7 @@ proc tickers*(market: Market): (Ticker, Ticker) =
     parts = (quote_normal, base_normal)
   parts
 
-proc ticker_side(market: Market, ticker: Ticker): TickerSide =
+proc ticker_side*(market: Market, ticker: Ticker): TickerSide =
   if ticker == market.base:
     return TickerSide.Base
   if ticker == market.quote:

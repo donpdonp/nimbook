@@ -37,7 +37,7 @@ proc trade*(askbooks: Books, bidbooks: Books) =
 
 proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
   var quote_symbol = bqnames[1]
-  # phase 1: select all price-winning asks/bids
+  # all price-winning asks/bids
   var best_ask = bestprice(askbooks)
   var best_bid = bestprice(bidbooks)
   var askwins = askbooks.offers_better_than(best_bid.quote_qty, Ticker(symbol: quote_symbol))
@@ -46,8 +46,7 @@ proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Boo
     echo &"{bqnames} best_ask {best_ask} best_bid {best_bid} CROSSING"
   else:
     echo &"{bqnames} best_ask {best_ask.quote_qty} | {best_bid.quote_qty} best_bid no opportunity"
-
-  # phase 2: spend asks on bids todo
+  echo &"askwins {ask_wins.books.len()} bid_wins {bid_wins.books.len()}"
   (askwins, bidwins)
 
 proc marketfetch*(market: var Market, config: config.Config): (seq[Offer], seq[Offer]) =

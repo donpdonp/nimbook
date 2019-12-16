@@ -40,7 +40,7 @@ proc compare(config: Config, mpair: (string, string), matchingMarkets: var seq[M
       let ex = getCurrentException()
       echo &"{m} : {ex.msg}"
   var (ask_wins, bid_wins) = overlap(mpair, askbooks, bidbooks)
-  if len(ask_wins.books) > 0 or  len(bid_wins.books) > 0:
+  if ask_wins.books.len() > 0 or  bid_wins.books.len() > 0:
     echo &"**ASKWIN {mpair}: {ask_wins}"
     echo &"**BIDWIN {mpair}: {bid_wins}"
     trade(askbooks, bidbooks)

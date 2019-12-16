@@ -1,4 +1,4 @@
-import sequtils, strutils
+import sequtils, strutils, strformat
 
 type
   AskBid* = enum ask, bid
@@ -29,11 +29,16 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
   var offer_filter:proc (o: Offer): bool
   for b in books.books:
-    var flipped = ticker != b.market.quote.normal();
+    var ticker_side = b.market.ticker_side(ticker)
+    echo &"{books.askbid} {b.market} BetterThan:{price}{ticker} ticker_side:{ticker_side} {ticker.normal}<=>{b.market.quote.normal()}"
     if books.askbid == AskBid.ask:
-      offer_filter = proc (o: Offer): bool = o.quote(flipped) < price
+      offer_filter = proc (o: Offer): bool =
+        echo &"unflipped{o.quote(ticker_side.other_side())} {o.quote(ticker_side)} < {price}"
+        o.quote(ticker_side) < price
     else:
-      offer_filter = proc (o: Offer): bool = o.quote(flipped) > price
+      offer_filter = proc (o: Offer): bool =
+        echo &"{o.quote(ticker_side)} > {price}"
+        o.quote(ticker_side) > price
     let good_offers = b.offers.filter(offer_filter)
     if len(good_offers) > 0:
       wins.books.add(Book(market: b.market, offers: good_offers))

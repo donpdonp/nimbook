@@ -1,5 +1,6 @@
-include types/ticker,
-        types/offer,
+include
+        types/ticker,
         types/source,
         types/market,
+        types/offer,
         types/book

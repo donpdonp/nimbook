@@ -18,7 +18,7 @@ proc normal*(ticker: Ticker): Ticker =
 proc `==`*(ticker_a: Ticker, ticker_b: Ticker): bool =
   ticker_a.normal().symbol == ticker_b.normal().symbol
 
-proc other_side(ticker_side: TickerSide): TickerSide =
+proc other_side*(ticker_side: TickerSide): TickerSide =
   if ticker_side == TickerSide.Base:
     return TickerSide.Quote
   if ticker_side == TickerSide.Quote:

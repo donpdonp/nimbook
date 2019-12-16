@@ -57,12 +57,12 @@ proc marketfetch*(market: var Market, config: config.Config): (seq[Offer], seq[O
     let best_ask = asks[low(asks)]
     let worst_ask = asks[high(asks)]
     if best_ask.quote_qty > worst_ask.quote_qty:
-      echo &"{market.source.name}, Warning, asks are reversed {best_ask.quote_qty} > {worst_ask.quote_qty}"
+      echo &"{market.source.name}, Warning, asks are reverse-order {best_ask.quote_qty} > {worst_ask.quote_qty}"
   if len(bids) > 1:
     let best_bid = bids[low(bids)]
     let worst_bid = bids[high(bids)]
     if best_bid.quote_qty < worst_bid.quote_qty:
-      echo &"{market.source.name},  Warning, bids are reversed {best_bid.quote_qty} < {worst_bid.quote_qty}"
+      echo &"{market.source.name},  Warning, bids are reverse-order {best_bid.quote_qty} < {worst_bid.quote_qty}"
   (asks, bids)
 
 proc markets_match*(markets: seq[Market]): Table[(string, string), seq[Market]] =

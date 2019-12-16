@@ -13,7 +13,7 @@ proc tickers*(market: Market): (Ticker, Ticker) =
   var base_normal = market.base.normal
   var quote_normal = market.quote.normal
   var sorted_symbols = sorted([base_normal.symbol, quote_normal.symbol])
-  var parts:(Ticker, Ticker)
+  var parts: (Ticker, Ticker)
   if base_normal.symbol == sorted_symbols[0]:
     parts = (base_normal, quote_normal)
   else:

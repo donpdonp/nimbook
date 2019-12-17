@@ -15,7 +15,7 @@ proc markets(config: config.Config) =
       let ex = getCurrentException()
       echo &"{source.name} : {ex.msg}"
 
-  var matches:Table[(string, string), seq[Market]] = markets_match(markets)
+  var matches:Table[(string, string), seq[Market]] = marketpairs_match(markets)
   var matches_count = 0
   for k,v in matches.mpairs:
     if len(v) > 1:
@@ -25,24 +25,24 @@ proc markets(config: config.Config) =
   config.marketsave(matches)
   echo &"saved."
 
-proc compare(config: Config, mpair: (string, string), matchingMarkets: var seq[Market]) =
+proc compare(config: Config, ticker_pair: (string, string), matchingMarkets: var seq[Market]) =
   var askbooks = Books(askbid: AskBid.ask)
   var bidbooks = Books(askbid: AskBid.bid)
-  for m in matchingMarkets.mitems:
+  for market in matchingMarkets.mitems:
     try:
-      let (askoffers, bidoffers) = marketfetch(m, config)
-      let askbook = Book(market: m, offers: askoffers)
-      let bidbook = Book(market: m, offers: bidoffers)
+      let (askoffers, bidoffers) = marketfetch(market)
+      let askbook = Book(market: market, offers: askoffers)
+      let bidbook = Book(market: market, offers: bidoffers)
       askbooks.books.add(askbook)
       bidbooks.books.add(bidbook)
-      echo &"{m} asks {askbook} bids {bidbook}"
+      echo &"{market} asks {askbook} bids {bidbook}"
     except:
       let ex = getCurrentException()
-      echo &"{m} : {ex.msg}"
-  var (ask_wins, bid_wins) = overlap(mpair, askbooks, bidbooks)
+      echo &"{market} : {ex.msg}"
+  var (ask_wins, bid_wins) = overlap(ticker_pair, askbooks, bidbooks)
   if ask_wins.books.len() > 0 or  bid_wins.books.len() > 0:
-    echo &"**ASKWIN {mpair}: {ask_wins}"
-    echo &"**BIDWIN {mpair}: {bid_wins}"
+    echo &"**ASKWIN {ticker_pair}: {ask_wins}"
+    echo &"**BIDWIN {ticker_pair}: {bid_wins}"
     trade(askbooks, bidbooks)
   echo ""
 

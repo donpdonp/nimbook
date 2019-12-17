@@ -60,7 +60,7 @@ proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Boo
   echo &"askwins {ask_wins.books.len()} bid_wins {bid_wins.books.len()}"
   (askwins, bidwins)
 
-proc marketfetch*(market: var Market, config: config.Config): (seq[Offer], seq[Offer]) =
+proc marketfetch*(market: var Market): (seq[Offer], seq[Offer]) =
   var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
   echo url
   var (asks, bids) = marketbooksload(market.source, url)
@@ -76,7 +76,7 @@ proc marketfetch*(market: var Market, config: config.Config): (seq[Offer], seq[O
       echo &"{market.source.name},  Warning, bids are reverse-order {best_bid.quote_qty} < {worst_bid.quote_qty}"
   (asks, bids)
 
-proc markets_match*(markets: seq[Market]): Table[(string, string), seq[Market]] =
+proc marketpairs_match*(markets: seq[Market]): Table[(string, string), seq[Market]] =
   var winners: Table[(string, string), seq[Market]]
   for m1 in markets:
     let key_parts = m1.tickers()

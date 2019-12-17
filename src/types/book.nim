@@ -31,7 +31,7 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   for b in books.books:
     var ticker_side = b.market.ticker_side(ticker)
     var compare = if ticker_side == TickerSide.Quote: "" else: "FLIPPED"
-    echo &"{books.askbid} from {b.market} BetterThan:{price}/{ticker}/{ticker_side} {ticker.normal} {compare} {b.market.quote.normal}"
+    echo &"{books.askbid} from {b.market} BetterThan:{price}/{ticker}/{ticker_side} {ticker.normal}(ticker.normal) {compare} {b.market.quote.normal}(market.quote.normal)"
     if books.askbid == AskBid.ask:
       offer_filter = proc (o: Offer): bool =
         echo &"{o.quote(ticker_side.other_side())}{ticker_side.other_side()} {o.quote(ticker_side)}{ticker_side} < {price}{ticker}"

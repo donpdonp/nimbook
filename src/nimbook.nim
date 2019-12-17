@@ -42,14 +42,13 @@ proc trade*(askbooks: Books, bidbooks: Books) =
 
     echo &"{abook.market} TOTAL SELL {sell_total} REMAINING BASE INV {base_inventory - sell_total}"
 
-proc overlap*(bqnames: (string, string), askbooks: Books, bidbooks: Books): (Books, Books) =
-  var quote_symbol = bqnames[1]
-  var quote_ticker = Ticker(symbol: quote_symbol)
+proc overlap*(bqnames: (Ticker, Ticker), askbooks: Books, bidbooks: Books): (Books, Books) =
+  var quote_ticker = bqnames[1]
   # all price-winning asks/bids
   var best_ask = bestprice(askbooks, quote_ticker)
   var best_bid = bestprice(bidbooks, quote_ticker)
   var askwins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
-  var bidwins = bidbooks.offers_better_than(best_ask.quote, Ticker(symbol: quote_symbol))
+  var bidwins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
   if best_ask.quote < best_bid.quote:
     echo &"{bqnames} best_ask {best_ask} best_bid {best_bid} CROSSING"
   else:
@@ -82,10 +81,7 @@ proc marketpairs_match*(markets: seq[Market]): Table[(string, string), seq[Marke
       winners[key].add(m1)
   winners
 
-proc swapoffer(offer: Offer): Offer =
-  offer
-
 proc swapsides*(asks: seq[Offer], bids: seq[Offer]): (seq[Offer], seq[Offer]) =
-  var swapped_asks = bids.map(swapoffer)
-  var swapped_bids = asks.map(swapoffer)
+  var swapped_asks = bids.map(proc (o:Offer): Offer = o.swap())
+  var swapped_bids = asks.map(proc (o:Offer): Offer = o.swap())
   (swapped_asks, swapped_bids)

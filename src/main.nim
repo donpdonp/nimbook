@@ -25,13 +25,15 @@ proc markets(config: config.Config) =
   config.marketsave(matches)
   echo &"saved."
 
-proc compare(config: Config, ticker_pair: (string, string), matchingMarkets: var seq[Market]) =
+proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var seq[Market]) =
   var askbooks = Books(askbid: AskBid.ask)
   var bidbooks = Books(askbid: AskBid.bid)
   for market in matchingMarkets.mitems:
     try:
       var (askoffers, bidoffers) = marketfetch(market)
+      echo &"swap check {ticker_pair} vs {market.base}/{market.quote} = {market.ticker_pair_swapped(ticker_pair)}"
       if market.ticker_pair_swapped(ticker_pair):
+        echo "Swapping sides!"
         (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
       let askbook = Book(market: market, offers: askoffers)
       let bidbook = Book(market: market, offers: bidoffers)
@@ -51,8 +53,8 @@ proc compare(config: Config, ticker_pair: (string, string), matchingMarkets: var
 proc book(config: Config, base: string, quote: string) =
   var matches = config.marketload()
   echo &"loaded {len(matches)}"
-  let mpair = (base, quote)
-  var mmatches = matches[mpair]
+  let mpair = (Ticker(symbol:base), Ticker(symbol:quote))
+  var mmatches = matches[(mpair[0].symbol, mpair[1].symbol)]
   echo &"{mpair} {mmatches}"
   compare(config, mpair, mmatches)
 
@@ -62,7 +64,7 @@ proc bookall(config: Config) =
   for k,v in matches.mpairs:
     if len(v) > 1:
       echo(&"{k} = {v}")
-      compare(config, k, v)
+      compare(config, (Ticker(symbol:k[0]), Ticker(symbol:k[1])), v)
 
 proc help_closest(word: string) =
   echo word, "not understood"

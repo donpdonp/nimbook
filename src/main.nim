@@ -35,6 +35,9 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       if market.ticker_pair_swapped(ticker_pair):
         echo "Swapping sides!"
         (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
+        let market_temp = market.base
+        market.base = market.quote
+        market.quote = market_temp
       let askbook = Book(market: market, offers: askoffers)
       let bidbook = Book(market: market, offers: bidoffers)
       askbooks.books.add(askbook)

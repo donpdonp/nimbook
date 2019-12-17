@@ -30,7 +30,9 @@ proc compare(config: Config, ticker_pair: (string, string), matchingMarkets: var
   var bidbooks = Books(askbid: AskBid.bid)
   for market in matchingMarkets.mitems:
     try:
-      let (askoffers, bidoffers) = marketfetch(market)
+      var (askoffers, bidoffers) = marketfetch(market)
+      if market.ticker_pair_swapped(ticker_pair):
+        (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
       let askbook = Book(market: market, offers: askoffers)
       let bidbook = Book(market: market, offers: bidoffers)
       askbooks.books.add(askbook)

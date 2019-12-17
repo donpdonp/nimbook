@@ -1,5 +1,5 @@
 # nim
-import httpClient
+import httpClient, strutils
 # nimble
 import libjq
 # local
@@ -63,20 +63,21 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     echo "marketlistload jq compile fail ", jqurl.jq
   markets
 
-proc marketbooksload*(source: Source, url: string): (seq[Offer], seq[Offer]) =
+proc marketbooksload*(market: Market): (seq[Offer], seq[Offer]) =
+  var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
   let json:string = client.getContent(url)
 
   var bids:seq[Offer]
-  let jq_bids = jqrun(json, source.jq.bids)
+  let jq_bids = jqrun(json, market.source.jq.bids)
   var bid_floats = jqArrayToSeqFloat(jq_bids)
   libjq.jv_free(jq_bids)
   for bfloat in bid_floats:
-    bids.add(Offer(base_qty: bfloat[0], quote_qty: bfloat[1]))
+    bids.add(Offer(base_qty: bfloat[0], quote: bfloat[1]))
 
   var asks:seq[Offer]
-  let jq_asks = jqrun(json, source.jq.asks)
+  let jq_asks = jqrun(json, market.source.jq.asks)
   var ask_floats = jqArrayToSeqFloat(jq_asks)
   libjq.jv_free(jq_asks)
   for afloat in ask_floats:
-    asks.add(Offer(base_qty: afloat[0], quote_qty: afloat[1]))
+    asks.add(Offer(base_qty: afloat[0], quote: afloat[1]))
   (asks, bids)

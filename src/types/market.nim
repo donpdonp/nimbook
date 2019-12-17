@@ -26,3 +26,6 @@ proc ticker_side*(market: Market, ticker: Ticker): TickerSide =
   if ticker == market.quote:
     return TickerSide.Quote
   raise newException(OSError, "bad ticker")
+
+proc ticker_pair_swapped*(market: Market, ticker_pair: (string, string)): bool =
+  ticker_pair[0] == market.quote.symbol and ticker_pair[1] == market.base.symbol

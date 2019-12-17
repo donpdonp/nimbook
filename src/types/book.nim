@@ -23,7 +23,7 @@ proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")
 
 proc best(book: Book): float =
-  book.offers[0].quote_qty
+  book.offers[0].quote
 
 proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
@@ -34,12 +34,12 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
     echo &"{books.askbid} from {b.market} BetterThan:{price}/{ticker}/{ticker_side} {ticker.normal}(ticker.normal) {compare} {b.market.quote.normal}(market.quote.normal)"
     if books.askbid == AskBid.ask:
       offer_filter = proc (o: Offer): bool =
-        echo &"{o.quote(ticker_side.other_side())}{ticker_side.other_side()} {o.quote(ticker_side)}{ticker_side} < {price}{ticker}"
-        o.quote(ticker_side) < price
+        echo &"{o.quote_side(ticker_side.other_side())}{ticker_side.other_side()} {o.quote_side(ticker_side)}{ticker_side} < {price}{ticker}"
+        o.quote_side(ticker_side).quote < price
     else:
       offer_filter = proc (o: Offer): bool =
-        echo &"{o.quote(ticker_side)} > {price}"
-        o.quote(ticker_side) > price
+        echo &"{o.quote_side(ticker_side)} > {price}"
+        o.quote_side(ticker_side).quote > price
     let good_offers = b.offers.filter(offer_filter)
     if len(good_offers) > 0:
       wins.books.add(Book(market: b.market, offers: good_offers))

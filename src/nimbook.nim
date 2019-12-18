@@ -5,21 +5,18 @@ import strformat, strutils, tables, sequtils
 import types, net
 
 proc bestprice*(books: Books, quote_ticker: Ticker): Offer =
-  echo &"Bestprice quoted in {quote_ticker} for {books}"
   let best_side_price:float = if books.askbid == AskBid.ask: high(float) else: 0
   var best_offer = Offer(base_qty:0, quote: best_side_price)
   for b in books.books:
     var quote_side = b.market.ticker_side(quote_ticker)
     if len(b.offers) > 0:
       let market_best = b.offers[0].quote_side(quote_side)
-      echo &"comparing best_offer {best_offer} to market_best {market_best}"
       if books.askbid == AskBid.ask:
         if market_best.quote < best_offer.quote:
           best_offer = market_best
       else:
         if market_best.quote > best_offer.quote:
           best_offer = market_best
-    echo &"bestprice quoted in {quote_ticker} for {b} quote_side={quote_side} best_offer {best_offer}"
   best_offer
 
 proc trade*(askbooks: Books, bidbooks: Books) =

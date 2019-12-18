@@ -33,7 +33,6 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       var (askoffers, bidoffers) = marketfetch(market)
       echo &"swap check {ticker_pair} vs {market.base}/{market.quote} = {market.ticker_pair_swapped(ticker_pair)}"
       if market.ticker_pair_swapped(ticker_pair):
-        echo "Swapping sides!"
         (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
         let market_temp = market.base
         market.base = market.quote

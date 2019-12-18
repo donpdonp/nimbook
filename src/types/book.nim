@@ -27,18 +27,18 @@ proc best(book: Book): float =
 
 proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
-  var offer_filter:proc (o: Offer): bool
   for b in books.books:
-    var ticker_side = b.market.ticker_side(ticker)
-    if ticker_side == TickerSide.Base:
-      raise newException(OSError, "offers_better_than got wrong ticker for this market")
-    if books.askbid == AskBid.ask:
-      offer_filter = proc (o: Offer): bool = o.quote < price
+    if ticker == b.market.quote:
+      var offer_filter:proc (o: Offer): bool
+      if books.askbid == AskBid.ask:
+        offer_filter = proc (o: Offer): bool = o.quote < price
+      else:
+        offer_filter = proc (o: Offer): bool = o.quote > price
+      let good_offers = b.offers.filter(offer_filter)
+      if len(good_offers) > 0:
+        wins.books.add(Book(market: b.market, offers: good_offers))
     else:
-      offer_filter = proc (o: Offer): bool = o.quote > price
-    let good_offers = b.offers.filter(offer_filter)
-    if len(good_offers) > 0:
-      wins.books.add(Book(market: b.market, offers: good_offers))
+      raise newException(OSError, &"offers_better_than got wrong ticker {ticker} for this market {b.market}")
   wins
 
 proc base_total*(books: Books): float =

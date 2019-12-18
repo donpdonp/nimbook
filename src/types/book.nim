@@ -11,8 +11,8 @@ type
     askbid*: AskBid
     books*: seq[Book]
 
-proc best(book: Book): float =
-  book.offers[0].quote
+proc best*(book: Book): Offer =
+  book.offers[0]
 
 proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
@@ -50,7 +50,7 @@ proc `$`*(b: Book): string =
      (if len(b.offers) > 0:
       b.offers[lowidx].`quote$` &
       " - " &
-      b.offers[highidx].`quote$` else: "")
+      b.offers[highidx].`quote$` else: "(empty)")
 
 proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")

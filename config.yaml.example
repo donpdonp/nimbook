@@ -24,10 +24,10 @@ sources:
     jq:
       bids: >-
         .data.orderbook.bids |
-        map([(.amount | tonumber), (.price | tonumber)])
+        if length > 0 then map([(.amount | tonumber), (.price | tonumber)]) else [] end
       asks: >-
         .data.orderbook.asks |
-        map([(.amount | tonumber), (.price | tonumber)])
+        if length > 0 then map([(.amount | tonumber), (.price | tonumber)]) else [] end
 
   -
     name: ddex-v3

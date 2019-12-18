@@ -41,7 +41,7 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       let bidbook = Book(market: market, offers: bidoffers)
       askbooks.books.add(askbook)
       bidbooks.books.add(bidbook)
-      echo &"{market} asks {askbook} bids {bidbook}"
+      echo &"loaded asks {askbook} bids {bidbook}"
     except:
       let ex = getCurrentException()
       echo &"{market} : {ex.msg}"

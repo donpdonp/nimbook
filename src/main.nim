@@ -31,7 +31,7 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
   for market in matchingMarkets.mitems:
     try:
       var (askoffers, bidoffers) = marketfetch(market)
-      var word = "loaded"
+      var word = " loaded"
       if market.ticker_pair_swapped(ticker_pair):
         (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
         let market_temp = market.base
@@ -46,7 +46,12 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
     except:
       let ex = getCurrentException()
       echo &"{market} : {ex.msg}"
-  var (ask_wins, bid_wins) = overlap(ticker_pair, askbooks, bidbooks)
+  var (best_ask_market, best_ask) = bestprice(askbooks)
+  var (best_bid_market, best_bid) = bestprice(bidbooks)
+  echo &"{ticker_pair} best_ask {best_ask_market} {best_ask.quote} | {best_bid_market} {best_bid.quote} best_bid"
+  let quote_ticker = ticker_pair[1]
+  var askwins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
+  var bidwins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
   if ask_wins.books.len() > 0 or  bid_wins.books.len() > 0:
     echo &"**ASKWIN {ticker_pair}: {ask_wins}"
     echo &"**BIDWIN {ticker_pair}: {bid_wins}"

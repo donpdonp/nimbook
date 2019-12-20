@@ -5,6 +5,7 @@ import strformat, strutils, tables, sequtils
 import types, net
 
 proc trade*(askbooks: Books, bidbooks: Books) =
+  echo &"debug trade memory askbooks {askbooks.unsafeAddr.repr} books {askbooks.books.unsafeAddr.repr}"
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
     var base_inventory = askbooks.base_total()
@@ -25,7 +26,7 @@ proc trade*(askbooks: Books, bidbooks: Books) =
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 
-proc bestprice*(books: Books, quote_ticker: Ticker): (Market, Offer) =
+proc bestprice*(books: Books): (Market, Offer) =
   let best_side_price:float = if books.askbid == AskBid.ask: high(float) else: 0
   var best_offer = Offer(base_qty:0, quote: best_side_price)
   var best_market: Market
@@ -41,16 +42,6 @@ proc bestprice*(books: Books, quote_ticker: Ticker): (Market, Offer) =
           best_offer = market_best
           best_market = b.market
   (best_market, best_offer)
-
-proc overlap*(bqnames: (Ticker, Ticker), askbooks: Books, bidbooks: Books): (Books, Books) =
-  var quote_ticker = bqnames[1]
-  # all price-winning asks/bids
-  var (best_ask_market, best_ask) = bestprice(askbooks, quote_ticker)
-  var (best_bid_market, best_bid) = bestprice(bidbooks, quote_ticker)
-  var askwins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
-  var bidwins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
-  echo &"{bqnames} best_ask {best_ask_market} {best_ask.quote} | {best_bid_market} {best_bid.quote} best_bid"
-  (askwins, bidwins)
 
 proc marketfetch*(market: var Market): (seq[Offer], seq[Offer]) =
   var (asks, bids) = marketbooksload(market)

@@ -25,29 +25,31 @@ proc trade*(askbooks: Books, bidbooks: Books) =
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 
-proc bestprice*(books: Books, quote_ticker: Ticker): Offer =
+proc bestprice*(books: Books, quote_ticker: Ticker): (Market, Offer) =
   let best_side_price:float = if books.askbid == AskBid.ask: high(float) else: 0
   var best_offer = Offer(base_qty:0, quote: best_side_price)
+  var best_market: Market
   for b in books.books:
-    var quote_side = b.market.ticker_side(quote_ticker)
     if len(b.offers) > 0:
-      let market_best = b.best.quote_side(quote_side)
+      let market_best = b.best
       if books.askbid == AskBid.ask:
         if market_best.quote < best_offer.quote:
           best_offer = market_best
+          best_market = b.market
       else:
         if market_best.quote > best_offer.quote:
           best_offer = market_best
-  best_offer
+          best_market = b.market
+  (best_market, best_offer)
 
 proc overlap*(bqnames: (Ticker, Ticker), askbooks: Books, bidbooks: Books): (Books, Books) =
   var quote_ticker = bqnames[1]
   # all price-winning asks/bids
-  var best_ask = bestprice(askbooks, quote_ticker)
-  var best_bid = bestprice(bidbooks, quote_ticker)
+  var (best_ask_market, best_ask) = bestprice(askbooks, quote_ticker)
+  var (best_bid_market, best_bid) = bestprice(bidbooks, quote_ticker)
   var askwins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
   var bidwins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
-  echo &"{bqnames} best_ask {best_ask.quote} | {best_bid.quote} best_bid"
+  echo &"{bqnames} best_ask {best_ask_market} {best_ask.quote} | {best_bid_market} {best_bid.quote} best_bid"
   (askwins, bidwins)
 
 proc marketfetch*(market: var Market): (seq[Offer], seq[Offer]) =

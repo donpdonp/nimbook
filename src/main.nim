@@ -31,17 +31,18 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
   for market in matchingMarkets.mitems:
     try:
       var (askoffers, bidoffers) = marketfetch(market)
-      echo &"swap check {ticker_pair} vs {market.base}/{market.quote} = {market.ticker_pair_swapped(ticker_pair)}"
+      var word = "loaded"
       if market.ticker_pair_swapped(ticker_pair):
         (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
         let market_temp = market.base
         market.base = market.quote
         market.quote = market_temp
+        word = "swapped"
       let askbook = Book(market: market, offers: askoffers)
       let bidbook = Book(market: market, offers: bidoffers)
       askbooks.books.add(askbook)
       bidbooks.books.add(bidbook)
-      echo &"loaded asks {askbook} bids {bidbook}"
+      echo &"{word} asks {askbook} bids {bidbook}"
     except:
       let ex = getCurrentException()
       echo &"{market} : {ex.msg}"

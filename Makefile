@@ -3,7 +3,7 @@
 .RECIPEPREFIX = =
 
 all: jq
-= nim c --threads:on --out:nimbook src/main.nim
+= nim c --out:nimbook src/main.nim
 
 run: all
 = ./nimbook markets

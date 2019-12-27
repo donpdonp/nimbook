@@ -4,10 +4,11 @@ import strformat, strutils, tables, sequtils
 # local
 import types, net
 
-proc trade*(askbooks: Books, bidbooks: Books) =
+proc trade*(askbooks: Books, bidbooks: Books): float =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
     var base_inventory = askbooks.base_total()
+    var sell_total = 0f
     echo &"base_inventory {base_inventory:.5f}"
     for abook in askbooks.books:
       var book_sell_total = 0f
@@ -24,6 +25,8 @@ proc trade*(askbooks: Books, bidbooks: Books) =
         book_sell_total += sell_qty
         aofv.base_qty = aofv.base_qty - sell_qty
       echo &"{abook.market} TOTAL SELL {book_sell_total} REMAINING BASE INV {base_inventory - book_sell_total}"
+      sell_total += book_sell_total
+    sell_total
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 

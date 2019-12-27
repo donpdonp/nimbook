@@ -5,24 +5,25 @@ import strformat, strutils, tables, sequtils
 import types, net
 
 proc trade*(askbooks: Books, bidbooks: Books) =
-  echo &"debug trade memory askbooks {askbooks.unsafeAddr.repr} books {askbooks.books.unsafeAddr.repr}"
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
     var base_inventory = askbooks.base_total()
     echo &"base_inventory {base_inventory:.5f}"
     for abook in askbooks.books:
-      var sell_total = 0f
+      var book_sell_total = 0f
       for aof in abook.offers:
+        var aofv = aof
         echo &"{abook.market} SELLING ask of {aof}"
         var bids_to_sell = bidbooks.offers_better_than(aof.quote, abook.market.quote)
         var sell_qty = bids_to_sell.base_total()
         echo &"base_qty available from bids better than {aof.quote} = {sell_qty:.5f}"
-        let sell_tmp_total = sell_total + sell_qty
+        let sell_tmp_total = book_sell_total + sell_qty
         if sell_tmp_total > base_inventory:
-          sell_qty = base_inventory - sell_total
+          sell_qty = base_inventory - book_sell_total
           echo &"Ran out of ask inventory. capped sale to qty {sell_qty}"
-        sell_total += sell_qty
-      echo &"{abook.market} TOTAL SELL {sell_total} REMAINING BASE INV {base_inventory - sell_total}"
+        book_sell_total += sell_qty
+        aofv.base_qty = aofv.base_qty - sell_qty
+      echo &"{abook.market} TOTAL SELL {book_sell_total} REMAINING BASE INV {base_inventory - book_sell_total}"
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 

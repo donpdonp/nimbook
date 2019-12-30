@@ -59,8 +59,8 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
     bookssave(bid_wins, "bid_wins")
     let total_op = min(ask_wins.base_total(), bid_wins.base_total())
     echo &"**OPPORTUNITY {total_op}"
-    let trade_total = trade(ask_wins, bid_wins)
-    echo &"**TOTAL {trade_total}"
+    let profit = trade(ask_wins, bid_wins)
+    echo &"**Profit {profit} {ticker_pair[1]}"
   echo ""
 
 proc book(config: Config, base: string, quote: string) =

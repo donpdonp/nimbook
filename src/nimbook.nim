@@ -9,7 +9,7 @@ proc trade*(askbooks: Books, bidbooks: Books): float =
     # Sell the asks to the bids
     var base_inventory = askbooks.base_total()
     var sell_total = 0f
-    echo &"base_inventory {base_inventory:.5f}"
+    echo &"base_inventory {base_inventory:.5f} from {askbooks.books.len} books"
     for abook in askbooks.books:
       var book_sell_total = 0f
       for aof in abook.offers:

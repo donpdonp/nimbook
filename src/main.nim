@@ -55,7 +55,8 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
   if ask_wins.books.len() > 0 or  bid_wins.books.len() > 0:
     echo &"**ASKWIN {ticker_pair}: {ask_wins}"
     echo &"**BIDWIN {ticker_pair}: {bid_wins}"
-    trade(askbooks, bidbooks)
+    let trade_total = trade(ask_wins, bid_wins)
+    echo &"**TOTAL {trade_total}"
   echo ""
 
 proc book(config: Config, base: string, quote: string) =

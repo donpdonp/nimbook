@@ -55,6 +55,5 @@ suite "Trade excess bid":
     var bid_books = Books(askbid: AskBid.bid, books: @[bbook])
 
   test "trade":
-    ask_books.books.add(Book())
     let sell_total = trade(ask_books, bid_books)
     check(sell_total == 1)

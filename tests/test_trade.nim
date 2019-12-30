@@ -64,5 +64,5 @@ suite "Trade cache":
     let bid_books = booksload("data/bid_wins")
 
   test "cache":
-    let sell_total = trade(ask_books, bid_books)
-    check(sell_total == 1)
+    let profit = trade(ask_books, bid_books)
+    check(profit == 1)

@@ -7,7 +7,6 @@ import types, net
 proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, float) =
   var sell_offer = sell_offer1
   var after_books = Books(askbid: bids.askbid)
-  echo &"bidsells to {bids.books.len} markets"
   var profit: float
   for book in bids.books:
     var afterbook = Book(market: book.market)
@@ -15,9 +14,10 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, float) =
       var buyable_qty = min(sell_offer.base_qty, offer.base_qty)
       if buyable_qty > 0:
         let price_diff =  offer.quote - sell_offer.quote
-        profit += buyable_qty * price_diff
-        echo &"{sell_offer} buys {buyable_qty} from {offer} {book.market} profit {price_diff}"
-        sell_offer.base_qty -= buyable_qty
+        if price_diff > 0:
+          profit += buyable_qty * price_diff
+          echo &"{sell_offer} buys {buyable_qty} from {offer} {book.market} profit {price_diff}"
+          sell_offer.base_qty -= buyable_qty
       afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
     afterbooks.books.add(afterbook)
   (sell_offer, after_books, profit)
@@ -25,27 +25,26 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, float) =
 proc trade*(askbooks: Books, bidbooks: Books): float =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
+    var bids_to_sell = bidbooks #.offers_better_than(aof.quote, abook.market.quote)
     var base_inventory = askbooks.base_total()
-    var sell_total = 0f
+    var total_profit = 0f
     echo &"base_inventory {base_inventory:.5f} from {askbooks.books.len} books"
     for idx, abook in askbooks.books:
       var book_sell_total = 0f
+      var book_profit: float
       for aof in abook.offers:
-        echo &"{abook.market} SELLING ask #{idx} of {aof}"
-        var bids_to_sell = bidbooks.offers_better_than(aof.quote, abook.market.quote)
         var bid_qty = bids_to_sell.base_total()
-        echo &"{bids_to_sell.books.len} markets w bids better than {aof.quote}{abook.market.quote} = {bid_qty:.5f}{abook.market.base}"
-        echo &"pre-bidsells bids base total {bids_to_sell.base_total()}"
+        echo &"{abook.market} SELLING ask #{idx} of {aof} to remaing qty {bid_qty}"
         var profit: float
         var aofv: Offer
         (aofv, bids_to_sell, profit) = bidsells(aof, bids_to_sell)
-        echo &"post-bidsells bids base total {bids_to_sell.base_total()}"
-        echo &"bidsells profit {profit}"
+        echo &"Profit {profit}"
         let sell_qty = aof.base_qty - aofv.base_qty
         book_sell_total += sell_qty
-      echo &"{abook.market} TOTAL SELL {book_sell_total} REMAINING BASE INV {base_inventory - book_sell_total}"
-      sell_total += book_sell_total
-    sell_total
+        book_profit += profit
+      echo &"{abook.market} TOTAL QTY SELL {book_sell_total} PROFIT {book_profit}"
+      total_profit += book_profit
+    total_profit
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 

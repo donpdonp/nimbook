@@ -4,23 +4,28 @@ import strformat, strutils, tables, sequtils
 # local
 import types, net
 
-proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, float) =
+proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, Books, float) =
   var sell_offer = sell_offer1
   var after_books = Books(askbid: bids.askbid)
+  var orders = Books(askbid: bids.askbid)
   var profit: float
   for book in bids.books:
     var afterbook = Book(market: book.market)
+    var ordermarket = Book(market: book.market)
     for idx, offer in book.offers:
       var buyable_qty = min(sell_offer.base_qty, offer.base_qty)
       if buyable_qty > 0:
         let price_diff =  offer.quote - sell_offer.quote
         if price_diff > 0:
+          ordermarket.offers.add(Offer(base_qty: buyable_qty, quote: sell_offer.quote))
           profit += buyable_qty * price_diff
           echo &"{sell_offer} buys {buyable_qty} from {offer} {book.market} profit {price_diff}"
           sell_offer.base_qty -= buyable_qty
       afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
     afterbooks.books.add(afterbook)
-  (sell_offer, after_books, profit)
+    if ordermarket.offers.len > 0:
+      orders.books.add(ordermarket)
+  (sell_offer, after_books, orders, profit)
 
 proc trade*(askbooks: Books, bidbooks: Books): float =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
@@ -37,8 +42,12 @@ proc trade*(askbooks: Books, bidbooks: Books): float =
         echo &"{abook.market} SELLING ask #{idx} of {aof} to remaing qty {bid_qty}"
         var profit: float
         var aofv: Offer
-        (aofv, bids_to_sell, profit) = bidsells(aof, bids_to_sell)
+        var orders: Books
+        (aofv, bids_to_sell, orders, profit) = bidsells(aof, bids_to_sell)
         echo &"Profit {profit}"
+        for obook in orders.books:
+          for ooff in obook.offers:
+            echo &"ORDER {obook.market} {ooff}"
         let sell_qty = aof.base_qty - aofv.base_qty
         book_sell_total += sell_qty
         book_profit += profit

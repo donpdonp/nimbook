@@ -4,7 +4,7 @@ import strformat, strutils, tables, sequtils
 # local
 import types, net
 
-proc bidsells(sell_offer1: Offer, bids: var Books): (float, Books) =
+proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, float) =
   var sell_offer = sell_offer1
   var after_books = Books(askbid: bids.askbid)
   echo &"bidsells to {bids.books.len} markets"
@@ -20,7 +20,7 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (float, Books) =
         sell_offer.base_qty -= buyable_qty
       afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
     afterbooks.books.add(afterbook)
-  (profit, after_books)
+  (sell_offer, after_books, profit)
 
 proc trade*(askbooks: Books, bidbooks: Books): float =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
@@ -31,22 +31,18 @@ proc trade*(askbooks: Books, bidbooks: Books): float =
     for idx, abook in askbooks.books:
       var book_sell_total = 0f
       for aof in abook.offers:
-        var aofv = aof
         echo &"{abook.market} SELLING ask #{idx} of {aof}"
         var bids_to_sell = bidbooks.offers_better_than(aof.quote, abook.market.quote)
-        var sell_qty = bids_to_sell.base_total()
-        echo &"{bids_to_sell.books.len} markets w bids better than {aof.quote}{abook.market.quote} = {sell_qty:.5f}{abook.market.base}"
+        var bid_qty = bids_to_sell.base_total()
+        echo &"{bids_to_sell.books.len} markets w bids better than {aof.quote}{abook.market.quote} = {bid_qty:.5f}{abook.market.base}"
         echo &"pre-bidsells bids base total {bids_to_sell.base_total()}"
         var profit: float
-        (profit, bids_to_sell) = bidsells(aof, bids_to_sell)
+        var aofv: Offer
+        (aofv, bids_to_sell, profit) = bidsells(aof, bids_to_sell)
         echo &"post-bidsells bids base total {bids_to_sell.base_total()}"
         echo &"bidsells profit {profit}"
-        let sell_tmp_total = book_sell_total + sell_qty
-        if sell_tmp_total > base_inventory:
-          sell_qty = base_inventory - book_sell_total
-          echo &"Ran out of ask inventory. capped sale to qty {sell_qty}"
+        let sell_qty = aof.base_qty - aofv.base_qty
         book_sell_total += sell_qty
-        aofv.base_qty = aofv.base_qty - sell_qty
       echo &"{abook.market} TOTAL SELL {book_sell_total} REMAINING BASE INV {base_inventory - book_sell_total}"
       sell_total += book_sell_total
     sell_total

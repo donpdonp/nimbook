@@ -4,20 +4,43 @@ import strformat, strutils, tables, sequtils
 # local
 import types, net
 
+proc bidsells(sell_offer1: Offer, bids: var Books): (float, Books) =
+  var sell_offer = sell_offer1
+  var after_books = Books(askbid: bids.askbid)
+  echo &"bidsells to {bids.books.len} markets"
+  var profit: float
+  for book in bids.books:
+    var afterbook = Book(market: book.market)
+    for idx, offer in book.offers:
+      var buyable_qty = min(sell_offer.base_qty, offer.base_qty)
+      if buyable_qty > 0:
+        let price_diff =  offer.quote - sell_offer.quote
+        profit += buyable_qty * price_diff
+        echo &"{sell_offer} buys {buyable_qty} from {offer} {book.market} profit {price_diff}"
+        sell_offer.base_qty -= buyable_qty
+      afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
+    afterbooks.books.add(afterbook)
+  (profit, after_books)
+
 proc trade*(askbooks: Books, bidbooks: Books): float =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
     var base_inventory = askbooks.base_total()
     var sell_total = 0f
     echo &"base_inventory {base_inventory:.5f} from {askbooks.books.len} books"
-    for abook in askbooks.books:
+    for idx, abook in askbooks.books:
       var book_sell_total = 0f
       for aof in abook.offers:
         var aofv = aof
-        echo &"{abook.market} SELLING ask of {aof}"
+        echo &"{abook.market} SELLING ask #{idx} of {aof}"
         var bids_to_sell = bidbooks.offers_better_than(aof.quote, abook.market.quote)
         var sell_qty = bids_to_sell.base_total()
-        echo &"base_qty available from bids better than {aof.quote} = {sell_qty:.5f}"
+        echo &"{bids_to_sell.books.len} markets w bids better than {aof.quote}{abook.market.quote} = {sell_qty:.5f}{abook.market.base}"
+        echo &"pre-bidsells bids base total {bids_to_sell.base_total()}"
+        var profit: float
+        (profit, bids_to_sell) = bidsells(aof, bids_to_sell)
+        echo &"post-bidsells bids base total {bids_to_sell.base_total()}"
+        echo &"bidsells profit {profit}"
         let sell_tmp_total = book_sell_total + sell_qty
         if sell_tmp_total > base_inventory:
           sell_qty = base_inventory - book_sell_total

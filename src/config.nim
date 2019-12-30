@@ -30,3 +30,15 @@ proc marketsave*(config: Config, mt: Table[(string, string), seq[Market]]) =
   var jstream = newFileStream("all_markets.json", fmWrite)
   dump(vals, jstream, options = defineOptions(style = psJson))
   jstream.close()
+
+proc bookssave*(books: Books, filename: string) =
+  var stream = newFileStream(filename, fmWrite)
+  dump(books, stream)
+  stream.close()
+
+proc booksload*(filename: string): Books =
+  var books: Books
+  var stream = newFileStream(filename)
+  load(stream, books)
+  stream.close()
+  books

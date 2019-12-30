@@ -1,5 +1,5 @@
 import unittest
-import types, nimbook
+import types, nimbook, config
 
 suite "Trade Empty":
   setup:
@@ -55,5 +55,14 @@ suite "Trade excess bid":
     var bid_books = Books(askbid: AskBid.bid, books: @[bbook])
 
   test "trade":
+    let sell_total = trade(ask_books, bid_books)
+    check(sell_total == 1)
+
+suite "Trade cache":
+  setup:
+    let ask_books = booksload("data/ask_wins")
+    let bid_books = booksload("data/bid_wins")
+
+  test "cache":
     let sell_total = trade(ask_books, bid_books)
     check(sell_total == 1)

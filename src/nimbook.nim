@@ -27,16 +27,18 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, Books, float)
       orders.books.add(ordermarket)
   (sell_offer, after_books, orders, profit)
 
-proc trade*(askbooks: Books, bidbooks: Books): float =
+proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
     var bids_to_sell = bidbooks #.offers_better_than(aof.quote, abook.market.quote)
     var base_inventory = askbooks.base_total()
-    var total_profit = 0f
+    var total_profit:float
+    var total_cost:float
     echo &"base_inventory {base_inventory:.5f} from {askbooks.books.len} books"
     for idx, abook in askbooks.books:
       var book_sell_total = 0f
       var book_profit: float
+      var book_cost: float
       for aof in abook.offers:
         var bid_qty = bids_to_sell.base_total()
         echo &"{abook.market} SELLING ask #{idx} of {aof} to remaing qty {bid_qty}"
@@ -47,13 +49,15 @@ proc trade*(askbooks: Books, bidbooks: Books): float =
         echo &"Profit {profit}"
         for obook in orders.books:
           for ooff in obook.offers:
-            echo &"ORDER {obook.market} {ooff}"
+            echo &"**BUY {abook.market} {aof} SELL {obook.market} {ooff}"
         let sell_qty = aof.base_qty - aofv.base_qty
         book_sell_total += sell_qty
+        book_cost += sell_qty * aof.quote
         book_profit += profit
-      echo &"{abook.market} TOTAL QTY SELL {book_sell_total} PROFIT {book_profit}"
+      echo &"ask {abook.market} TOTAL QTY SELL {book_sell_total} COST {book_cost} PROFIT {book_profit}"
       total_profit += book_profit
-    total_profit
+      total_cost += book_cost
+    (total_cost, total_profit)
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 

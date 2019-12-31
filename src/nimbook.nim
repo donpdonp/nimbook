@@ -19,7 +19,7 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, Books, float)
         if price_diff > 0:
           ordermarket.offers.add(Offer(base_qty: buyable_qty, quote: sell_offer.quote))
           profit += buyable_qty * price_diff
-          echo &"{sell_offer} buys {buyable_qty} from {offer} {book.market} profit {price_diff}"
+          echo &"using ask {sell_offer} buying {buyable_qty} from {offer} {book.market} profit {price_diff:0.5f}"
           sell_offer.base_qty -= buyable_qty
       afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
     afterbooks.books.add(afterbook)
@@ -34,14 +34,13 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
     var base_inventory = askbooks.base_total()
     var total_profit:float
     var total_cost:float
-    echo &"base_inventory {base_inventory:.5f} from {askbooks.books.len} books"
     for idx, abook in askbooks.books:
       var book_sell_total = 0f
       var book_profit: float
       var book_cost: float
       for aof in abook.offers:
         var bid_qty = bids_to_sell.base_total()
-        echo &"{abook.market} SELLING ask #{idx} of {aof} to remaing qty {bid_qty}"
+        echo &"SELLING ask #{idx+1}/{askbooks.books.len} of {abook.market}  {aof}"
         var profit: float
         var aofv: Offer
         var orders: Books

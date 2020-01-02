@@ -17,9 +17,9 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, Books, float)
       if buyable_qty > 0:
         let price_diff =  offer.quote - sell_offer.quote
         if price_diff > 0:
-          ordermarket.offers.add(Offer(base_qty: buyable_qty, quote: sell_offer.quote))
+          ordermarket.offers.add(Offer(base_qty: buyable_qty, quote: offer.quote))
           profit += buyable_qty * price_diff
-          echo &"using ask {sell_offer} buying {buyable_qty} from {offer} {book.market} profit {price_diff:0.5f}"
+          echo &"using ask {sell_offer} selling {buyable_qty} to {offer} {book.market} diff {price_diff:0.5f} profit {buyable_qty*price_diff:0.5f}"
           sell_offer.base_qty -= buyable_qty
       afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
     afterbooks.books.add(afterbook)
@@ -45,7 +45,6 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
         var aofv: Offer
         var orders: Books
         (aofv, bids_to_sell, orders, profit) = bidsells(aof, bids_to_sell)
-        echo &"Profit {profit}"
         for obook in orders.books:
           for ooff in obook.offers:
             echo &"**BUY {abook.market} {aof} SELL {obook.market} {ooff}"
@@ -53,7 +52,7 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
         book_sell_total += sell_qty
         book_cost += sell_qty * aof.quote
         book_profit += profit
-      echo &"ask {abook.market} TOTAL QTY SELL {book_sell_total} COST {book_cost} PROFIT {book_profit}"
+      echo &"Total ask market {abook.market} QTY SELL {book_sell_total} COST {book_cost} PROFIT {book_profit}"
       total_profit += book_profit
       total_cost += book_cost
     (total_cost, total_profit)

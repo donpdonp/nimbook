@@ -30,7 +30,7 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, Books, float)
 proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
-    var bids_to_sell = bidbooks #.offers_better_than(aof.quote, abook.market.quote)
+    var bids_to_sell = bidbooks
     var base_inventory = askbooks.base_total()
     var total_profit:float
     var total_cost:float
@@ -40,7 +40,6 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
       var book_cost: float
       for aof in abook.offers:
         var bid_qty = bids_to_sell.base_total()
-        echo &"SELLING ask #{idx+1}/{askbooks.books.len} of {abook.market}  {aof}"
         var profit: float
         var aofv: Offer
         var orders: Books

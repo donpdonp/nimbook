@@ -53,13 +53,13 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
   var askwins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
   var bidwins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
   if ask_wins.books.len() > 0 or  bid_wins.books.len() > 0:
-    echo &"**ASKWIN {ticker_pair}: {ask_wins}"
-    echo &"**BIDWIN {ticker_pair}: {bid_wins}"
+    echo &"*ASKWIN {ticker_pair}: {ask_wins}"
+    echo &"*BIDWIN {ticker_pair}: {bid_wins}"
     bookssave(ask_wins, "ask_wins")
     bookssave(bid_wins, "bid_wins")
     let total_op = min(ask_wins.base_total(), bid_wins.base_total())
     let (cost, profit) = trade(ask_wins, bid_wins)
-    echo &"**Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} {(profit/cost):0.5f} ratio"
+    echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f}"
   echo ""
 
 proc book(config: Config, base: string, quote: string) =

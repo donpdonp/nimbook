@@ -12,3 +12,4 @@ skipDirs      = @["tests"]
 requires "nim >= 1.0.0"
 requires "yaml"
 requires "https://github.com/donpdonp/libjq-nim"
+requires "redis >= 0.2.0"

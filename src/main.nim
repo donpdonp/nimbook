@@ -1,5 +1,7 @@
 # nim
 import os, strformat, tables
+# nimble
+import redis
 # local
 import config, nimbook, net, types
 
@@ -89,7 +91,9 @@ proc help(config: Config) =
 proc main(args: seq[string]) =
   echo "nimbook v0.1"
   var config = config.load("config.yaml")
-
+  let redis_client = redis.open()
+  let keys = redis_client.keys("*")
+  echo fmt("redis keys {keys.len}")
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)

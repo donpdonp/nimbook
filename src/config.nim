@@ -52,9 +52,20 @@ proc bookssave*(books: Books, filename: string) =
   dump(books, stream)
   stream.close()
 
-proc booksload*(filename: string): Books =
-  var books: Books
-  var stream = newFileStream(filename)
-  load(stream, books)
-  stream.close()
-  books
+type ArbReport = object
+  base_ticker: string
+  quote_ticker: string
+  market_name: string
+  cost: float
+  profit: float
+
+proc arbpub*(ticker_pair: (Ticker, Ticker), askbooks: Books, bidbooks: Books, cost: float, profit: float) =
+  for book in askbooks.books:
+    let arb_report = ArbReport(base_ticker: ticker_pair[0].symbol,
+                          quote_ticker: ticker_pair[0].symbol,
+                          market_name: book.market.source.name,
+                          cost: cost, profit: profit)
+    let payload = serialization.dump(arb_report, options = defineOptions(style = psJson))
+    let rx = redis_client.lpush("orders", payload)
+    echo fmt("arbpub pushed orders {payload}")
+    let rx2 = redis_client.publish("orders", payload)

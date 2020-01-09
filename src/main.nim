@@ -59,7 +59,7 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
     bookssave(bid_price_wins, "bid_wins")
     let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
     let (cost, profit) = trade(ask_price_wins, bid_price_wins)
-    arbpub(ticker_pair, ask_price_wins, bid_price_wins)
+    arbpub(ticker_pair, ask_price_wins, bid_price_wins, cost, profit)
     echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f}"
   echo ""
 

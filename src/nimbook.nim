@@ -38,18 +38,18 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
       var book_sell_total = 0f
       var book_profit: float
       var book_cost: float
-      for aof in abook.offers:
+      for ask_off in abook.offers:
         var bid_qty = bids_to_sell.base_total()
         var profit: float
-        var aofv: Offer
+        var askofv: Offer
         var orders: Books
-        (aofv, bids_to_sell, orders, profit) = bidsells(aof, bids_to_sell)
+        (askofv, bids_to_sell, orders, profit) = bidsells(ask_off, bids_to_sell)
         for obook in orders.books:
           for ooff in obook.offers:
-            echo &"**BUY {abook.market} {aof} SELL {obook.market} {ooff}"
-        let sell_qty = aof.base_qty - aofv.base_qty
+            echo &"**BUY {abook.market} {ask_off} SELL {obook.market} {ooff}"
+        let sell_qty = ask_off.base_qty - askofv.base_qty
         book_sell_total += sell_qty
-        book_cost += sell_qty * aof.quote
+        book_cost += sell_qty * ask_off.quote
         book_profit += profit
       echo &"Total ask market {abook.market} QTY SELL {book_sell_total} COST {book_cost} PROFIT {book_profit}"
       total_profit += book_profit

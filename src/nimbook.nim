@@ -64,14 +64,14 @@ proc bestprice*(books: Books): (Market, Offer) =
   var best_market: Market
   for b in books.books:
     if len(b.offers) > 0:
-      let market_best = b.best
+      let book_best = b.best
       if books.askbid == AskBid.ask:
-        if market_best.quote < best_offer.quote:
-          best_offer = market_best
+        if book_best.quote < best_offer.quote:
+          best_offer = book_best
           best_market = b.market
       else:
-        if market_best.quote > best_offer.quote:
-          best_offer = market_best
+        if book_best.quote > best_offer.quote:
+          best_offer = book_best
           best_market = b.market
   (best_market, best_offer)
 

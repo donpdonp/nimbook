@@ -1,7 +1,7 @@
 import algorithm
 
 type
-  Market* = object
+  Market* = ref object
     source*: Source
     base*: Ticker
     quote*: Ticker

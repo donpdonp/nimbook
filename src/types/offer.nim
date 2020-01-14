@@ -1,7 +1,7 @@
 import strutils
 
 type
-  Offer* = object
+  Offer* = ref object
     base_qty*: float
     quote*: float
 

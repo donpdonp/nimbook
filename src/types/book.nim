@@ -3,11 +3,11 @@ import sequtils, strutils, strformat
 type
   AskBid* = enum ask, bid
 
-  Book* = object
+  Book* = ref object
     market*: Market
     offers*: seq[Offer]
 
-  Books* = object
+  Books* = ref object
     askbid*: AskBid
     books*: seq[Book]
 
@@ -29,6 +29,20 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
     else:
       raise newException(OSError, &"offers_better_than got wrong ticker {ticker} for this market {b.market}")
   wins
+
+proc ordered_offers*(books: Books): seq[(Book, Offer)] =
+  type ValueMarketOffer = (float, Book, Offer)
+  var z = books.books.map(proc (book: Book): seq[ValueMarketOffer] =
+    book.offers.map(proc (o: Offer):ValueMarketOffer = (o.quote, book, o)))
+  var collection: seq[ValueMarketOffer] = @[]
+  for t in z:
+    for q in t:
+      collection.add(q)
+  collection.sort(proc (x,y: ValueMarketOffer): int = cmp(x[0], y[0]),
+    if books.askbid == AskBid.ask: Ascending else: Descending)
+  let offers = collection.map(proc(e: ValueMarketOffer): (Book, Offer) = (e[1], e[2]))
+  echo &"{cast[int](unsafeAddr offers[0][0]):x}"
+  offers
 
 proc base_total*(book: Book): float =
   var total = 0f

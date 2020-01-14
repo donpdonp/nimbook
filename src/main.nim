@@ -50,8 +50,8 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
   var (best_bid_market, best_bid) = bestprice(bidbooks)
   echo &"{ticker_pair} best_ask {best_ask_market} {best_ask.quote} | {best_bid_market} {best_bid.quote} best_bid"
   let quote_ticker = ticker_pair[1]
-  var ask_price_wins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
-  var bid_price_wins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
+  let ask_price_wins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
+  let bid_price_wins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
   if ask_price_wins.books.len() > 0 or  bid_price_wins.books.len() > 0:
     echo &"*ASKWIN {ticker_pair}: {ask_price_wins}"
     echo &"*BIDWIN {ticker_pair}: {bid_price_wins}"
@@ -66,10 +66,10 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
 proc book(config: Config, base: string, quote: string) =
   var matches = config.marketload()
   echo &"loaded {len(matches)}"
-  let mpair = (Ticker(symbol:base), Ticker(symbol:quote))
-  var mmatches = matches[(mpair[0].symbol, mpair[1].symbol)]
-  echo &"{mpair} {mmatches}"
-  compare(config, mpair, mmatches)
+  let market_pair = (Ticker(symbol:base), Ticker(symbol:quote))
+  var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
+  echo &"{market_pair} {market_matches}"
+  compare(config, market_pair, market_matches)
 
 proc bookall(config: Config) =
   var matches = config.marketload()

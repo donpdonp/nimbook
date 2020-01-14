@@ -28,9 +28,9 @@ proc bidsells(working_offer: Offer, bids: Books): (Books, float) =
 
 proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
-    # Sell the asks to the bids
-    var bids_to_sell:Books
-    deepCopy(bids_to_sell, bidbooks)
+    # Sell to the asks, buy from the bids
+    var bids_to_buy:Books
+    deepCopy(bids_to_buy, bidbooks)
     var base_inventory = askbooks.base_total()
     var total_profit:float
     var total_cost:float
@@ -39,12 +39,12 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
       var book_profit: float
       var book_cost: float
       for ask_off in abook.offers:
-        var bid_qty = bids_to_sell.base_total()
+        var bid_qty = bids_to_buy.base_total()
         var profit: float
         var working_offer: Offer
         deepCopy(working_offer, ask_off)
         var orders: Books
-        (orders, profit) = bidsells(working_offer, bids_to_sell)
+        (orders, profit) = bidsells(working_offer, bids_to_buy)
         for obook in orders.books:
           for ooff in obook.offers:
             echo &"**BUY {abook.market} {ask_off} SELL {obook.market} {ooff}"

@@ -41,7 +41,6 @@ proc ordered_offers*(books: Books): seq[(Book, Offer)] =
   collection.sort(proc (x,y: ValueMarketOffer): int = cmp(x[0], y[0]),
     if books.askbid == AskBid.ask: Ascending else: Descending)
   let offers = collection.map(proc(e: ValueMarketOffer): (Book, Offer) = (e[1], e[2]))
-  echo &"{cast[int](unsafeAddr offers[0][0]):x}"
   offers
 
 proc base_total*(book: Book): float =

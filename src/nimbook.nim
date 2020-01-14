@@ -4,8 +4,7 @@ import strformat, strutils, tables, sequtils
 # local
 import types, net
 
-proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, Books, float) =
-  var sell_offer = sell_offer1
+proc bidsells(working_offer: Offer, bids: var Books): (Books, Books, float) =
   var after_books = Books(askbid: bids.askbid)
   var orders = Books(askbid: bids.askbid)
   var profit: float
@@ -13,19 +12,19 @@ proc bidsells(sell_offer1: Offer, bids: var Books): (Offer, Books, Books, float)
     var afterbook = Book(market: book.market)
     var ordermarket = Book(market: book.market)
     for idx, offer in book.offers:
-      var buyable_qty = min(sell_offer.base_qty, offer.base_qty)
+      var buyable_qty = min(working_offer.base_qty, offer.base_qty)
       if buyable_qty > 0:
-        let price_diff =  offer.quote - sell_offer.quote
+        let price_diff =  offer.quote - working_offer.quote
         if price_diff > 0:
           ordermarket.offers.add(Offer(base_qty: buyable_qty, quote: offer.quote))
           profit += buyable_qty * price_diff
-          echo &"using ask {sell_offer} selling {buyable_qty} to {offer} {book.market} diff {price_diff:0.5f} profit {buyable_qty*price_diff:0.5f}"
-          sell_offer.base_qty -= buyable_qty
+          echo &"using ask {working_offer} selling {buyable_qty} to {offer} {book.market} diff {price_diff:0.5f} profit {buyable_qty*price_diff:0.5f}"
+          working_offer.base_qty -= buyable_qty
       afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
     afterbooks.books.add(afterbook)
     if ordermarket.offers.len > 0:
       orders.books.add(ordermarket)
-  (sell_offer, after_books, orders, profit)
+  (after_books, orders, profit)
 
 proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
@@ -41,13 +40,14 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
       for ask_off in abook.offers:
         var bid_qty = bids_to_sell.base_total()
         var profit: float
-        var askofv: Offer
+        var working_offer: Offer
+        deepCopy(working_offer, ask_off)
         var orders: Books
-        (askofv, bids_to_sell, orders, profit) = bidsells(ask_off, bids_to_sell)
+        (bids_to_sell, orders, profit) = bidsells(working_offer, bids_to_sell)
         for obook in orders.books:
           for ooff in obook.offers:
             echo &"**BUY {abook.market} {ask_off} SELL {obook.market} {ooff}"
-        let sell_qty = ask_off.base_qty - askofv.base_qty
+        let sell_qty = ask_off.base_qty - working_offer.base_qty
         book_sell_total += sell_qty
         book_cost += sell_qty * ask_off.quote
         book_profit += profit

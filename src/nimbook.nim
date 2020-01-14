@@ -4,7 +4,7 @@ import strformat, strutils, tables, sequtils
 # local
 import types, net
 
-proc bidsells(working_offer: Offer, bids: var Books): (Books, Books, float) =
+proc bidsells(working_offer: Offer, bids: Books): (Books, float) =
   var after_books = Books(askbid: bids.askbid)
   var orders = Books(askbid: bids.askbid)
   var profit: float
@@ -24,12 +24,13 @@ proc bidsells(working_offer: Offer, bids: var Books): (Books, Books, float) =
     afterbooks.books.add(afterbook)
     if ordermarket.offers.len > 0:
       orders.books.add(ordermarket)
-  (after_books, orders, profit)
+  (orders, profit)
 
 proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell the asks to the bids
-    var bids_to_sell = bidbooks
+    var bids_to_sell:Books
+    deepCopy(bids_to_sell, bidbooks)
     var base_inventory = askbooks.base_total()
     var total_profit:float
     var total_cost:float
@@ -43,7 +44,7 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
         var working_offer: Offer
         deepCopy(working_offer, ask_off)
         var orders: Books
-        (bids_to_sell, orders, profit) = bidsells(working_offer, bids_to_sell)
+        (orders, profit) = bidsells(working_offer, bids_to_sell)
         for obook in orders.books:
           for ooff in obook.offers:
             echo &"**BUY {abook.market} {ask_off} SELL {obook.market} {ooff}"

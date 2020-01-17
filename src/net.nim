@@ -85,6 +85,7 @@ proc marketbooksload*(market: Market): (seq[Offer], seq[Offer]) =
 proc influxpush*(url: string, ticker_pair: (Ticker, Ticker), cost: float, profit: float) =
   let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
   let body = &"arb,pair={pair} profit={profit} cost={cost}"
+  echo body
   let response = client.request(url, httpMethod = HttpPost, body = $body)
-  echo response.status
+  echo &"{response.status} {response.body}"
 

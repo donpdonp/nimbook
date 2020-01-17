@@ -80,18 +80,18 @@ proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")
 
 proc merge*(books: Books, book: Book, offer: Offer) =
-  echo &"merging {book.market} {offer} into books.books.len {books.books.len}"
+  echo &"merging {books.askbid} {book.market} {offer} into books.books.len {books.books.len}"
   let goodbook = books.findb(book.market)
   if goodbook == nil:
     let newbook = Book(market: book.market)
-    newbook.offers.add(offer)
+    newbook.offers.add(Offer(base_qty: offer.base_qty, quote: offer.quote))
     books.books.add(newbook)
     echo &"merge no book found. creating"
   else:
     let closest = goodbook.close_offer(offer.quote)
     if closest == nil:
       echo &"book found. closest not found"
-      goodbook.offers.add(offer)
+      goodbook.offers.add(Offer(base_qty: offer.base_qty, quote: offer.quote))
     else:
       echo &"book found. closest found {closest} adding qty {offer.base_qty}"
       closest.base_qty += offer.base_qty

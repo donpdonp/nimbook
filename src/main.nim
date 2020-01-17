@@ -63,7 +63,7 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
       let (ask_orders, bid_orders, profit) = trade(ask_price_wins, bid_price_wins)
       let cost = ask_orders.base_total
-      arbpub(ticker_pair, ask_price_wins, best_ask.quote, bid_price_wins, best_bid.quote, cost, profit)
+      arbpub(config, ticker_pair, ask_price_wins, best_ask.quote, bid_price_wins, best_bid.quote, cost, profit)
       echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f}"
   else:
     echo "totally empty."

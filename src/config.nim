@@ -3,7 +3,7 @@ import yaml/serialization, yaml/presenter, streams, tables, sequtils, strformat
 # nimble
 import redis, ulid
 # local
-import types
+import types, net
 
 type
   Config* = object
@@ -11,6 +11,7 @@ type
     sources*: seq[Source]
   Settings* = object
     redis: string
+    influx: string
 
 var redis_client: redis.Redis
 
@@ -79,8 +80,8 @@ proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books, best: flo
     let rx = redis_client.lpush("orders", payload)
     let rx2 = redis_client.publish("orders", arb_report.id)
 
-proc arbpub*(ticker_pair: (Ticker, Ticker), askbooks: Books, bestask:float, bidbooks: Books, bestbid: float, cost: float, profit: float) =
+proc arbpub*(config: Config, ticker_pair: (Ticker, Ticker), askbooks: Books, bestask:float, bidbooks: Books, bestbid: float, cost: float, profit: float) =
   let aid = ulid()
   bookpub(aid, ticker_pair, askbooks, bestask, cost, profit)
   bookpub(aid, ticker_pair, bidbooks, bestbid, cost, profit)
-
+  net.influxpush(config.settings.influx, ticker_pair, cost, profit)

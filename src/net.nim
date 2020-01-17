@@ -1,5 +1,5 @@
 # nim
-import httpClient, strutils
+import httpClient, strutils, strformat
 # nimble
 import libjq
 # local
@@ -81,3 +81,10 @@ proc marketbooksload*(market: Market): (seq[Offer], seq[Offer]) =
   for afloat in ask_floats:
     asks.add(Offer(base_qty: afloat[0], quote: afloat[1]))
   (asks, bids)
+
+proc influxpush*(url: string, ticker_pair: (Ticker, Ticker), cost: float, profit: float) =
+  let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
+  let body = &"arb,pair={pair} profit={profit} cost={cost}"
+  let response = client.request(url, httpMethod = HttpPost, body = $body)
+  echo response.status
+

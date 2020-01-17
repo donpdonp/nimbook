@@ -20,9 +20,9 @@ proc close_offer(book: Book, price: float): Offer =
       return offer
   return nil
 
-proc findb*(books: Books, book: Book): Book =
+proc findb*(books: Books, market: Market): Book =
   for bbook in books.books:
-    if bbook == book:
+    if bbook.market == market:
       return bbook
 
 proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
@@ -80,15 +80,13 @@ proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")
 
 proc merge*(books: Books, book: Book, offer: Offer) =
-  echo &"merging {book} {offer} into books.books.len {books.books.len}"
-  let goodbook = books.findb(book)
+  echo &"merging {book.market} {offer} into books.books.len {books.books.len}"
+  let goodbook = books.findb(book.market)
   if goodbook == nil:
-    var newbook: Book
-    deepCopy(newbook, book)
-    books.books.add(newbook)
-    echo &"merge no book found. creating"
+    let newbook = Book(market: book.market)
     newbook.offers.add(offer)
     books.books.add(newbook)
+    echo &"merge no book found. creating"
   else:
     let closest = goodbook.close_offer(offer.quote)
     if closest == nil:

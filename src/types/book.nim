@@ -67,14 +67,20 @@ proc base_total*(books: Books): float =
   total
 
 proc `$`*(b: Book): string =
-  let lowidx = low(b.offers)
-  let highidx = high(b.offers)
-  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) &
-     " @ " &
-     (if len(b.offers) > 0:
-      b.offers[lowidx].`quote$` &
-      " - " &
-      b.offers[highidx].`quote$` else: "(empty)")
+  var offersummary:string = "(empty)"
+  let offercount = len(b.offers)
+  if offercount > 0:
+    let lowidx = low(b.offers)
+    let highidx = high(b.offers)
+    let lowquote = b.offers[lowidx].`quote$`
+    let highquote = b.offers[highidx].`quote$`
+    if offercount == 1:
+      offersummary = lowquote
+    if offercount == 2:
+      offersummary = "[" & lowquote & ", " & highquote & "]"
+    if offercount > 2:
+      offersummary = "(" & lowquote & " - " & highquote & ")/" & offercount.`$`
+  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) & "@" & offersummary
 
 proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")
@@ -86,11 +92,11 @@ proc merge*(books: Books, book: Book, offer: Offer) =
     let newbook = Book(market: book.market)
     newbook.offers.add(Offer(base_qty: offer.base_qty, quote: offer.quote))
     books.books.add(newbook)
-    echo &"merge no book found. creating"
+    #echo &"merge no book found. creating"
   else:
     let closest = goodbook.close_offer(offer.quote)
     if closest == nil:
-      echo &"book found. closest not found"
+      #echo &"book found. closest not found"
       goodbook.offers.add(Offer(base_qty: offer.base_qty, quote: offer.quote))
     else:
       echo &"book found. closest found {closest} adding qty {offer.base_qty}"

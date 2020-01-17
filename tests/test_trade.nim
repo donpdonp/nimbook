@@ -1,5 +1,6 @@
-import unittest
-import types, nimbook, config
+import unittest, streams
+import yaml/serialization
+import types, nimbook
 
 suite "Trade Empty":
   setup:
@@ -58,11 +59,18 @@ suite "Trade excess bid":
     let (ask_orders, bid_orders) = trade(ask_books, bid_books)
     check(ask_orders.base_total == 1)
 
+proc booksload*(filename: string): Books =
+  var books: Books
+  var stream = newFileStream(filename)
+  load(stream, books)
+  stream.close()
+  books
+
 suite "Trade cache":
   setup:
-    let ask_books = config.booksload("data/ask_wins")
-    let bid_books = config.booksload("data/bid_wins")
+    let ask_books = booksload("data/ask_wins")
+    let bid_books = booksload("data/bid_wins")
 
   test "cache":
-    let profit = trade(ask_books, bid_books)
-    check(profit == 1)
+    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    check(ask_orders.base_total == 1221.892333984375)

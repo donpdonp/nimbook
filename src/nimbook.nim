@@ -24,10 +24,10 @@ proc trade*(askbooks: Books, bidbooks: Books): (Books, Books) =
           if qty > 0:
             alist[1].base_qty -= qty
             blist[1].base_qty -= qty
-            let order_offer = Offer(base_qty: qty, quote: alist[1].quote)
-            #echo &"merging profitable order. {order_offer}"
-            ask_orders.merge(alist[0], order_offer)
-            bid_orders.merge(blist[0], order_offer)
+            let buy_offer = Offer(base_qty: qty, quote: alist[1].quote)
+            let sell_offer = Offer(base_qty: qty, quote: blist[1].quote)
+            ask_orders.merge(alist[0], buy_offer)
+            bid_orders.merge(blist[0], sell_offer)
     echo &"winning {ask_orders}"
     echo &"winning {bid_orders}"
     (ask_orders, bid_orders)

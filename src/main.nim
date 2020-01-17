@@ -39,30 +39,35 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
         market.quote = market_temp
         word = "swapped"
       let askbook = Book(market: market, offers: askoffers)
+      if askoffers.len > 0:
+        askbooks.books.add(askbook)
       let bidbook = Book(market: market, offers: bidoffers)
-      askbooks.books.add(askbook)
-      bidbooks.books.add(bidbook)
+      if bidoffers.len > 0:
+        bidbooks.books.add(bidbook)
       echo &"{word} asks {askbook} bids {bidbook}"
     except:
       let ex = getCurrentException()
       echo &"{market} : {ex.msg}"
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
-  echo &"{ticker_pair} best_ask {best_ask_market} {best_ask.quote} | {best_bid_market} {best_bid.quote} best_bid"
-  let quote_ticker = ticker_pair[1]
-  let ask_price_wins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
-  let bid_price_wins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
-  if ask_price_wins.books.len() > 0 or  bid_price_wins.books.len() > 0:
-    echo &"*ASKWIN {ticker_pair}: {ask_price_wins}"
-    echo &"*BIDWIN {ticker_pair}: {bid_price_wins}"
-    bookssave(ask_price_wins, "ask_wins")
-    bookssave(bid_price_wins, "bid_wins")
-    let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
-    let (ask_orders, bid_orders) = trade(ask_price_wins, bid_price_wins)
-    let cost = ask_orders.base_total
-    let profit = 0.0
-    arbpub(ticker_pair, ask_price_wins, best_ask.quote, bid_price_wins, best_bid.quote, cost, profit)
-    echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f}"
+  if best_ask_market != nil and best_bid_market != nil:
+    echo &"{ticker_pair} best_ask {best_ask_market} {best_ask.quote:0.5f} | {best_bid.quote:0.5f} {best_bid_market} best_bid"
+    let quote_ticker = ticker_pair[1]
+    let ask_price_wins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
+    let bid_price_wins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
+    if ask_price_wins.books.len() > 0 or  bid_price_wins.books.len() > 0:
+      echo &"*ASKWIN {ticker_pair}: {ask_price_wins}"
+      echo &"*BIDWIN {ticker_pair}: {bid_price_wins}"
+      bookssave(ask_price_wins, "ask_wins")
+      bookssave(bid_price_wins, "bid_wins")
+      let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
+      let (ask_orders, bid_orders) = trade(ask_price_wins, bid_price_wins)
+      let cost = ask_orders.base_total
+      let profit = bid_orders.base_total
+      arbpub(ticker_pair, ask_price_wins, best_ask.quote, bid_price_wins, best_bid.quote, cost, profit)
+      echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f}"
+  else:
+    echo "totally empty."
   echo ""
 
 proc book(config: Config, base: string, quote: string) =

@@ -52,6 +52,13 @@ proc bookssave*(books: Books, filename: string) =
   dump(books, stream)
   stream.close()
 
+proc booksload*(filename: string): Books =
+  var books: Books
+  var stream = newFileStream(filename)
+  load(stream, books)
+  stream.close()
+  books
+
 type ArbReport = object
   id: string
   buysell: string

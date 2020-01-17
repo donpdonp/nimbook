@@ -8,8 +8,8 @@ suite "Trade Empty":
 
   test "trade":
     ask_books.books.add(Book())
-    let sell_total = trade(ask_books, bid_books)
-    check(sell_total == 0)
+    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    check(ask_orders.base_total == 0)
 
 suite "Trade equal supply":
   setup:
@@ -24,8 +24,8 @@ suite "Trade equal supply":
 
   test "trade":
     ask_books.books.add(Book())
-    let sell_total = trade(ask_books, bid_books)
-    check(sell_total == 1)
+    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    check(ask_orders.base_total == 1)
 
 suite "Trade excess ask":
   setup:
@@ -40,8 +40,8 @@ suite "Trade excess ask":
 
   test "trade":
     ask_books.books.add(Book())
-    let sell_total = trade(ask_books, bid_books)
-    check(sell_total == 1)
+    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    check(ask_orders.base_total == 1)
 
 suite "Trade excess bid":
   setup:
@@ -55,13 +55,13 @@ suite "Trade excess bid":
     var bid_books = Books(askbid: AskBid.bid, books: @[bbook])
 
   test "trade":
-    let sell_total = trade(ask_books, bid_books)
-    check(sell_total == 1)
+    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    check(ask_orders.base_total == 1)
 
 suite "Trade cache":
   setup:
-    let ask_books = booksload("data/ask_wins")
-    let bid_books = booksload("data/bid_wins")
+    let ask_books = config.booksload("data/ask_wins")
+    let bid_books = config.booksload("data/bid_wins")
 
   test "cache":
     let profit = trade(ask_books, bid_books)

@@ -4,58 +4,31 @@ import strformat, strutils, tables, sequtils
 # local
 import types, net
 
-proc bidsells(working_offer: Offer, bids: Books): (Books, float) =
-  var after_books = Books(askbid: bids.askbid)
-  var orders = Books(askbid: bids.askbid)
-  var profit: float
-  for book in bids.books:
-    var afterbook = Book(market: book.market)
-    var ordermarket = Book(market: book.market)
-    for idx, offer in book.offers:
-      var buyable_qty = min(working_offer.base_qty, offer.base_qty)
-      if buyable_qty > 0:
-        let price_diff =  offer.quote - working_offer.quote
-        if price_diff > 0:
-          ordermarket.offers.add(Offer(base_qty: buyable_qty, quote: offer.quote))
-          profit += buyable_qty * price_diff
-          echo &"using ask {working_offer} selling {buyable_qty} to {offer} {book.market} diff {price_diff:0.5f} profit {buyable_qty*price_diff:0.5f}"
-          working_offer.base_qty -= buyable_qty
-      afterbook.offers.add(Offer(base_qty: offer.base_qty - buyable_qty, quote: offer.quote))
-    afterbooks.books.add(afterbook)
-    if ordermarket.offers.len > 0:
-      orders.books.add(ordermarket)
-  (orders, profit)
-
 proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell to the asks, buy from the bids
-    var bids_to_buy:Books
-    deepCopy(bids_to_buy, bidbooks)
-    var base_inventory = askbooks.base_total()
-    var total_profit:float
-    var total_cost:float
-    for idx, abook in askbooks.books:
-      var book_sell_total = 0f
-      var book_profit: float
-      var book_cost: float
-      for ask_off in abook.offers:
-        var bid_qty = bids_to_buy.base_total()
-        var profit: float
-        var working_offer: Offer
-        deepCopy(working_offer, ask_off)
-        var orders: Books
-        (orders, profit) = bidsells(working_offer, bids_to_buy)
-        for obook in orders.books:
-          for ooff in obook.offers:
-            echo &"**BUY {abook.market} {ask_off} SELL {obook.market} {ooff}"
-        let sell_qty = ask_off.base_qty - working_offer.base_qty
-        book_sell_total += sell_qty
-        book_cost += sell_qty * ask_off.quote
-        book_profit += profit
-      echo &"Total ask market {abook.market} QTY SELL {book_sell_total} COST {book_cost} PROFIT {book_profit}"
-      total_profit += book_profit
-      total_cost += book_cost
-    (total_cost, total_profit)
+    var asks_to_buy_from:Books
+    deepCopy(asks_to_buy_from, askbooks)
+    let asklist = asks_to_buy_from.ordered_offers
+    var bids_to_sell_to:Books
+    deepCopy(bids_to_sell_to, bidbooks)
+    let bidlist = bids_to_sell_to.ordered_offers
+
+    let ask_orders = Books()
+    let bid_orders = Books()
+
+    for alist in asklist:
+      for blist in bidlist:
+        if alist[1].quote < blist[1].quote: #buy low sell high
+          echo &"winner {alist} {blist}"
+          let qty = min(alist[1].base_qty, blist[1].base_qty)
+          alist[1].base_qty -= qty
+          blist[1].base_qty -= qty
+          let order_offer = Offer(base_qty: qty, quote: alist[1].quote)
+          ask_orders.merge(alist[0], order_offer)
+          bid_orders.merge(blist[0], order_offer)
+    echo &"winning {ask_orders}"
+    echo &"winning {bid_orders}"
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 

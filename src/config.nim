@@ -77,7 +77,6 @@ proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books, best: flo
                           cost: cost, profit: profit)
     let payload = serialization.dump(arb_report, options = defineOptions(style = psJson))
     let rx = redis_client.lpush("orders", payload)
-    echo fmt("arbpub pushed orders {payload}")
     let rx2 = redis_client.publish("orders", arb_report.id)
 
 proc arbpub*(ticker_pair: (Ticker, Ticker), askbooks: Books, bestask:float, bidbooks: Books, bestbid: float, cost: float, profit: float) =

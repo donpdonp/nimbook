@@ -14,6 +14,22 @@ type
 proc best*(book: Book): Offer =
   book.offers[0]
 
+proc close_offer(book: Book, price: float): Offer =
+  for offer in book.offers:
+    if offer.quote == price:
+      return offer
+  return nil
+
+proc merge*(books: Books, book: Book, offer: Offer) =
+  echo &"merge  {offer}"
+  let closest = book.close_offer(offer.quote)
+  if closest == nil:
+    echo &"merge closest found {closest}"
+    book.offers.add(offer)
+  else:
+    echo &"merge no closest found"
+    closest.base_qty += offer.base_qty
+
 proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
   for b in books.books:

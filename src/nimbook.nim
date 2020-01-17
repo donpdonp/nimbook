@@ -1,5 +1,5 @@
 # nim
-import strformat, strutils, tables, sequtils
+import strformat, tables, sequtils
 # nimble
 # local
 import types, net
@@ -14,17 +14,17 @@ proc trade*(askbooks: Books, bidbooks: Books): (float, float) =
     deepCopy(bids_to_sell_to, bidbooks)
     let bidlist = bids_to_sell_to.ordered_offers
 
-    let ask_orders = Books()
-    let bid_orders = Books()
+    let ask_orders = Books(askbid: AskBid.ask)
+    let bid_orders = Books(askbid: AskBid.bid)
 
     for alist in asklist:
       for blist in bidlist:
         if alist[1].quote < blist[1].quote: #buy low sell high
-          echo &"winner {alist} {blist}"
           let qty = min(alist[1].base_qty, blist[1].base_qty)
           alist[1].base_qty -= qty
           blist[1].base_qty -= qty
           let order_offer = Offer(base_qty: qty, quote: alist[1].quote)
+          echo &"winning. {order_offer}"
           ask_orders.merge(alist[0], order_offer)
           bid_orders.merge(blist[0], order_offer)
     echo &"winning {ask_orders}"

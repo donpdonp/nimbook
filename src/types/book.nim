@@ -20,15 +20,10 @@ proc close_offer(book: Book, price: float): Offer =
       return offer
   return nil
 
-proc merge*(books: Books, book: Book, offer: Offer) =
-  echo &"merge  {offer}"
-  let closest = book.close_offer(offer.quote)
-  if closest == nil:
-    echo &"merge closest found {closest}"
-    book.offers.add(offer)
-  else:
-    echo &"merge no closest found"
-    closest.base_qty += offer.base_qty
+proc findb*(books: Books, book: Book): Book =
+  for bbook in books.books:
+    if bbook == book:
+      return bbook
 
 proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
@@ -83,4 +78,23 @@ proc `$`*(b: Book): string =
 
 proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")
+
+proc merge*(books: Books, book: Book, offer: Offer) =
+  echo &"merging {book} {offer} into books.books.len {books.books.len}"
+  let goodbook = books.findb(book)
+  if goodbook == nil:
+    var newbook: Book
+    deepCopy(newbook, book)
+    books.books.add(newbook)
+    echo &"merge no book found. creating"
+    newbook.offers.add(offer)
+    books.books.add(newbook)
+  else:
+    let closest = goodbook.close_offer(offer.quote)
+    if closest == nil:
+      echo &"book found. closest not found"
+      goodbook.offers.add(offer)
+    else:
+      echo &"book found. closest found {closest} adding qty {offer.base_qty}"
+      closest.base_qty += offer.base_qty
 

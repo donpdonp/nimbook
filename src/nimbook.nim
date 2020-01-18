@@ -68,7 +68,7 @@ proc marketfetch*(market: var Market): (seq[Offer], seq[Offer]) =
       echo &"{market.source.name},  Warning, bids are reverse-order {best_bid.quote} < {worst_bid.quote}"
   (asks, bids)
 
-proc marketpairs_match*(markets: seq[Market]): Table[(string, string), seq[Market]] =
+proc marketpairs_group*(markets: seq[Market]): Table[(string, string), seq[Market]] =
   var winners: Table[(string, string), seq[Market]]
   for m1 in markets:
     let key_parts = m1.tickers()
@@ -78,6 +78,14 @@ proc marketpairs_match*(markets: seq[Market]): Table[(string, string), seq[Marke
     else:
       winners[key].add(m1)
   winners
+
+proc marketpairs_equal*(markets: seq[Market]): seq[Market] =
+  var winners: seq[Market]
+  for m1 in markets:
+    for m2 in markets:
+      if m1.base == m2.base:
+        let x = 1
+  markets
 
 proc swapsides*(asks: seq[Offer], bids: seq[Offer]): (seq[Offer], seq[Offer]) =
   var swapped_asks = bids.map(proc (o:Offer): Offer = o.swap())

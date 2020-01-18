@@ -15,7 +15,7 @@ proc markets(config: config.Config) =
       let ex = getCurrentException()
       echo &"{source.name} : {ex.msg}"
 
-  var matches:Table[(string, string), seq[Market]] = marketpairs_match(markets)
+  var matches:Table[(string, string), seq[Market]] = marketpairs_group(markets)
   var matches_count = 0
   for k,v in matches.mpairs:
     if len(v) > 1:
@@ -74,8 +74,9 @@ proc book(config: Config, base: string, quote: string) =
   echo &"loaded {len(matches)}"
   let market_pair = (Ticker(symbol:base), Ticker(symbol:quote))
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
-  echo &"{market_pair} {market_matches}"
-  compare(config, market_pair, market_matches)
+  echo &"{market_pair} {market_matches} candidates"
+  var market_equals = marketpairs_equal(market_matches)
+  compare(config, market_pair, market_equals)
 
 proc bookall(config: Config) =
   var matches = config.marketload()

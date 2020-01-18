@@ -11,7 +11,11 @@ type
     sources*: seq[Source]
   Settings* = object
     redis: string
-    influx: string
+    influx: Influx
+  Influx = object
+      url: string
+      username: string
+      password: string
 
 var redis_client: redis.Redis
 
@@ -84,5 +88,6 @@ proc arbpub*(config: Config, ticker_pair: (Ticker, Ticker), askbooks: Books, bes
   let aid = ulid()
   bookpub(aid, ticker_pair, askbooks, bestask, cost, profit)
   bookpub(aid, ticker_pair, bidbooks, bestbid, cost, profit)
-  if config.settings.influx.len > 0:
-    net.influxpush(config.settings.influx, ticker_pair, cost, profit)
+  if config.settings.influx.url.len > 0:
+    net.influxpush(config.settings.influx.url, config.settings.influx.username, config.settings.influx.password,
+      ticker_pair, cost, profit)

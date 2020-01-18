@@ -84,4 +84,5 @@ proc arbpub*(config: Config, ticker_pair: (Ticker, Ticker), askbooks: Books, bes
   let aid = ulid()
   bookpub(aid, ticker_pair, askbooks, bestask, cost, profit)
   bookpub(aid, ticker_pair, bidbooks, bestbid, cost, profit)
-  net.influxpush(config.settings.influx, ticker_pair, cost, profit)
+  if config.settings.influx.len > 0:
+    net.influxpush(config.settings.influx, ticker_pair, cost, profit)

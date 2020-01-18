@@ -31,8 +31,6 @@ proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
             let sell_offer = Offer(base_qty: qty, quote: alist[1].quote)
             ask_orders.merge(alist[0], buy_offer)
             bid_orders.merge(blist[0], sell_offer)
-    echo &"winning {ask_orders}"
-    echo &"winning {bid_orders}"
     (ask_orders, bid_orders, profit)
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")

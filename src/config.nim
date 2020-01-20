@@ -13,9 +13,9 @@ type
     redis: string
     influx: Influx
   Influx = object
-      url: string
-      username: string
-      password: string
+    url: string
+    username: string
+    password: string
 
 var redis_client: redis.Redis
 
@@ -47,7 +47,7 @@ proc marketsave*(config: Config, mt: Table[(string, string), seq[Market]]) =
   var stream = newFileStream("all_markets.yaml", fmWrite)
   dump(mt, stream)
   stream.close()
-  var vals = filter(toSeq(mt.values()), proc(ms: seq[Market]): bool = len(ms) > 1 )
+  var vals = filter(toSeq(mt.values()), proc(ms: seq[Market]): bool = len(ms) > 1)
   var jstream = newFileStream("all_markets.json", fmWrite)
   dump(vals, jstream, options = defineOptions(style = psJson))
   jstream.close()
@@ -69,10 +69,12 @@ type ArbReport = object
   cost: float
   profit: float
 
-proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books, best: float, cost: float, profit: float) =
+proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books,
+    best: float, cost: float, profit: float) =
   for book in books.books:
     let arb_report = ArbReport(id: aid,
-                          buysell: if books.askbid == AskBid.ask: "buy" else: "sell",
+                          buysell: if books.askbid ==
+                          AskBid.ask: "buy" else: "sell",
                           base_ticker: ticker_pair[0].symbol,
                           quote_ticker: ticker_pair[0].symbol,
                           market_name: book.market.source.name,
@@ -80,14 +82,18 @@ proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books, best: flo
                           market_quote: book.market.quote.symbol,
                           limit: best,
                           cost: cost, profit: profit)
-    let payload = serialization.dump(arb_report, options = defineOptions(style = psJson))
+    let payload = serialization.dump(arb_report, options = defineOptions(
+        style = psJson))
     let rx = redis_client.lpush("orders", payload)
     let rx2 = redis_client.publish("orders", arb_report.id)
 
-proc arbpub*(config: Config, ticker_pair: (Ticker, Ticker), askbooks: Books, bestask:float, bidbooks: Books, bestbid: float, cost: float, profit: float) =
+proc arbpub*(config: Config, ticker_pair: (Ticker, Ticker), askbooks: Books,
+    bestask: float, bidbooks: Books, bestbid: float, cost: float,
+    profit: float) =
   let aid = ulid()
   bookpub(aid, ticker_pair, askbooks, bestask, cost, profit)
   bookpub(aid, ticker_pair, bidbooks, bestbid, cost, profit)
   if config.settings.influx.url.len > 0:
-    net.influxpush(config.settings.influx.url, config.settings.influx.username, config.settings.influx.password,
+    net.influxpush(config.settings.influx.url, config.settings.influx.username,
+      config.settings.influx.password,
       ticker_pair, cost, profit)

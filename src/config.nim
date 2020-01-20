@@ -64,20 +64,18 @@ proc jsonsave*(arb_id: string, market_name: string, json: string) =
 
 type ArbReport = object
   id: string
-  buysell: string
-  base_ticker: string
-  quote_ticker: string
-  books: Books
+  pair: (string, string)
+  ask_books: Books
+  bid_books: Books
   cost: float
   profit: float
 
-proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), books: Books,
-    cost: float, profit: float) =
+proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
+    bid_books: Books, cost: float, profit: float) =
   let arb_report = ArbReport(id: arb_id,
-        buysell: if books.askbid == AskBid.ask: "buy" else: "sell",
-        base_ticker: ticker_pair[0].symbol,
-        quote_ticker: ticker_pair[1].symbol,
-        books: books, cost: cost, profit: profit)
+        pair: (ticker_pair[0].symbol, ticker_pair[1].symbol),
+        ask_books: ask_books, bid_books: bid_books,
+        cost: cost, profit: profit)
   let payload = serialization.dump(arb_report, options = defineOptions(
       style = psJson))
   let rx = redis_client.lpush("orders", payload)
@@ -88,8 +86,7 @@ proc arb_id_gen*(): string =
 
 proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker), ask_orders: Books,
     bid_orders: Books, cost: float, profit: float) =
-  redisPush(arb_id, ticker_pair, ask_orders, cost, profit)
-  redisPush(arb_id, ticker_pair, bid_orders, cost, profit)
+  redisPush(arb_id, ticker_pair, ask_orders, bid_orders, cost, profit)
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,
       config.settings.influx.password,

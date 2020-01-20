@@ -73,16 +73,15 @@ type ArbReport = object
 
 proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), books: Books,
     cost: float, profit: float) =
-  for book in books.books:
-    let arb_report = ArbReport(id: arb_id,
-          buysell: if books.askbid == AskBid.ask: "buy" else: "sell",
-          base_ticker: ticker_pair[0].symbol,
-          quote_ticker: ticker_pair[1].symbol,
-          books: books, cost: cost, profit: profit)
-    let payload = serialization.dump(arb_report, options = defineOptions(
-        style = psJson))
-    let rx = redis_client.lpush("orders", payload)
-    let rx2 = redis_client.publish("orders", arb_report.id)
+  let arb_report = ArbReport(id: arb_id,
+        buysell: if books.askbid == AskBid.ask: "buy" else: "sell",
+        base_ticker: ticker_pair[0].symbol,
+        quote_ticker: ticker_pair[1].symbol,
+        books: books, cost: cost, profit: profit)
+  let payload = serialization.dump(arb_report, options = defineOptions(
+      style = psJson))
+  let rx = redis_client.lpush("orders", payload)
+  let rx2 = redis_client.publish("orders", arb_report.id)
 
 proc arb_id_gen*(): string =
   ulid()

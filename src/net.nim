@@ -5,14 +5,17 @@ import libjq, jqutil
 # local
 import types
 
-var client = newHttpClient(timeout=800)
+var Client = newHttpClient(timeout=800)
+
+proc getContent*(url: string): string =
+  Client.getContent(url)
 
 proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
   echo "marketlistload ", jqurl.url
   var markets: seq[Market]
-  client.headers = newHttpHeaders({ "User-Agent": "curl/7.58.0",
+  Client.headers = newHttpHeaders({ "User-Agent": "curl/7.58.0",
                                     "Accept": "*/*" })
-  var json:string = client.getContent(jqurl.url)
+  var json:string = Client.getContent(jqurl.url)
   var jq_state = libjq.jq_init()
   var compile_success = libjq.jq_compile(jq_state, jqurl.jq)
   if compile_success == 1:
@@ -26,10 +29,7 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     echo "marketlistload jq compile fail ", jqurl.jq
   markets
 
-proc marketbooksload*(market: Market): (seq[Offer], seq[Offer]) =
-  var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
-  let json:string = client.getContent(url)
-
+proc marketbooksload*(json: string, market: Market): (seq[Offer], seq[Offer]) =
   var bids:seq[Offer]
   let jq_bids = jqutil.jqrun(json, market.source.jq.bids)
   var bid_floats = jqutil.jqArrayToSeqFloat(jq_bids)
@@ -50,7 +50,7 @@ proc influxpush*(url: string, username: string, password: string,
   let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
   let body = &"arb,pair={pair} profit={profit},cost={cost}"
   echo body
-  client.headers["Authorization"] = "Basic " & base64.encode(username & ":" & password)
-  let response = client.request(url, httpMethod = HttpPost, body = $body)
+  Client.headers["Authorization"] = "Basic " & base64.encode(username & ":" & password)
+  let response = Client.request(url, httpMethod = HttpPost, body = $body)
   echo &"{response.status} {response.body}"
 

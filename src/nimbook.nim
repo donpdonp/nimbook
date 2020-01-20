@@ -1,5 +1,5 @@
 # nim
-import strformat, tables, sequtils
+import strformat, strutils, tables, sequtils
 # nimble
 # local
 import types, net
@@ -52,8 +52,11 @@ proc bestprice*(books: Books): (Market, Offer) =
           best_market = b.market
   (best_market, best_offer)
 
-proc marketfetch*(market: var Market): (seq[Offer], seq[Offer]) =
-  var (asks, bids) = marketbooksload(market)
+proc marketfetch*(arb_id: string, market: var Market): (seq[Offer], seq[Offer]) =
+  var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
+  let json:string = net.getContent(url)
+
+  var (asks, bids) = marketbooksload(json, market)
   if len(asks) > 0:
     let best_ask = asks[low(asks)]
     let worst_ask = asks[high(asks)]
@@ -95,7 +98,7 @@ proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker), matchingMarkets
   var bidbooks = Books(askbid: AskBid.bid)
   for market in matchingMarkets.mitems:
     try:
-      var (askoffers, bidoffers) = marketfetch(market)
+      var (askoffers, bidoffers) = marketfetch(arb_id, market)
       var word = " loaded"
       if market.ticker_pair_swapped(ticker_pair):
         (askoffers, bidoffers) = swapsides(askoffers, bidoffers)

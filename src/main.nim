@@ -1,5 +1,5 @@
 # nim
-import os, strformat, tables
+import os, strformat, tables, times
 # local
 import config, nimbook, net, types
 
@@ -27,7 +27,6 @@ proc markets(config: config.Config) =
 
 proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var seq[Market]) =
   let arb_id = arb_id_gen()
-  echo &"{ticker_pair} {arb_id}"
   var (askbooks, bidbooks) = marketsload(arb_id, ticker_pair, matchingMarkets)
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
@@ -47,17 +46,16 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       echo &"*ORDER {bid_orders}"
       let cost = ask_orders.base_total
       arbpub(config, ticker_pair, ask_price_wins, best_ask.quote, bid_price_wins, best_bid.quote, cost, profit)
-      echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f}"
+      echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f} {arb_id} {now()}"
   else:
     echo "totally empty."
   echo ""
 
 proc book(config: Config, base: string, quote: string) =
   var matches = config.marketload()
-  echo &"loaded {len(matches)}"
   let market_pair = (Ticker(symbol:base), Ticker(symbol:quote))
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
-  echo &"{market_pair} {market_matches} candidates"
+  echo &"{market_pair} {market_matches}"
   var market_equals = marketpairs_equal(market_matches)
   compare(config, market_pair, market_equals)
 
@@ -78,8 +76,9 @@ proc help(config: Config) =
   echo "nimbook books - compare all orderbooks"
 
 proc main(args: seq[string]) =
-  echo "nimbook v0.1"
-  var config = config.load("config.yaml")
+  let config_file = "config.yaml"
+  var config = config.load(config_file)
+  echo "nimbook v0.2 ({config_file} loaded)"
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)

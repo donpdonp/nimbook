@@ -1,5 +1,5 @@
 # nim
-import yaml/serialization, yaml/presenter, streams, tables, sequtils, strformat, os
+import yaml/serialization, yaml/presenter, streams, tables, sequtils, os
 # nimble
 import redis, ulid
 # local
@@ -25,15 +25,12 @@ proc load*(filename: string): Config =
   var stream1 = newFileStream(filename)
   serialization.load(stream1, config.settings)
   stream1.close()
-  echo config.settings
 
   var stream2 = newFileStream("sources.yaml")
   serialization.load(stream2, config.sources)
   stream2.close()
 
   redis_client = redis.open()
-  let keys = redis_client.keys("*")
-  echo fmt("redis keys {keys.len}")
   config
 
 proc marketload*(config: Config): Table[(string, string), seq[Market]] =

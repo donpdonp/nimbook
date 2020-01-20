@@ -67,26 +67,18 @@ type ArbReport = object
   buysell: string
   base_ticker: string
   quote_ticker: string
-  market_name: string
-  market_base: string
-  market_quote: string
-  limit: float
+  books: Books
   cost: float
   profit: float
 
-proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books,
-    best: float, cost: float, profit: float) =
+proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), books: Books,
+    cost: float, profit: float) =
   for book in books.books:
-    let arb_report = ArbReport(id: aid,
-                          buysell: if books.askbid ==
-                          AskBid.ask: "buy" else: "sell",
-                          base_ticker: ticker_pair[0].symbol,
-                          quote_ticker: ticker_pair[0].symbol,
-                          market_name: book.market.source.name,
-                          market_base: book.market.base.symbol,
-                          market_quote: book.market.quote.symbol,
-                          limit: best,
-                          cost: cost, profit: profit)
+    let arb_report = ArbReport(id: arb_id,
+          buysell: if books.askbid == AskBid.ask: "buy" else: "sell",
+          base_ticker: ticker_pair[0].symbol,
+          quote_ticker: ticker_pair[1].symbol,
+          books: books, cost: cost, profit: profit)
     let payload = serialization.dump(arb_report, options = defineOptions(
         style = psJson))
     let rx = redis_client.lpush("orders", payload)
@@ -95,12 +87,10 @@ proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books,
 proc arb_id_gen*(): string =
   ulid()
 
-proc arbpub*(config: Config, ticker_pair: (Ticker, Ticker), askbooks: Books,
-    bestask: float, bidbooks: Books, bestbid: float, cost: float,
-    profit: float) =
-  let aid = ulid()
-  bookpub(aid, ticker_pair, askbooks, bestask, cost, profit)
-  bookpub(aid, ticker_pair, bidbooks, bestbid, cost, profit)
+proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker), ask_orders: Books,
+    bid_orders: Books, cost: float, profit: float) =
+  redisPush(arb_id, ticker_pair, ask_orders, cost, profit)
+  redisPush(arb_id, ticker_pair, bid_orders, cost, profit)
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,
       config.settings.influx.password,

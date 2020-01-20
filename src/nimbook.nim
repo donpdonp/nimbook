@@ -2,7 +2,7 @@
 import strformat, strutils, tables, sequtils
 # nimble
 # local
-import types, net
+import types, net, config
 
 proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
@@ -55,6 +55,7 @@ proc bestprice*(books: Books): (Market, Offer) =
 proc marketfetch*(arb_id: string, market: var Market): (seq[Offer], seq[Offer]) =
   var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
   let json:string = net.getContent(url)
+  config.jsonsave(arb_id, market.`$`, json)
 
   var (asks, bids) = marketbooksload(json, market)
   if len(asks) > 0:

@@ -57,6 +57,9 @@ proc bookssave*(books: Books, filename: string) =
   dump(books, stream)
   stream.close()
 
+proc jsonsave*(arb_id: string, market_name: string, json: string) =
+  let x = 1
+
 type ArbReport = object
   id: string
   buysell: string

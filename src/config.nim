@@ -1,5 +1,5 @@
 # nim
-import yaml/serialization, yaml/presenter, streams, tables, sequtils, strformat
+import yaml/serialization, yaml/presenter, streams, tables, sequtils, strformat, os
 # nimble
 import redis, ulid
 # local
@@ -58,7 +58,12 @@ proc bookssave*(books: Books, filename: string) =
   stream.close()
 
 proc jsonsave*(arb_id: string, market_name: string, json: string) =
-  let x = 1
+  let arbs_root = "arbs"
+  createDir(arbs_root)
+  let arb_dir = "." & "/" & arbs_root & "/" & arb_id
+  createDir(arb_dir)
+  let market_file = arb_dir & "/" & market_name
+  writeFile(market_file, json)
 
 type ArbReport = object
   id: string

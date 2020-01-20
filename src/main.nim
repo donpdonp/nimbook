@@ -46,7 +46,7 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       echo &"*ORDER {bid_orders}"
       let cost = ask_orders.base_total
       arbPush(config, arb_id, ticker_pair, ask_orders, bid_orders, cost, profit)
-      echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f} {arb_id} {now()}"
+      echo &"*Cost {cost:0.5f} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f} #{arb_id} {now().`$`}"
   else:
     echo "totally empty."
   echo ""
@@ -78,7 +78,7 @@ proc help(config: Config) =
 proc main(args: seq[string]) =
   let config_file = "config.yaml"
   var config = config.load(config_file)
-  echo "nimbook v0.2 ({config_file} loaded)"
+  echo &"nimbook v0.2 ({config_file} loaded)"
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)

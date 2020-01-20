@@ -87,6 +87,9 @@ proc bookpub(aid: string, ticker_pair: (Ticker, Ticker), books: Books,
     let rx = redis_client.lpush("orders", payload)
     let rx2 = redis_client.publish("orders", arb_report.id)
 
+proc arb_id_gen*(): string =
+  ulid()
+
 proc arbpub*(config: Config, ticker_pair: (Ticker, Ticker), askbooks: Books,
     bestask: float, bidbooks: Books, bestbid: float, cost: float,
     profit: float) =

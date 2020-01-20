@@ -26,28 +26,9 @@ proc markets(config: config.Config) =
   echo &"saved."
 
 proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var seq[Market]) =
-  var askbooks = Books(askbid: AskBid.ask)
-  var bidbooks = Books(askbid: AskBid.bid)
-  for market in matchingMarkets.mitems:
-    try:
-      var (askoffers, bidoffers) = marketfetch(market)
-      var word = " loaded"
-      if market.ticker_pair_swapped(ticker_pair):
-        (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
-        let market_temp = market.base
-        market.base = market.quote
-        market.quote = market_temp
-        word = "swapped"
-      let askbook = Book(market: market, offers: askoffers)
-      if askoffers.len > 0:
-        askbooks.books.add(askbook)
-      let bidbook = Book(market: market, offers: bidoffers)
-      if bidoffers.len > 0:
-        bidbooks.books.add(bidbook)
-      echo &"{word} asks {askbook} bids {bidbook}"
-    except:
-      let ex = getCurrentException()
-      echo &"{market} : {ex.msg}"
+  let arb_id = arb_id_gen()
+  echo &"{ticker_pair} {arb_id}"
+  var (askbooks, bidbooks) = marketsload(arb_id, ticker_pair, matchingMarkets)
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
   if best_ask_market != nil and best_bid_market != nil:

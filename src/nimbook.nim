@@ -89,3 +89,28 @@ proc swapsides*(asks: seq[Offer], bids: seq[Offer]): (seq[Offer], seq[Offer]) =
   var swapped_asks = bids.map(proc (o:Offer): Offer = o.swap())
   var swapped_bids = asks.map(proc (o:Offer): Offer = o.swap())
   (swapped_asks, swapped_bids)
+
+proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker), matchingMarkets: var seq[Market]): (Books, Books) =
+  var askbooks = Books(askbid: AskBid.ask)
+  var bidbooks = Books(askbid: AskBid.bid)
+  for market in matchingMarkets.mitems:
+    try:
+      var (askoffers, bidoffers) = marketfetch(market)
+      var word = " loaded"
+      if market.ticker_pair_swapped(ticker_pair):
+        (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
+        let market_temp = market.base
+        market.base = market.quote
+        market.quote = market_temp
+        word = "swapped"
+      let askbook = Book(market: market, offers: askoffers)
+      if askoffers.len > 0:
+        askbooks.books.add(askbook)
+      let bidbook = Book(market: market, offers: bidoffers)
+      if bidoffers.len > 0:
+        bidbooks.books.add(bidbook)
+      echo &"{word} asks {askbook} bids {bidbook}"
+    except:
+      let ex = getCurrentException()
+      echo &"{market} : {ex.msg}"
+  (askbooks, bidbooks)

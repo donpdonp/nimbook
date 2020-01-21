@@ -5,14 +5,15 @@ import libjq, jqutil
 # local
 import types
 
-var Client = newHttpClient(timeout=800)
 
 proc getContent*(url: string): string =
+  var Client = newHttpClient(timeout=800)
   Client.getContent(url)
 
 proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
   echo "marketlistload ", jqurl.url
   var markets: seq[Market]
+  var Client = newHttpClient(timeout=800)
   Client.headers = newHttpHeaders({ "User-Agent": "curl/7.58.0",
                                     "Accept": "*/*" })
   var json:string = Client.getContent(jqurl.url)
@@ -50,6 +51,7 @@ proc influxpush*(url: string, username: string, password: string,
   let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
   let body = &"arb,pair={pair} profit={profit},cost={cost}"
   echo body
+  var Client = newHttpClient(timeout=800)
   Client.headers["Authorization"] = "Basic " & base64.encode(username & ":" & password)
   let response = Client.request(url, httpMethod = HttpPost, body = $body)
   echo &"{response.status} {response.body}"

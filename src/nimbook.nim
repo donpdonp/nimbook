@@ -54,6 +54,7 @@ proc bestprice*(books: Books): (Market, Offer) =
 
 proc marketfetch*(arb_id: string, market: var Market): (seq[Offer], seq[Offer]) =
   var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
+  echo url
   let json:string = net.getContent(url)
   config.jsonsave(arb_id, market.`$`, json)
 
@@ -116,5 +117,5 @@ proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker), matchingMarkets
       echo &"{word} asks {askbook} bids {bidbook}"
     except:
       let ex = getCurrentException()
-      echo &"{market} : {ex.msg}"
+      echo &"IOERR {market} : {ex.msg}"
   (askbooks, bidbooks)

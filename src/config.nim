@@ -80,8 +80,8 @@ proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
       style = psJson))
   let rkey = "arb:" & arb_id
   let rx = redis_client.hset(rkey, "json", payload)
-  let rx = redis_client.lpush("orders", arb_report.id)
-  let rx2 = redis_client.publish("orders", arb_report.id)
+  let rx2 = redis_client.lpush("orders", arb_report.id)
+  let rx3 = redis_client.publish("orders", arb_report.id)
 
 proc arb_id_gen*(): string =
   ulid()

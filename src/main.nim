@@ -44,8 +44,9 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       let (ask_orders, bid_orders, profit) = trade(ask_price_wins, bid_price_wins)
       echo &"*ORDER {ask_orders}"
       echo &"*ORDER {bid_orders}"
+      let avg_price = best_ask.quote + (best_bid.quote - best_ask.quote)/2
       let cost = ask_orders.base_total
-      arbPush(config, arb_id, ticker_pair, ask_orders, bid_orders, cost, profit)
+      arbPush(config, arb_id, ticker_pair, ask_orders, bid_orders, cost, profit, avg_price)
       echo &"*Cost {cost:0.5f} {ticker_pair[0]} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f} {arb_id} {now().`$`}"
   else:
     echo "totally empty."

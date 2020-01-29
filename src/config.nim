@@ -69,13 +69,14 @@ type ArbReport = object
   bid_books: Books
   cost: float
   profit: float
+  avg_price: float
 
 proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
-    bid_books: Books, cost: float, profit: float) =
+    bid_books: Books, cost: float, profit: float, avg_price: float) =
   let arb_report = ArbReport(id: arb_id,
         pair: (ticker_pair[0].symbol, ticker_pair[1].symbol),
         ask_books: ask_books, bid_books: bid_books,
-        cost: cost, profit: profit)
+        cost: cost, profit: profit, avg_price: avg_price)
   let payload = serialization.dump(arb_report, options = defineOptions(
       style = psJson))
   let rkey = "arb:" & arb_id
@@ -87,9 +88,9 @@ proc arb_id_gen*(): string =
   ulid()
 
 proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker), ask_orders: Books,
-    bid_orders: Books, cost: float, profit: float) =
-  redisPush(arb_id, ticker_pair, ask_orders, bid_orders, cost, profit)
+    bid_orders: Books, cost: float, profit: float, avg_price: float) =
+  redisPush(arb_id, ticker_pair, ask_orders, bid_orders, cost, profit, avg_price)
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,
       config.settings.influx.password,
-      ticker_pair, cost, profit)
+      ticker_pair, cost, profit, avg_price)

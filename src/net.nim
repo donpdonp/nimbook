@@ -54,6 +54,6 @@ proc influxpush*(url: string, username: string, password: string,
   var Client = newHttpClient(timeout=800)
   Client.headers["Authorization"] = "Basic " & base64.encode(username & ":" & password)
   let response = Client.request(url, httpMethod = HttpPost, body = $body)
-  let status = response.status.parseInt
+  let status = response.status.split(" ")[0].parseInt
   if status < 200 or status >= 300:
     echo &"{response.status} {response.body}"

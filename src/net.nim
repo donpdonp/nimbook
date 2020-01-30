@@ -50,9 +50,10 @@ proc influxpush*(url: string, username: string, password: string,
   ticker_pair: (Ticker, Ticker), cost: float, profit: float, avg_price: float) =
   let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
   let body = &"arb,pair={pair} profit={profit},cost={cost},avg_price={avg_price}"
-  echo body
+  echo &"influx: {body}"
   var Client = newHttpClient(timeout=800)
   Client.headers["Authorization"] = "Basic " & base64.encode(username & ":" & password)
   let response = Client.request(url, httpMethod = HttpPost, body = $body)
-  echo &"{response.status} {response.body}"
-
+  let status = response.status.parseInt
+  if status < 200 or status >= 300:
+    echo &"{response.status} {response.body}"

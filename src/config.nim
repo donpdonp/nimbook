@@ -12,6 +12,7 @@ type
   Settings* = object
     redis: string
     influx: Influx
+    delay*: float
   Influx = object
     url: string
     username: string

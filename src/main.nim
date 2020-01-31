@@ -67,6 +67,8 @@ proc bookall(config: Config) =
     if len(v) > 1:
       echo(&"{k} = {v}")
       compare(config, (Ticker(symbol:k[0]), Ticker(symbol:k[1])), v)
+      echo(&"sleep 15")
+      sleep(15000)
 
 proc help_closest(word: string) =
   echo word, "not understood"

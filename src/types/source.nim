@@ -7,7 +7,7 @@ type
     url*: string
     jq*: string
 
-  Source* = object
+  Source* = ref object
     name* : string
     url* : string
     jq*  : JqBidAsk

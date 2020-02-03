@@ -107,6 +107,7 @@ proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker), matchingMarkets
         let market_temp = market.base
         market.base = market.quote
         market.quote = market_temp
+        market.swapped = true
         word = "swapped"
       let askbook = Book(market: market, offers: askoffers)
       if askoffers.len > 0:

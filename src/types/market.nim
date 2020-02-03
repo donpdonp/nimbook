@@ -5,6 +5,7 @@ type
     source*: Source
     base*: Ticker
     quote*: Ticker
+    swapped*: bool
 
 proc `$`*(m: Market): string =
   m.source.name & ":" & m.base.symbol & "-" & m.quote.symbol

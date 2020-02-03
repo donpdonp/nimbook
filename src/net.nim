@@ -27,7 +27,8 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
       let (base_symbol, quote_symbol) = jqutil.jqArrayTupleStrings(jqmarkets, idx)
       var new_market = Market(source: source,
         base: Ticker(symbol: base_symbol),
-        quote: Ticker(symbol: quote_symbol))
+        quote: Ticker(symbol: quote_symbol),
+        swapped: false)
       markets.add(new_market)
     libjq.jv_free(jqmarkets)
     libjq.jq_teardown(addr jq_state)

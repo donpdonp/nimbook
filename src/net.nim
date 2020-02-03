@@ -23,7 +23,12 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     var jdata = libjq.jv_parse(json)
     libjq.jq_start(jq_state, jdata, 0)
     var jqmarkets = libjq.jq_next(jq_state)
-    jqutil.jqArrayAddSeqMarket(markets, jqmarkets, source)
+    for idx in 0..jqutil.jqArrayLen(jqmarkets)-1:
+      let (base_symbol, quote_symbol) = jqutil.jqArrayTupleStrings(jqmarkets, idx)
+      var new_market = Market(source: source,
+        base: Ticker(symbol: base_symbol),
+        quote: Ticker(symbol: quote_symbol))
+      markets.add(new_market)
     libjq.jv_free(jqmarkets)
     libjq.jq_teardown(addr jq_state)
   else:

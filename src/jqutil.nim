@@ -2,7 +2,6 @@
 # nimble
 import libjq
 # local
-import types
 
 # libjq - jv_copy() [increment refcount] before every non-final use
 
@@ -19,15 +18,14 @@ proc jqArrayToSeqFloat*(jqarray: libjq.jq_Value): seq[seq[float]] =
       array.add(twofloats)
   array
 
-proc jqArrayAddSeqMarket*(markets: var seq[Market], jqarray: libjq.jq_Value, source: Source) =
-  for idx in 0..libjq.jv_array_length(libjq.jv_copy(jqarray))-1:
-    var element = libjq.jv_array_get(libjq.jv_copy(jqarray), idx)
-    var base_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0))
-    var quote_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1))
-    var nim_elements = Market(source: source,
-      base: Ticker(symbol: base_symbol),
-      quote: Ticker(symbol: quote_symbol))
-    markets.add(nim_elements)
+proc jqArrayLen*(jqarray: libjq.jq_Value): cint =
+  libjq.jv_array_length(libjq.jv_copy(jqarray))
+
+proc jqArrayTupleStrings*(jqarray: libjq.jq_Value, idx: cint): (string, string) =
+  var element = libjq.jv_array_get(libjq.jv_copy(jqarray), idx)
+  var base_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0))
+  var quote_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1))
+  (base_symbol, quote_symbol)
 
 proc jqrun*(json: string, jq_code: string): libjq.jq_Value =
   var jq_state = libjq.jq_init()

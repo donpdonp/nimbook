@@ -30,7 +30,7 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     echo "marketlistload jq compile fail ", jqurl.jq
   markets
 
-proc marketbooksload*(json: string, market: Market): (seq[Offer], seq[Offer]) =
+proc marketoffers_format*(json: string, market: Market): (seq[Offer], seq[Offer]) =
   var bids:seq[Offer]
   let jq_bids = jqutil.jqrun(json, market.source.jq.bids)
   var bid_floats = jqutil.jqArrayToSeqFloat(jq_bids)

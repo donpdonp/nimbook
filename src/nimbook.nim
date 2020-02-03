@@ -55,10 +55,10 @@ proc bestprice*(books: Books): (Market, Offer) =
 proc marketfetch*(arb_id: string, market: var Market): (seq[Offer], seq[Offer]) =
   var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
   echo url
-  let json:string = net.getContent(url)
-  config.jsonsave(arb_id, market.`$`, json)
+  let offers_json:string = net.getContent(url)
+  config.jsonsave(arb_id, market.`$`, offers_json)
 
-  var (asks, bids) = marketbooksload(json, market)
+  var (asks, bids) = marketoffers_format(offers_json, market)
   if len(asks) > 0:
     let best_ask = asks[low(asks)]
     let worst_ask = asks[high(asks)]

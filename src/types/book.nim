@@ -66,8 +66,8 @@ proc base_total*(books: Books): float =
     total += book.base_total
   total
 
-proc `$`*(b: Book): string =
-  var offersummary:string = "(empty)"
+proc offersummary*(b: Book): string =
+  var summary:string = "(empty)"
   let offercount = len(b.offers)
   if offercount > 0:
     let lowidx = low(b.offers)
@@ -75,12 +75,15 @@ proc `$`*(b: Book): string =
     let lowquote = b.offers[lowidx].`quote$`
     let highquote = b.offers[highidx].`quote$`
     if offercount == 1:
-      offersummary = lowquote
+      summary = lowquote
     if offercount == 2:
-      offersummary = "[" & lowquote & ", " & highquote & "]"
+      summary = "[" & lowquote & ", " & highquote & "]"
     if offercount > 2:
-      offersummary = "(" & lowquote & " - " & highquote & ")/" & offercount.`$`
-  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) & "@" & offersummary
+      summary = "(" & lowquote & " - " & highquote & ")/" & offercount.`$`
+  summary
+
+proc `$`*(b: Book): string =
+  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) & "@" & b.offersummary
 
 proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")

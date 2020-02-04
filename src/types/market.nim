@@ -8,7 +8,7 @@ type
     swapped*: bool
 
 proc `$`*(m: Market): string =
-  m.source.name & ":" & m.base.symbol & "-" & m.quote.symbol
+  m.source.name & ":" & m.base.symbol & (if m.swapped: "<>" else: "-") & m.quote.symbol
 
 proc tickers*(market: Market): (Ticker, Ticker) =
   var base_normal = market.base.normal

@@ -45,10 +45,10 @@ proc marketsave*(config: Config, mt: Table[(string, string), seq[Market]]) =
   var stream = newFileStream("all_markets.yaml", fmWrite)
   dump(mt, stream)
   stream.close()
-  var vals = filter(toSeq(mt.values()), proc(ms: seq[Market]): bool = len(ms) > 1)
-  var jstream = newFileStream("all_markets.json", fmWrite)
-  dump(vals, jstream, options = defineOptions(style = psJson))
-  jstream.close()
+  # var vals = filter(toSeq(mt.values()), proc(ms: seq[Market]): bool = len(ms) > 1)
+  # var jstream = newFileStream("all_markets.json", fmWrite)
+  # dump(vals, jstream, options = defineOptions(style = psJson))
+  # jstream.close()
 
 proc bookssave*(books: Books, filename: string) =
   var stream = newFileStream(filename, fmWrite)

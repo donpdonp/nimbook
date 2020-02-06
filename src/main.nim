@@ -57,7 +57,7 @@ proc book(config: Config, base: string, quote: string) =
   var matches = config.marketload()
   let market_pair = (Ticker(symbol: base), Ticker(symbol: quote))
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
-  echo &"{market_pair} {market_matches}"
+  echo &"={market_pair[0]}/{market_pair[1]} {market_matches}"
   var market_equals = marketpairs_equal(market_matches)
   compare(config, market_pair, market_equals)
 

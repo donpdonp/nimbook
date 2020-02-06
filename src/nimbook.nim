@@ -7,16 +7,16 @@ import types, net, config
 proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
     # Sell to the asks, buy from the bids
-    var asks_to_buy_from:Books
+    var asks_to_buy_from: Books
     deepCopy(asks_to_buy_from, askbooks)
     let asklist = asks_to_buy_from.ordered_offers
-    var bids_to_sell_to:Books
+    var bids_to_sell_to: Books
     deepCopy(bids_to_sell_to, bidbooks)
     let bidlist = bids_to_sell_to.ordered_offers
 
     let ask_orders = Books(askbid: AskBid.ask)
     let bid_orders = Books(askbid: AskBid.bid)
-    var profit:float
+    var profit: float
 
     for alist in asklist:
       for blist in bidlist:
@@ -36,8 +36,8 @@ proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 
 proc bestprice*(books: Books): (Market, Offer) =
-  let best_side_price:float = if books.askbid == AskBid.ask: high(float) else: 0
-  var best_offer = Offer(base_qty:0, quote: best_side_price)
+  let best_side_price: float = if books.askbid == AskBid.ask: high(float) else: 0
+  var best_offer = Offer(base_qty: 0, quote: best_side_price)
   var best_market: Market
   for b in books.books:
     if len(b.offers) > 0:
@@ -53,9 +53,10 @@ proc bestprice*(books: Books): (Market, Offer) =
   (best_market, best_offer)
 
 proc marketfetch*(arb_id: string, market: var Market): (seq[Offer], seq[Offer]) =
-  var url = market.source.url.replace("%base%", market.base.symbol).replace("%quote%", market.quote.symbol)
+  var url = market.source.url.replace("%base%", market.base.symbol).replace(
+      "%quote%", market.quote.symbol)
   echo url
-  let offers_json:string = net.getContent(url)
+  let offers_json: string = net.getContent(url)
   config.jsonsave(arb_id, market.`$`, offers_json)
 
   var (asks, bids) = marketoffers_format(offers_json, market)
@@ -91,31 +92,31 @@ proc marketpairs_equal*(markets: seq[Market]): seq[Market] =
   markets
 
 proc swapsides*(asks: seq[Offer], bids: seq[Offer]): (seq[Offer], seq[Offer]) =
-  var swapped_asks = bids.map(proc (o:Offer): Offer = o.swap())
-  var swapped_bids = asks.map(proc (o:Offer): Offer = o.swap())
+  var swapped_asks = bids.map(proc (o: Offer): Offer = o.swap())
+  var swapped_bids = asks.map(proc (o: Offer): Offer = o.swap())
   (swapped_asks, swapped_bids)
 
-proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker), matchingMarkets: var seq[Market]): (Books, Books) =
+proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker),
+    matchingMarkets: var seq[Market]): (Books, Books) =
   var askbooks = Books(askbid: AskBid.ask)
   var bidbooks = Books(askbid: AskBid.bid)
   for market in matchingMarkets.mitems:
     try:
       var (askoffers, bidoffers) = marketfetch(arb_id, market)
-      var word = " loaded"
       if market.ticker_pair_swapped(ticker_pair):
         (askoffers, bidoffers) = swapsides(askoffers, bidoffers)
         let market_temp = market.base
         market.base = market.quote
         market.quote = market_temp
         market.swapped = true
-        word = "swapped"
       let askbook = Book(market: market, offers: askoffers)
       if askoffers.len > 0:
         askbooks.books.add(askbook)
       let bidbook = Book(market: market, offers: bidoffers)
       if bidoffers.len > 0:
         bidbooks.books.add(bidbook)
-      echo &"{word} asks {askbook} bids {bidbook}"
+      echo &" asks {askbook}"
+      echo &" bids {bidbook}"
     except:
       let ex = getCurrentException()
       echo &"IOERR {market} : {ex.msg}"

@@ -1,5 +1,5 @@
 # nim
-import yaml/serialization, yaml/presenter, streams, tables, sequtils, os
+import yaml/serialization, yaml/presenter, streams, tables, os
 # nimble
 import redis, ulid
 # local
@@ -88,8 +88,9 @@ proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
 proc arb_id_gen*(): string =
   ulid()
 
-proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker), ask_orders: Books,
-    bid_orders: Books, cost: float, profit: float, avg_price: float) =
+proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker),
+    ask_orders: Books, bid_orders: Books, cost: float, profit: float,
+        avg_price: float) =
   redisPush(arb_id, ticker_pair, ask_orders, bid_orders, cost, profit, avg_price)
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,

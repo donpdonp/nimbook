@@ -15,9 +15,9 @@ proc markets(config: config.Config) =
       let ex = getCurrentException()
       echo &"{source.name} : {ex.msg}"
 
-  var matches:Table[(string, string), seq[Market]] = marketpairs_group(markets)
+  var matches: Table[(string, string), seq[Market]] = marketpairs_group(markets)
   var matches_count = 0
-  for k,v in matches.mpairs:
+  for k, v in matches.mpairs:
     if len(v) > 1:
       matches_count += 1
       echo &"{k} {v}"
@@ -25,19 +25,20 @@ proc markets(config: config.Config) =
   config.marketsave(matches)
   echo &"saved."
 
-proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var seq[Market]) =
+proc compare(config: Config, market_pair: (Ticker, Ticker),
+    matchingMarkets: var seq[Market]) =
   let arb_id = arb_id_gen()
-  var (askbooks, bidbooks) = marketsload(arb_id, ticker_pair, matchingMarkets)
+  var (askbooks, bidbooks) = marketsload(arb_id, market_pair, matchingMarkets)
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
   if best_ask_market != nil and best_bid_market != nil:
-    echo &"{ticker_pair} best_ask {best_ask_market} {best_ask.quote:0.5f} | {best_bid.quote:0.5f} {best_bid_market} best_bid"
-    let quote_ticker = ticker_pair[1]
+    echo &"{market_pair[0]}/{market_pair[1]} best_ask {best_ask_market} {best_ask.quote:0.5f} | {best_bid.quote:0.5f} {best_bid_market} best_bid"
+    let quote_ticker = market_pair[1]
     let ask_price_wins = askbooks.offers_better_than(best_bid.quote, quote_ticker)
     let bid_price_wins = bidbooks.offers_better_than(best_ask.quote, quote_ticker)
-    if ask_price_wins.books.len() > 0 or  bid_price_wins.books.len() > 0:
-      echo &"*ASKWIN {ticker_pair}: {ask_price_wins}"
-      echo &"*BIDWIN {ticker_pair}: {bid_price_wins}"
+    if ask_price_wins.books.len() > 0 or bid_price_wins.books.len() > 0:
+      echo &"*ASKWIN {market_pair}: {ask_price_wins}"
+      echo &"*BIDWIN {market_pair}: {bid_price_wins}"
       #bookssave(ask_price_wins, "ask_wins")
       #bookssave(bid_price_wins, "bid_wins")
       let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
@@ -46,15 +47,15 @@ proc compare(config: Config, ticker_pair: (Ticker, Ticker), matchingMarkets: var
       echo &"*ORDER {bid_orders}"
       let avg_price = best_ask.quote + (best_bid.quote - best_ask.quote)/2
       let cost = ask_orders.base_total
-      arbPush(config, arb_id, ticker_pair, ask_orders, bid_orders, cost, profit, avg_price)
-      echo &"*Cost {cost:0.5f} {ticker_pair[0]} Profit {profit:0.5f} {ticker_pair[1]} ratio {(profit/cost):0.5f} {arb_id} {now().`$`}"
+      arbPush(config, arb_id, market_pair, ask_orders, bid_orders, cost, profit, avg_price)
+      echo &"*Cost {cost:0.5f} {market_pair[0]} Profit {profit:0.5f} {market_pair[1]} ratio {(profit/cost):0.5f} {arb_id} {now().`$`}"
   else:
     echo "totally empty."
   echo ""
 
 proc book(config: Config, base: string, quote: string) =
   var matches = config.marketload()
-  let market_pair = (Ticker(symbol:base), Ticker(symbol:quote))
+  let market_pair = (Ticker(symbol: base), Ticker(symbol: quote))
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
   echo &"{market_pair} {market_matches}"
   var market_equals = marketpairs_equal(market_matches)
@@ -63,10 +64,10 @@ proc book(config: Config, base: string, quote: string) =
 proc bookall(config: Config) =
   var matches = config.marketload()
   echo &"loaded {len(matches)}"
-  for k,v in matches.mpairs:
+  for k, v in matches.mpairs:
     if len(v) > 1:
       echo(&"{k} = {v}")
-      compare(config, (Ticker(symbol:k[0]), Ticker(symbol:k[1])), v)
+      compare(config, (Ticker(symbol: k[0]), Ticker(symbol: k[1])), v)
       if config.settings.delay > 0:
         echo(&"sleep {config.settings.delay}")
         sleep(int(config.settings.delay*1000))

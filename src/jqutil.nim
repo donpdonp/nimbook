@@ -23,8 +23,10 @@ proc jqArrayLen*(jqarray: libjq.jq_Value): cint =
 
 proc jqArrayTupleStrings*(jqarray: libjq.jq_Value, idx: cint): (string, string) =
   var element = libjq.jv_array_get(libjq.jv_copy(jqarray), idx)
-  var base_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 0))
-  var quote_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(element), 1))
+  var base_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(
+      element), 0))
+  var quote_symbol = $libjq.jv_string_value(libjq.jv_array_get(libjq.jv_copy(
+      element), 1))
   (base_symbol, quote_symbol)
 
 proc jqrun*(json: string, jq_code: string): libjq.jq_Value =

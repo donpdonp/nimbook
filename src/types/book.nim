@@ -83,7 +83,7 @@ proc offersummary*(b: Book): string =
   summary
 
 proc `$`*(b: Book): string =
-  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) & "@" & b.offersummary
+  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) & (if b.offers.len > 1: "*" else: "") & "@" & b.offersummary
 
 proc `$`*(bs: Books): string =
   len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")

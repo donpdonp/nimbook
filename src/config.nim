@@ -18,6 +18,17 @@ type
     username: string
     password: string
 
+type ArbReport = object
+  id: string
+  pair: (string, string)
+  ask_books: Books
+  bid_books: Books
+  base_digits: uint8
+  quote_digits: uint8
+  cost: float
+  profit: float
+  avg_price: float
+
 var redis_client: redis.Redis
 
 proc load*(filename: string): Config =
@@ -62,15 +73,6 @@ proc jsonsave*(arb_id: string, market_name: string, json: string) =
   createDir(arb_dir)
   let market_file = arb_dir & "/" & market_name
   writeFile(market_file, json)
-
-type ArbReport = object
-  id: string
-  pair: (string, string)
-  ask_books: Books
-  bid_books: Books
-  cost: float
-  profit: float
-  avg_price: float
 
 proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
     bid_books: Books, cost: float, profit: float, avg_price: float) =

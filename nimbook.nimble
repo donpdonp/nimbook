@@ -11,6 +11,6 @@ skipDirs      = @["tests"]
 # Dependencies
 requires "nim >= 1.0.0"
 requires "yaml"
-requires "https://github.com/donpdonp/libjq-nim"
+requires "https://github.com/donpdonp/libjq-nim >= 0.1.1"
 requires "redis >= 0.2.0"
 requires "https://github.com/adelq/ulid >= 0.2.1"

@@ -4,7 +4,9 @@ type
   Market* = ref object
     source*: Source
     base*: Ticker
+    baseDigits*: uint8
     quote*: Ticker
+    quoteDigits*: uint8
     swapped*: bool
 
 proc `$`*(m: Market): string =

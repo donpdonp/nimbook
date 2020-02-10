@@ -10,6 +10,19 @@ proc getContent*(url: string): string =
   var Client = newHttpClient(timeout = 800)
   Client.getContent(url)
 
+proc jq_obj_get(value: libjq.jq_value, key: string): string =
+  var nimstr = ""
+  let jqv = libjq.jv_object_get(libjq.jv_copy(value), libjq.jv_string(key))
+  nimstr.add(libjq.jv_string_value(jqv))
+  nimstr
+
+proc market_format*(source: Source, value: libjq.jq_value): Market =
+      var newMarket = Market(source: source, swapped: false,
+          base: Ticker(symbol: jq_obj_get(value, "base")),
+          quote: Ticker(symbol: jq_obj_get(value, "quote")),
+      )
+      newMarket
+
 proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
   echo "marketlistload ", jqurl.url
   var markets: seq[Market]
@@ -24,11 +37,8 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     libjq.jq_start(jq_state, jdata, 0)
     var jqmarkets = libjq.jq_next(jq_state)
     for idx in 0..jqutil.jqArrayLen(jqmarkets)-1:
-      let (base_symbol, quote_symbol) = jqutil.jqArrayTupleStrings(jqmarkets, idx)
-      var new_market = Market(source: source,
-        base: Ticker(symbol: base_symbol),
-        quote: Ticker(symbol: quote_symbol),
-        swapped: false)
+      let jqmarket = libjq.jv_array_get(libjq.jv_copy(jqmarkets), idx)
+      let new_market = market_format(source, jqmarket)
       markets.add(new_market)
     libjq.jv_free(jqmarkets)
     libjq.jq_teardown(addr jq_state)
@@ -36,6 +46,7 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     echo "marketlistload jq compile fail ", jqurl.jq
   markets
 
+    
 proc marketoffers_format*(json: string, market: Market): (seq[Offer], seq[Offer]) =
   var bids: seq[Offer]
   let jq_bids = jqutil.jqrun(json, market.source.jq.bids)

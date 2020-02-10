@@ -3,7 +3,7 @@
     name: radarrelay
     market_list:
       url: https://api.radarrelay.com/v3/markets
-      jq: map(.id|split("-"))
+      jq: 'map({id: .id, base: (.id|split("-")[0]), quote: (.id|split("-")[1])})'
 
     url: https://api.radarrelay.com/v3/markets/%base%-%quote%/book
     jq:
@@ -18,7 +18,7 @@
     name: ddex-v4
     market_list:
       url: https://api.ddex.io/v4/markets
-      jq: .data.markets | map([.baseAsset, .quoteAsset])
+      jq: '.data.markets | map({base: .baseAsset, quote: .quoteAsset})'
 
     url: https://api.ddex.io/v4/markets/%base%-%quote%/orderbook?level=3
     jq:
@@ -33,7 +33,7 @@
     name: ddex-v3
     market_list:
       url: https://api.ddex.io/v3/markets
-      jq: .data.markets | map([.baseToken, .quoteToken])
+      jq: '.data.markets | map({base: (.id|split("-")[0]), quote: (.id|split("-")[1])})'
 
     url: https://api.ddex.io/v3/markets/%base%-%quote%/orderbook
     jq:

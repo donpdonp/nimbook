@@ -23,8 +23,6 @@ type ArbReport = object
   pair: (string, string)
   ask_books: Books
   bid_books: Books
-  base_digits: uint8
-  quote_digits: uint8
   cost: float
   profit: float
   avg_price: float

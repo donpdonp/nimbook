@@ -10,7 +10,11 @@ proc getContent*(url: string): string =
   var Client = newHttpClient(timeout = 800)
   Client.getContent(url)
 
-proc jq_obj_get(value: libjq.jq_value, key: string): string =
+proc jq_obj_get_number(value: libjq.jq_value, key: string): cdouble =
+  let jqv = libjq.jv_object_get(libjq.jv_copy(value), libjq.jv_string(key))
+  libjq.jv_number_value(jqv)
+
+proc jq_obj_get_string(value: libjq.jq_value, key: string): string =
   var nimstr = ""
   let jqv = libjq.jv_object_get(libjq.jv_copy(value), libjq.jv_string(key))
   nimstr.add(libjq.jv_string_value(jqv))
@@ -18,8 +22,10 @@ proc jq_obj_get(value: libjq.jq_value, key: string): string =
 
 proc market_format*(source: Source, value: libjq.jq_value): Market =
       var newMarket = Market(source: source, swapped: false,
-          base: Ticker(symbol: jq_obj_get(value, "base")),
-          quote: Ticker(symbol: jq_obj_get(value, "quote")),
+          base: Ticker(symbol: jq_obj_get_string(value, "base")),
+          priceDecimals: jq_obj_get_number(value, "price_decimals"),
+          quote: Ticker(symbol: jq_obj_get_string(value, "quote")),
+          quantityDecimals: jq_obj_get_number(value, "quantity_decimals"),
       )
       newMarket
 

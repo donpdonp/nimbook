@@ -23,9 +23,9 @@ proc jq_obj_get_string(value: libjq.jq_value, key: string): string =
 proc market_format*(source: Source, value: libjq.jq_value): Market =
       var newMarket = Market(source: source, swapped: false,
           base: Ticker(symbol: jq_obj_get_string(value, "base")),
-          priceDecimals: jq_obj_get_number(value, "price_decimals"),
+          price_decimals: jq_obj_get_number(value, "price_decimals"),
           quote: Ticker(symbol: jq_obj_get_string(value, "quote")),
-          quantityDecimals: jq_obj_get_number(value, "quantity_decimals"),
+          quantity_decimals: jq_obj_get_number(value, "quantity_decimals"),
       )
       newMarket
 

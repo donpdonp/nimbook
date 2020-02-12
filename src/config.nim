@@ -78,6 +78,15 @@ proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
         pair: (ticker_pair[0].symbol, ticker_pair[1].symbol),
         ask_books: ask_books, bid_books: bid_books,
         cost: cost, profit: profit, avg_price: avg_price)
+  # file
+  let arbs_root = "arbs"
+  let arb_dir = "." & "/" & arbs_root & "/" & arb_id
+  let arb_filename = arb_dir & "/order"
+  var stream = newFileStream(arb_filename, fmWrite)
+  serialization.dump(arb_report, stream, options = defineOptions(
+      style = psJson))
+  stream.close()
+  # redis 
   let payload = serialization.dump(arb_report, options = defineOptions(
       style = psJson))
   let rkey = "arb:" & arb_id

@@ -26,6 +26,7 @@ proc market_format*(source: Source, value: libjq.jq_value): Market =
           price_decimals: jq_obj_get_number(value, "price_decimals"),
           quote: Ticker(symbol: jq_obj_get_string(value, "quote")),
           quantity_decimals: jq_obj_get_number(value, "quantity_decimals"),
+          min_order_size: parseFloat(jq_obj_get_string(value, "min_order_size")),
       )
       newMarket
 

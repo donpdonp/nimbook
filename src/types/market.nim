@@ -7,7 +7,7 @@ type
     price_decimals*: float
     quote*: Ticker
     quantity_decimals*: float
-    min_order_size*: float
+    min_order_size*: string
     swapped*: bool
 
 proc `$`*(m: Market): string =

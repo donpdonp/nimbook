@@ -71,9 +71,12 @@ proc marketoffers_format*(json: string, market: Market): (seq[Offer], seq[Offer]
   (asks, bids)
 
 proc influxpush*(url: string, username: string, password: string,
-  ticker_pair: (Ticker, Ticker), cost: float, profit: float, avg_price: float) =
+                 ticker_pair: (Ticker, Ticker), cost: float, profit: float, avg_price: float,
+                ask_orders: Books, bid_orders: Books) =
+  var datalines: seq[string] = @[]
   let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
-  let body = &"arb,pair={pair} profit={profit},cost={cost},avg_price={avg_price}"
+  datalines.add(&"arb,pair={pair} profit={profit},cost={cost},avg_price={avg_price}")
+  let body = datalines.join("\n")
   echo &"influx: {body}"
   var Client = newHttpClient(timeout = 800)
   Client.headers["Authorization"] = "Basic " & base64.encode(username & ":" & password)

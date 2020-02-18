@@ -104,4 +104,4 @@ proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker),
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,
       config.settings.influx.password,
-      ticker_pair, cost, profit, avg_price)
+      ticker_pair, cost, profit, avg_price, ask_orders, bid_orders)

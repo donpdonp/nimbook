@@ -70,6 +70,9 @@ proc marketoffers_format*(json: string, market: Market): (seq[Offer], seq[Offer]
     asks.add(Offer(base_qty: afloat[0], quote: afloat[1]))
   (asks, bids)
 
+proc influxline*(books: Books, book: Book, offer: Offer): string =
+  &"arb,side={books.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty},quote={offer.quote}"
+
 proc influxpush*(url: string, username: string, password: string,
                  ticker_pair: (Ticker, Ticker), cost: float, profit: float, avg_price: float,
                 ask_orders: Books, bid_orders: Books) =
@@ -78,7 +81,10 @@ proc influxpush*(url: string, username: string, password: string,
   datalines.add(&"arb,pair={pair} profit={profit},cost={cost},avg_price={avg_price}")
   for book in ask_orders.books:
     for offer in book.offers:
-      datalines.add(&"arb,side={ask_orders.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty},quote={offer.quote}")
+      datalines.add(influxline(ask_orders, book, offer))
+  for book in bid_orders.books:
+    for offer in book.offers:
+      datalines.add(influxline(bid_orders, book, offer))
   let body = datalines.join("\n")
   echo &"influx: {body}"
   var Client = newHttpClient(timeout = 800)
@@ -87,3 +93,4 @@ proc influxpush*(url: string, username: string, password: string,
   let status = response.status.split(" ")[0].parseInt
   if status < 200 or status >= 300:
     echo &"{response.status} {response.body}"
+

@@ -76,6 +76,9 @@ proc influxpush*(url: string, username: string, password: string,
   var datalines: seq[string] = @[]
   let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
   datalines.add(&"arb,pair={pair} profit={profit},cost={cost},avg_price={avg_price}")
+  for book in ask_orders.books:
+    for offer in book.offers:
+      datalines.add(&"arb,side={ask_orders.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty},quote={offer.quote}")
   let body = datalines.join("\n")
   echo &"influx: {body}"
   var Client = newHttpClient(timeout = 800)

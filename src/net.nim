@@ -71,14 +71,14 @@ proc marketoffers_format*(json: string, market: Market): (seq[Offer], seq[Offer]
   (asks, bids)
 
 proc influxline*(books: Books, book: Book, offer: Offer): string =
-  &"arb,side={books.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty},quote={offer.quote}"
+  &"offer,side={books.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty},quote={offer.quote}"
 
 proc influxpush*(url: string, username: string, password: string,
-                 ticker_pair: (Ticker, Ticker), cost: float, profit: float, avg_price: float,
-                ask_orders: Books, bid_orders: Books) =
+                 ticker_pair: (Ticker, Ticker), cost: float, profit: float, 
+                 ratio: float, avg_price: float,
+                 ask_orders: Books, bid_orders: Books) =
   var datalines: seq[string] = @[]
-  let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
-  datalines.add(&"arb,pair={pair} profit={profit},cost={cost},avg_price={avg_price}")
+  datalines.add(&"arb,base_token={ticker_pair[0]},quote_token={ticker_pair[1]} profit={profit:0.5f},cost={cost:0.5f},ratio={ratio:0.5f},avg_price={avg_price:0.5f}")
   for book in ask_orders.books:
     for offer in book.offers:
       datalines.add(influxline(ask_orders, book, offer))

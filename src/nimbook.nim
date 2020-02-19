@@ -9,10 +9,10 @@ proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
     # Sell to the asks, buy from the bids
     var asks_to_buy_from: Books
     deepCopy(asks_to_buy_from, askbooks)
-    let asklist = asks_to_buy_from.ordered_offers
+    let asklist = asks_to_buy_from.sorted_offers
     var bids_to_sell_to: Books
     deepCopy(bids_to_sell_to, bidbooks)
-    let bidlist = bids_to_sell_to.ordered_offers
+    let bidlist = bids_to_sell_to.sorted_offers
 
     let ask_orders = Books(askbid: AskBid.ask)
     let bid_orders = Books(askbid: AskBid.bid)

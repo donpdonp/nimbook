@@ -99,9 +99,9 @@ proc arb_id_gen*(): string =
 
 proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker),
     ask_orders: Books, bid_orders: Books, cost: float, profit: float,
-        avg_price: float) =
+    ratio: float, avg_price: float) =
   redisPush(arb_id, ticker_pair, ask_orders, bid_orders, cost, profit, avg_price)
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,
       config.settings.influx.password,
-      ticker_pair, cost, profit, avg_price, ask_orders, bid_orders)
+      ticker_pair, cost, profit, ratio, avg_price, ask_orders, bid_orders)

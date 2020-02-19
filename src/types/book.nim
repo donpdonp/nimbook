@@ -41,7 +41,7 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
       raise newException(OSError, &"offers_better_than got wrong ticker {ticker} for this market {b.market}")
   wins
 
-proc ordered_offers*(books: Books): seq[(Book, Offer)] =
+proc sorted_offers*(books: Books): seq[(Book, Offer)] =
   type ValueMarketOffer = (float, Book, Offer)
   var z = books.books.map(proc (book: Book): seq[ValueMarketOffer] =
     book.offers.map(proc (o: Offer):ValueMarketOffer = (o.quote, book, o)))
@@ -64,6 +64,18 @@ proc base_total*(books: Books): float =
   var total = 0f
   for book in books.books:
     total += book.base_total
+  total
+
+proc cost*(book: Book): float =
+  var total = 0f
+  for offer in book.offers:
+    total += offer.base_qty * offer.quote
+  total
+
+proc cost*(books: Books): float =
+  var total = 0f
+  for book in books.books:
+    total += book.cost
   total
 
 proc offersummary*(b: Book): string =

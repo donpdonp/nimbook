@@ -87,7 +87,7 @@ proc marketpairs_equal*(markets: seq[Market]): seq[Market] =
   var winners: seq[Market]
   for m1 in markets:
     for m2 in markets:
-      if m1.base == m2.base:
+      if m1.base_contract == m2.base_contract:
         let x = 1
   markets
 

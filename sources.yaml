@@ -1,8 +1,8 @@
 ---
   -
     name: radarrelay
-    maker_fee: 0.1
-    taker_fee: 0.3
+    maker_fee: 0.0
+    taker_fee: 0.0
     market_list:
       url: https://api.radarrelay.com/v3/markets
       jq: |
@@ -27,8 +27,8 @@
 
   -
     name: ddex-v4
-    maker_fee: 0.0
-    taker_fee: 0.0
+    maker_fee: 0.1
+    taker_fee: 0.3
     market_list:
       url: https://api.ddex.io/v4/markets
       jq: |
@@ -53,8 +53,8 @@
 
   -
     name: ddex-v3
-    maker_fee: 0.0
-    taker_fee: 0.0
+    maker_fee: 0.1
+    taker_fee: 0.3
     market_list:
       url: https://api.ddex.io/v3/markets
       jq: |

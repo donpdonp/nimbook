@@ -1,9 +1,18 @@
 ---
   -
     name: radarrelay
+    maker_fee: 0.1
+    taker_fee: 0.3
     market_list:
       url: https://api.radarrelay.com/v3/markets
-      jq: 'map({id: .id, base: (.id|split("-")[0]), quote: (.id|split("-")[1]), price_decimals: .baseTokenDecimals, quantity_decimals: .quoteTokenDecimals, min_order_size: .minOrderSize})'
+      jq: |
+        map({id: .id, 
+        base: (.id|split("-")[0]), 
+        quote: (.id|split("-")[1]), 
+        price_decimals: .baseTokenDecimals, 
+        quantity_decimals: .quoteTokenDecimals, 
+        min_order_size: .minOrderSize
+        })
 
     url: https://api.radarrelay.com/v3/markets/%base%-%quote%/book
     jq:
@@ -16,6 +25,8 @@
 
   -
     name: ddex-v4
+    maker_fee: 0.0
+    taker_fee: 0.0
     market_list:
       url: https://api.ddex.io/v4/markets
       jq: '.data.markets | map({base: .baseAsset, quote: .quoteAsset, price_decimals: .priceDecimals, quantity_decimals: .amountDecimals, min_order_size: .minOrderSize})'
@@ -31,6 +42,8 @@
 
   -
     name: ddex-v3
+    maker_fee: 0.0
+    taker_fee: 0.0
     market_list:
       url: https://api.ddex.io/v3/markets
       jq: '.data.markets | map({base: (.id|split("-")[0]), quote: (.id|split("-")[1]), price_decimals: .priceDecimals, quantity_decimals: .amountDecimals, min_order_size: .minOrderSize})'

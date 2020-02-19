@@ -12,4 +12,5 @@ type
     url* : string
     jq*  : JqBidAsk
     market_list*: JqUrl
-
+    taker_fee*: float
+    maker_fee*: float

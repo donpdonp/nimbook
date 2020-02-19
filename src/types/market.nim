@@ -4,8 +4,10 @@ type
   Market* = ref object
     source*: Source
     base*: Ticker
+    base_contract*: string
     price_decimals*: float
     quote*: Ticker
+    quote_contract*: string
     quantity_decimals*: float
     min_order_size*: string
     swapped*: bool

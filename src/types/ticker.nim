@@ -11,9 +11,9 @@ proc `$`*(t: Ticker): string =
 
 proc normal*(ticker: Ticker): Ticker =
   case ticker.symbol
-    of "WETH": Ticker(symbol: "ETH")
-    of "WBTC": Ticker(symbol: "BTC")
-    of "USDC", "SAI", "DAI", "USDT", "TUSD", "NUSD": Ticker(symbol: "USD")
+    of "WETH": Ticker(symbol: "eth")
+    of "WBTC": Ticker(symbol: "btc")
+    of "USDx", "USDC", "SAI", "DAI", "USDT", "TUSD", "NUSD": Ticker(symbol: "usd")
     else: ticker
 
 proc `==`*(ticker_a: Ticker, ticker_b: Ticker): bool =

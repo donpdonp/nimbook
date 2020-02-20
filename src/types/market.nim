@@ -26,6 +26,20 @@ proc tickers*(market: Market): (Ticker, Ticker) =
     parts = (quote_normal, base_normal)
   parts
 
+proc group_name(ticker: Ticker, contract: string): string =
+  let symbol = ticker.symbol
+  let normal = ticker.normal.symbol
+  if symbol == normal:
+    &"{symbol}_{contract}"
+  else:
+    normal
+
+proc grouping_pair*(market: Market): (string, string) =
+  let base_symbol = market.base.symbol
+  let base_normal = market.base.normal
+  (group_name(market.base, market.base_contract), 
+   group_name(market.quote, market.quote_contract))
+
 proc ticker_side*(market: Market, ticker: Ticker): TickerSide =
   if ticker == market.base:
     return TickerSide.Base

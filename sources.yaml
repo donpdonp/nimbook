@@ -26,32 +26,6 @@
         map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
 
   -
-    name: ddex-v4
-    maker_fee: 0.1
-    taker_fee: 0.3
-    market_list:
-      url: https://api.ddex.io/v4/markets
-      jq: |
-        .data.markets | map({
-          base: .baseAsset, 
-          quote: .quoteAsset, 
-          price_decimals: .priceDecimals, 
-          quantity_decimals: .amountDecimals, 
-          min_order_size: .minOrderSize,
-          base_contract: .baseTokenAddress,
-          quote_contract: .quoteTokenAddress
-        })
-
-    url: https://api.ddex.io/v4/markets/%base%-%quote%/orderbook?level=3
-    jq:
-      bids: >-
-        .data.orderbook.bids |
-        if length > 0 then map([(.amount | tonumber), (.price | tonumber)]) else [] end
-      asks: >-
-        .data.orderbook.asks |
-        if length > 0 then map([(.amount | tonumber), (.price | tonumber)]) else [] end
-
-  -
     name: ddex-v3
     maker_fee: 0.1
     taker_fee: 0.3
@@ -76,4 +50,30 @@
       asks: >-
         .data.orderBook.asks |
         map([(.amount | tonumber), (.price | tonumber)])
+
+  -
+    name: ddex-v4
+    maker_fee: 0.1
+    taker_fee: 0.3
+    market_list:
+      url: https://api.ddex.io/v4/markets
+      jq: |
+        .data.markets | map({
+          base: .baseAsset, 
+          quote: .quoteAsset, 
+          price_decimals: .priceDecimals, 
+          quantity_decimals: .amountDecimals, 
+          min_order_size: .minOrderSize,
+          base_contract: .baseAssetAddress,
+          quote_contract: .quoteAssetAddress
+        })
+
+    url: https://api.ddex.io/v4/markets/%base%-%quote%/orderbook?level=3
+    jq:
+      bids: >-
+        .data.orderbook.bids |
+        if length > 0 then map([(.amount | tonumber), (.price | tonumber)]) else [] end
+      asks: >-
+        .data.orderbook.asks |
+        if length > 0 then map([(.amount | tonumber), (.price | tonumber)]) else [] end
 

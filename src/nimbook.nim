@@ -74,13 +74,13 @@ proc marketfetch*(arb_id: string, market: var Market): (seq[Offer], seq[Offer]) 
 
 proc marketpairs_group*(markets: seq[Market]): Table[(string, string), seq[Market]] =
   var winners: Table[(string, string), seq[Market]]
-  for m1 in markets:
-    let key_parts = m1.tickers()
-    let key = (key_parts[0].symbol, key_parts[1].symbol)
-    if not winners.hasKey(key):
-      winners[key] = @[m1]
+  for market in markets:
+    let sorted_pair = market.tickers()
+    let symbol_pair = (sorted_pair[0].symbol, sorted_pair[1].symbol)
+    if not winners.hasKey(symbol_pair):
+      winners[symbol_pair] = @[market]
     else:
-      winners[key].add(m1)
+      winners[symbol_pair].add(market)
   winners
 
 proc marketpairs_equal*(markets: seq[Market]): seq[Market] =

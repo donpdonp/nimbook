@@ -71,7 +71,7 @@ proc marketoffers_format*(json: string, market: Market): (seq[Offer], seq[Offer]
   (asks, bids)
 
 proc influxline*(books: Books, book: Book, offer: Offer): string =
-  &"offer,side={books.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty},quote={offer.quote}"
+  &"offer,side={books.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty:0.8f},quote={offer.quote:0.8f}"
 
 proc influxpush*(url: string, username: string, password: string,
                  ticker_pair: (Ticker, Ticker), cost: float, profit: float, 
@@ -86,8 +86,9 @@ proc influxpush*(url: string, username: string, password: string,
   for book in bid_orders.books:
     for offer in book.offers:
       datalines.add(influxline(bid_orders, book, offer))
+  for line in datalines:
+    echo &"influx: {line}"
   let body = datalines.join("\n")
-  echo &"influx: {body}"
   var Client = newHttpClient(timeout = 800)
   Client.headers["Authorization"] = "Basic " & base64.encode(username & ":" & password)
   let response = Client.request(url, httpMethod = HttpPost, body = $body)

@@ -49,7 +49,7 @@ proc compare(config: Config, market_pair: (Ticker, Ticker),
       let cost = ask_orders.cost
       let ratio = profit / cost
       arbPush(config, arb_id, market_pair, ask_orders, bid_orders, cost, profit, ratio, avg_price)
-      echo &"*Cost {cost:0.5f} {market_pair[0]} profit {profit:0.5f} {market_pair[1]} ratio {ratio:0.5f} {arb_id} {now().`$`}"
+      echo &"*Cost {ask_orders.base_total:0.5f}{market_pair[0]}/{cost:0.5f}{market_pair[1]} profit {profit:0.5f}{market_pair[1]} {ratio:0.3f}x {arb_id} {now().`$`}"
   else:
     echo "totally empty."
   echo ""

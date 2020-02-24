@@ -1,5 +1,33 @@
 ---
   -
+    name: kyber
+    active: false
+    maker_fee: 0.0
+    taker_fee: 0.0
+    market_list:
+      url: https://api.kyber.network/market
+      jq: |
+        .data | map({
+        id: .pair, 
+        base: .base_symbol, 
+        quote: .quote_symbol, 
+        quantity_decimals: .base_decimals, 
+        price_decimals: .quote_decimals, 
+        min_order_size: "1",
+        base_contract: .base_address,
+        quote_contract: .quote_address
+        })
+
+    url: https://api.oasisdex.com/v2/orders/%base%/%quote%
+    jq:
+      bids: >-
+        .data.bids |
+        map([(.[1] | tonumber), (.[0] | tonumber)])
+      asks: >-
+        .data.asks |
+        map([(.[1] | tonumber), (.[0] | tonumber)])
+    ws_url: 
+  -
     name: oasis
     active: true
     maker_fee: 0.0
@@ -11,8 +39,8 @@
         id: .key, 
         base: .value.base, 
         quote: .value.quote, 
-        price_decimals: .value.quotePrecision, 
         quantity_decimals: .value.basePrecision, 
+        price_decimals: .value.quotePrecision, 
         min_order_size: "1",
         base_contract: "oasis_",
         quote_contract: "oasis_"
@@ -26,7 +54,7 @@
       asks: >-
         .data.asks |
         map([(.[1] | tonumber), (.[0] | tonumber)])
-    ws_url: wss://ws.switcheo.io
+    ws_url: 
   -
     name: switcheo
     active: true
@@ -38,8 +66,8 @@
         map({id: .name, 
         base: .baseAssetSymbol, 
         quote: .quoteAssetSymbol, 
-        price_decimals: .precision, 
         quantity_decimals: .precision, 
+        price_decimals: .precision, 
         min_order_size: "1",
         base_contract: .baseContract,
         quote_contract: .quoteContract
@@ -65,8 +93,8 @@
         map({id: .id, 
         base: .fromSymbol, 
         quote: .toSymbol, 
-        price_decimals: 8, 
         quantity_decimals: 8, 
+        price_decimals: 8, 
         min_order_size: "1",
         base_contract: "tknsor",
         quote_contract: "tknsor"
@@ -92,8 +120,8 @@
         map({id: .id, 
         base: (.id|split("-")[0]), 
         quote: (.id|split("-")[1]), 
-        price_decimals: .baseTokenDecimals, 
         quantity_decimals: .quoteTokenDecimals, 
+        price_decimals: .baseTokenDecimals, 
         min_order_size: .minOrderSize,
         base_contract: .baseTokenAddress,
         quote_contract: .quoteTokenAddress
@@ -120,8 +148,8 @@
         .data.markets | map({
           base: (.id|split("-")[0]), 
           quote: (.id|split("-")[1]), 
-          price_decimals: .priceDecimals, 
           quantity_decimals: .amountDecimals, 
+          price_decimals: .priceDecimals, 
           min_order_size: .minOrderSize,
           base_contract: .baseTokenAddress,
           quote_contract: .quoteTokenAddress
@@ -148,8 +176,8 @@
         .data.markets | map({
           base: .baseAsset, 
           quote: .quoteAsset, 
-          price_decimals: .priceDecimals, 
           quantity_decimals: .amountDecimals, 
+          price_decimals: .priceDecimals, 
           min_order_size: .minOrderSize,
           base_contract: .baseAssetAddress,
           quote_contract: .quoteAssetAddress

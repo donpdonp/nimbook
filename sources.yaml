@@ -1,6 +1,34 @@
 ---
   -
+    name: tokenstore
+    active: false
+    maker_fee: 0.0
+    taker_fee: 0.0
+    market_list:
+      url: https://v1-1.api.token.store/pairs
+      jq: |
+        map({id: .id, 
+        base: .fromSymbol, 
+        quote: .toSymbol, 
+        price_decimals: 8, 
+        quantity_decimals: 8, 
+        min_order_size: "1",
+        base_contract: "xx00xx",
+        quote_contract: "xx00xx"
+        })
+
+    url: https://v1-1.api.token.store/orderbook/%quote%_%base%
+    jq:
+      bids: >-
+        .bids |
+        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
+      asks: >-
+        .asks |
+        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
+    ws_url: wss://ws.radarrelay.com/v3
+  -
     name: radarrelay
+    active: true
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
@@ -20,13 +48,15 @@
     jq:
       bids: >-
         .bids |
-        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
+        map([(.volume | tonumber), (.price | tonumber)])
       asks: >-
         .asks |
-        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
-
+        map([(.volume | tonumber), (.price | tonumber)])
+    ws_url: wss://ws.radarrelay.com/v3
+    #0x SRA ws_url: wss://ws.radarrelay.com/0x/v3
   -
     name: ddex-v3
+    active: true
     maker_fee: 0.1
     taker_fee: 0.3
     market_list:
@@ -50,9 +80,11 @@
       asks: >-
         .data.orderBook.asks |
         map([(.amount | tonumber), (.price | tonumber)])
+    ws_url: wss://ws.ddex.io/v3
 
   -
     name: ddex-v4
+    active: true
     maker_fee: 0.1
     taker_fee: 0.3
     market_list:
@@ -76,4 +108,5 @@
       asks: >-
         .data.orderbook.asks |
         if length > 0 then map([(.amount | tonumber), (.price | tonumber)]) else [] end
+    ws_url: wss://ws.ddex.io/v4
 

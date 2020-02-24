@@ -10,12 +10,13 @@ proc getContent*(url: string): string =
   var Client = newHttpClient(timeout = 800)
   Client.getContent(url)
 
-proc wsListen*(url: string) {.async.} =
+proc wsListen*(url: string) {.async, gcsafe.} =
   echo url
   var ws = await newWebSocket(url)
-  while ws.readyState == Open:
-    let packet = await ws.receiveStrPacket()
-    echo packet
+  echo await ws.receiveStrPacket()
+  await ws.send("{}")
+  echo await ws.receiveStrPacket()
+  ws.close()
 
 proc jq_obj_get_number(value: libjq.jq_value, key: string): cdouble =
   let jqv = libjq.jv_object_get(libjq.jv_copy(value), libjq.jv_string(key))

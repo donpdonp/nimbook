@@ -1,5 +1,5 @@
 # nim
-import yaml/serialization, yaml/presenter, streams, tables, os
+import yaml/serialization, yaml/presenter, streams, tables, os, sequtils
 # nimble
 import redis, ulid
 # local
@@ -58,6 +58,9 @@ proc marketsave*(config: Config, mt: Table[(string, string), seq[Market]]) =
   # var jstream = newFileStream("all_markets.json", fmWrite)
   # dump(vals, jstream, options = defineOptions(style = psJson))
   # jstream.close()
+
+proc activeSources*(config: Config): seq[Source] =
+  config.sources.filter(proc (s:Source): bool = s.active)
 
 proc bookssave*(books: Books, filename: string) =
   var stream = newFileStream(filename, fmWrite)

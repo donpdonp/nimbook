@@ -6,7 +6,7 @@ import config, nimbook, net, types
 proc markets(config: config.Config) =
   var markets: seq[Market]
 
-  for source in config.sources:
+  for source in config.activeSources:
     try:
       var source_markets = net.marketlistload(source.market_list, source)
       markets.add(source_markets)

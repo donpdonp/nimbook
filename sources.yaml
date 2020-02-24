@@ -1,5 +1,33 @@
 ---
   -
+    name: oasis
+    active: true
+    maker_fee: 0.0
+    taker_fee: 0.0
+    market_list:
+      url: https://api.oasisdex.com/v2/pairs
+      jq: |
+        .data | to_entries | map({
+        id: .key, 
+        base: .value.base, 
+        quote: .value.quote, 
+        price_decimals: .value.quotePrecision, 
+        quantity_decimals: .value.basePrecision, 
+        min_order_size: "1",
+        base_contract: "oasis_",
+        quote_contract: "oasis_"
+        })
+
+    url: https://api.oasisdex.com/v2/orders/%base%/%quote%
+    jq:
+      bids: >-
+        .data.bids |
+        map([(.[1] | tonumber), (.[0] | tonumber)])
+      asks: >-
+        .data.asks |
+        map([(.[1] | tonumber), (.[0] | tonumber)])
+    ws_url: wss://ws.switcheo.io
+  -
     name: switcheo
     active: true
     maker_fee: 0.0
@@ -40,8 +68,8 @@
         price_decimals: 8, 
         quantity_decimals: 8, 
         min_order_size: "1",
-        base_contract: "xx00xx",
-        quote_contract: "xx00xx"
+        base_contract: "tknsor",
+        quote_contract: "tknsor"
         })
 
     url: https://v1-1.api.token.store/orderbook/%quote%_%base%

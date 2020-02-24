@@ -1,11 +1,42 @@
 ---
   -
+    name: idex
+    active: true
+    maker_fee: 0.0
+    taker_fee: 0.0
+    market_list:
+      urls: 
+        - https://api.idex.market/returnTicker
+        - https://api.idex.market/returnCurrencies   
+      jq: |
+        .data | to_entries |map({
+        id: .key, 
+        base: .base_symbol, 
+        quote: .quote_symbol, 
+        quantity_decimals: .base_decimals, 
+        price_decimals: .quote_decimals, 
+        min_order_size: "1",
+        base_contract: .base_address,
+        quote_contract: .quote_address
+        })
+
+    url: #curl -H "Content-Type: application/json" -d '{"market":"ETH_IDEX","count":50}' https://api.idex.market/returnOrderBook
+    jq:
+      bids: >-
+        .data.bids |
+        map([(.[1] | tonumber), (.[0] | tonumber)])
+      asks: >-
+        .data.asks |
+        map([(.[1] | tonumber), (.[0] | tonumber)])
+    ws_url: 
+  -
     name: kyber
     active: false
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
-      url: https://api.kyber.network/market
+      urls: 
+        - https://api.kyber.network/market
       jq: |
         .data | map({
         id: .pair, 
@@ -33,7 +64,8 @@
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
-      url: https://api.oasisdex.com/v2/pairs
+      urls: 
+        - https://api.oasisdex.com/v2/pairs
       jq: |
         .data | to_entries | map({
         id: .key, 
@@ -61,7 +93,8 @@
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
-      url: https://api.switcheo.network/v2/exchange/pairs?show_details=1
+      urls: 
+        - https://api.switcheo.network/v2/exchange/pairs?show_details=1
       jq: |
         map({id: .name, 
         base: .baseAssetSymbol, 
@@ -88,7 +121,8 @@
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
-      url: https://v1-1.api.token.store/pairs
+      urls: 
+        - https://v1-1.api.token.store/pairs
       jq: |
         map({id: .id, 
         base: .fromSymbol, 
@@ -115,7 +149,8 @@
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
-      url: https://api.radarrelay.com/v3/markets
+      urls: 
+        - https://api.radarrelay.com/v3/markets
       jq: |
         map({id: .id, 
         base: (.id|split("-")[0]), 
@@ -143,7 +178,8 @@
     maker_fee: 0.1
     taker_fee: 0.3
     market_list:
-      url: https://api.ddex.io/v3/markets
+      urls: 
+        - https://api.ddex.io/v3/markets
       jq: |
         .data.markets | map({
           base: (.id|split("-")[0]), 
@@ -171,7 +207,8 @@
     maker_fee: 0.1
     taker_fee: 0.3
     market_list:
-      url: https://api.ddex.io/v4/markets
+      urls: 
+        - https://api.ddex.io/v4/markets
       jq: |
         .data.markets | map({
           base: .baseAsset, 

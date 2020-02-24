@@ -40,16 +40,19 @@ proc market_format*(source: Source, value: libjq.jq_value): Market =
   )
   newMarket
 
-proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
-  echo "marketlistload ", jqurl.url
+proc marketlistload*(source: Source): seq[Market] =
+  echo &"marketlistload {source.name}"
   var markets: seq[Market]
   var Client = newHttpClient(timeout = 800)
   Client.headers = newHttpHeaders({"User-Agent": "curl/7.58.0",
                                     "Accept": "*/*"})
-  var json: string = Client.getContent(jqurl.url)
   var jq_state = libjq.jq_init()
-  var compile_success = libjq.jq_compile(jq_state, jqurl.jq)
+  var compile_success = libjq.jq_compile(jq_state, source.market_list.jq)
   if compile_success == 1:
+    var jsonparts: seq[string]
+    for list_url in source.market_list.urls:
+      jsonparts.add(Client.getContent(list_url))
+    var json: string = jsonparts.join("")
     var jdata = libjq.jv_parse(json)
     libjq.jq_start(jq_state, jdata, 0)
     var jqmarkets = libjq.jq_next(jq_state)
@@ -60,7 +63,7 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     libjq.jv_free(jqmarkets)
     libjq.jq_teardown(addr jq_state)
   else:
-    echo "marketlistload jq compile fail ", jqurl.jq
+    echo "marketlistload jq compile fail ", source.market_list.jq
   markets
 
 

@@ -8,7 +8,7 @@ proc markets(config: config.Config) =
 
   for source in config.activeSources:
     try:
-      var source_markets = net.marketlistload(source.market_list, source)
+      var source_markets = net.marketlistload(source)
       markets.add(source_markets)
       echo &"{source.name} loaded {len(source_markets)} markets"
     except:

@@ -4,7 +4,7 @@ type
     asks*: string
 
   JqUrl* = object
-    url*: string
+    urls*: seq[string]
     jq*: string
 
   Source* = ref object

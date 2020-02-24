@@ -1,5 +1,32 @@
 ---
   -
+    name: switcheo
+    active: true
+    maker_fee: 0.0
+    taker_fee: 0.0
+    market_list:
+      url: https://api.switcheo.network/v2/exchange/pairs?show_details=1
+      jq: |
+        map({id: .name, 
+        base: .baseAssetSymbol, 
+        quote: .quoteAssetSymbol, 
+        price_decimals: .precision, 
+        quantity_decimals: .precision, 
+        min_order_size: "1",
+        base_contract: .baseContract,
+        quote_contract: .quoteContract
+        })
+
+    url: https://api.switcheo.network/v2/offers/book\?pair=%quote%_%base%
+    jq:
+      bids: >-
+        .bids |
+        map([(.quantity | tonumber), (.price | tonumber), .createdDate])
+      asks: >-
+        .asks |
+        map([(.quantity | tonumber), (.price | tonumber), .createdDate])
+    ws_url: wss://ws.switcheo.io
+  -
     name: tokenstore
     active: false
     maker_fee: 0.0

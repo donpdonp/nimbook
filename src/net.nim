@@ -1,7 +1,7 @@
 # nim
-import httpClient, strutils, strformat, base64
+import httpClient, strutils, strformat, base64, asyncdispatch
 # nimble
-import libjq, jqutil
+import libjq, jqutil, ws
 # local
 import types
 
@@ -9,6 +9,13 @@ import types
 proc getContent*(url: string): string =
   var Client = newHttpClient(timeout = 800)
   Client.getContent(url)
+
+proc wsListen*(url: string) {.async.} =
+  echo url
+  var ws = await newWebSocket(url)
+  while ws.readyState == Open:
+    let packet = await ws.receiveStrPacket()
+    echo packet
 
 proc jq_obj_get_number(value: libjq.jq_value, key: string): cdouble =
   let jqv = libjq.jv_object_get(libjq.jv_copy(value), libjq.jv_string(key))

@@ -75,10 +75,10 @@
     jq:
       bids: >-
         .bids |
-        map([(.volume | tonumber), (.price | tonumber)])
+        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
       asks: >-
         .asks |
-        map([(.volume | tonumber), (.price | tonumber)])
+        map([(.remainingBaseTokenAmount | tonumber), (.price | tonumber), .createdDate])
     ws_url: wss://ws.radarrelay.com/v3
     #0x SRA ws_url: wss://ws.radarrelay.com/0x/v3
   -

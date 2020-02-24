@@ -29,16 +29,16 @@ proc jq_obj_get_string(value: libjq.jq_value, key: string): string =
   nimstr
 
 proc market_format*(source: Source, value: libjq.jq_value): Market =
-      var newMarket = Market(source: source, swapped: false,
-          base: Ticker(symbol: jq_obj_get_string(value, "base")),
-          price_decimals: jq_obj_get_number(value, "price_decimals"),
-          quote: Ticker(symbol: jq_obj_get_string(value, "quote")),
-          quantity_decimals: jq_obj_get_number(value, "quantity_decimals"),
-          min_order_size: jq_obj_get_string(value, "min_order_size"),
-          base_contract: jq_obj_get_string(value, "base_contract"),
-          quote_contract: jq_obj_get_string(value, "quote_contract"),
-      )
-      newMarket
+  var newMarket = Market(source: source, swapped: false,
+      base: Ticker(symbol: jq_obj_get_string(value, "base")),
+      price_decimals: jq_obj_get_number(value, "price_decimals"),
+      quote: Ticker(symbol: jq_obj_get_string(value, "quote")),
+      quantity_decimals: jq_obj_get_number(value, "quantity_decimals"),
+      min_order_size: jq_obj_get_string(value, "min_order_size"),
+      base_contract: jq_obj_get_string(value, "base_contract"),
+      quote_contract: jq_obj_get_string(value, "quote_contract"),
+  )
+  newMarket
 
 proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
   echo "marketlistload ", jqurl.url
@@ -63,7 +63,7 @@ proc marketlistload*(jqurl: JqUrl, source: Source): seq[Market] =
     echo "marketlistload jq compile fail ", jqurl.jq
   markets
 
-    
+
 proc marketoffers_format*(json: string, market: Market): (seq[Offer], seq[Offer]) =
   var bids: seq[Offer]
   let jq_bids = jqutil.jqrun(json, market.source.jq.bids)
@@ -84,7 +84,7 @@ proc influxline*(books: Books, book: Book, offer: Offer): string =
   &"offer,side={books.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty:0.8f},quote={offer.quote:0.8f}"
 
 proc influxpush*(url: string, username: string, password: string,
-                 ticker_pair: (Ticker, Ticker), cost: float, profit: float, 
+                 ticker_pair: (Ticker, Ticker), cost: float, profit: float,
                  ratio: float, avg_price: float,
                  ask_orders: Books, bid_orders: Books) =
   var datalines: seq[string] = @[]

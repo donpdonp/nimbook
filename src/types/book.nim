@@ -29,7 +29,7 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
   for b in books.books:
     if ticker == b.market.quote:
-      var offer_filter:proc (o: Offer): bool
+      var offer_filter: proc (o: Offer): bool
       if books.askbid == AskBid.ask:
         offer_filter = proc (o: Offer): bool = o.quote < price
       else:
@@ -44,12 +44,12 @@ proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
 proc sorted_offers*(books: Books): seq[(Book, Offer)] =
   type ValueMarketOffer = (float, Book, Offer)
   var z = books.books.map(proc (book: Book): seq[ValueMarketOffer] =
-    book.offers.map(proc (o: Offer):ValueMarketOffer = (o.quote, book, o)))
+    book.offers.map(proc (o: Offer): ValueMarketOffer = (o.quote, book, o)))
   var collection: seq[ValueMarketOffer] = @[]
   for t in z:
     for q in t:
       collection.add(q)
-  collection.sort(proc (x,y: ValueMarketOffer): int = cmp(x[0], y[0]),
+  collection.sort(proc (x, y: ValueMarketOffer): int = cmp(x[0], y[0]),
     if books.askbid == AskBid.ask: Ascending else: Descending)
   let offers = collection.map(proc(e: ValueMarketOffer): (Book, Offer) = (e[1], e[2]))
   offers
@@ -79,7 +79,7 @@ proc cost*(books: Books): float =
   total
 
 proc offersummary*(b: Book): string =
-  var summary:string = "(empty)"
+  var summary: string = "(empty)"
   let offercount = len(b.offers)
   if offercount > 0:
     let lowidx = low(b.offers)
@@ -95,10 +95,12 @@ proc offersummary*(b: Book): string =
   summary
 
 proc `$`*(b: Book): string =
-  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) & (if b.offers.len > 1: "*" else: "") & "@" & b.offersummary
+  b.market.`$` & " " & b.base_total().formatFloat(ffDecimal, 6) & (
+      if b.offers.len > 1: "*" else: "") & "@" & b.offersummary
 
 proc `$`*(bs: Books): string =
-  len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (b:Book): string = b.`$`).join(", ")
+  len(bs.books).`$` & " " & bs.askbid.`$` & " books: " & bs.books.map(proc (
+      b: Book): string = b.`$`).join(", ")
 
 proc merge*(books: Books, book: Book, offer: Offer) =
   let goodbook = books.findb(book.market)

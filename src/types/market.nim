@@ -37,7 +37,7 @@ proc group_name(ticker: Ticker, contract: string): string =
 proc grouping_pair*(market: Market): (string, string) =
   let base_symbol = market.base.symbol
   let base_normal = market.base.normal
-  (group_name(market.base, market.base_contract), 
+  (group_name(market.base, market.base_contract),
    group_name(market.quote, market.quote_contract))
 
 proc ticker_side*(market: Market, ticker: Ticker): TickerSide =

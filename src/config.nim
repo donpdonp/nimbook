@@ -60,7 +60,7 @@ proc marketsave*(config: Config, mt: Table[(string, string), seq[Market]]) =
   # jstream.close()
 
 proc activeSources*(config: Config): seq[Source] =
-  config.sources.filter(proc (s:Source): bool = s.active)
+  config.sources.filter(proc (s: Source): bool = s.active)
 
 proc bookssave*(books: Books, filename: string) =
   var stream = newFileStream(filename, fmWrite)
@@ -89,7 +89,7 @@ proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
   serialization.dump(arb_report, stream, options = defineOptions(
       style = psJson))
   stream.close()
-  # redis 
+  # redis
   let payload = serialization.dump(arb_report, options = defineOptions(
       style = psJson))
   let rkey = "arb:" & arb_id

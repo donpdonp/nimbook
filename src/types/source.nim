@@ -8,11 +8,11 @@ type
     jq*: string
 
   Source* = ref object
-    name* : string
+    name*: string
     active*: bool
-    url* : string
-    jq*  : JqBidAsk
-    ws_url* : string
+    url*: string
+    jq*: JqBidAsk
+    ws_url*: string
     market_list*: JqUrl
     taker_fee*: float
     maker_fee*: float

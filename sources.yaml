@@ -28,14 +28,14 @@
           base_contract: .base_coin.address,
           quote_contract: .quote_coin.address
         })
-    url: #curl -H "Content-Type: application/json" -d '{"market":"ETH_IDEX","count":50}' https://api.idex.market/returnOrderBook
+    url: https://api.idex.market/returnOrderBook?market=%base%_%quote%&count=50
     jq:
       bids: >-
-        .data.bids |
-        map([(.[1] | tonumber), (.[0] | tonumber)])
+        .bids |
+        map([(.amount | tonumber), (.price | tonumber)])
       asks: >-
-        .data.asks |
-        map([(.[1] | tonumber), (.[0] | tonumber)])
+        .asks |
+        map([(.amount | tonumber), (.price | tonumber)])
     ws_url: 
   -
     name: kyber

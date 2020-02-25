@@ -51,6 +51,7 @@ proc marketlistload*(source: Source): seq[Market] =
   if compile_success == 1:
     var jsonparts: seq[string]
     for list_url in source.market_list.urls:
+      echo list_url
       jsonparts.add(Client.getContent(list_url))
     var json: string = jsonparts.join("")
     var jdata = libjq.jv_parse(json)

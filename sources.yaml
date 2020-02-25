@@ -9,17 +9,25 @@
         - https://api.idex.market/returnTicker
         - https://api.idex.market/returnCurrencies   
       jq: |
-        .data | to_entries |map({
-        id: .key, 
-        base: .base_symbol, 
-        quote: .quote_symbol, 
-        quantity_decimals: .base_decimals, 
-        price_decimals: .quote_decimals, 
-        min_order_size: "1",
-        base_contract: .base_address,
-        quote_contract: .quote_address
+        input as $coin |
+        to_entries |
+        map(
+          (.key|split("_")) as $key_parts |
+          $key_parts.[0] as $base_symbol |
+          $key_parts.[1] as $quote_symbol |
+          {key, value, base_coin: ($coin.[$base_symbol] + { symbol: $base_symbol }),
+           quote_coin: ($coin.[$quote_symbol] + { symbol: $quote_symbol })}
+        )|
+        map({
+          id: .key,
+          base: .base_coin.symbol,
+          quote: .quote_coin.symbol,
+          quantity_decimals: .base_coin.decimals,
+          price_decimals: .quote_coin.decimals,
+          min_order_size: "1",
+          base_contract: .base_coin.address,
+          quote_contract: .quote_coin.address
         })
-
     url: #curl -H "Content-Type: application/json" -d '{"market":"ETH_IDEX","count":50}' https://api.idex.market/returnOrderBook
     jq:
       bids: >-

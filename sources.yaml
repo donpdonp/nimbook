@@ -1,7 +1,7 @@
 ---
   -
     name: idex
-    active: false
+    active: true
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
@@ -9,8 +9,8 @@
         - https://api.idex.market/returnTicker
         - https://api.idex.market/returnCurrencies   
       jq: |
-        input as $coin |
-        to_entries |
+        .[1] as $coin |
+        .[0] | to_entries |
         map(
           (.key|split("_")) as $key_parts |
           $key_parts.[0] as $base_symbol |

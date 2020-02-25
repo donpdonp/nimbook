@@ -46,25 +46,22 @@ proc marketlistload*(source: Source): seq[Market] =
   var Client = newHttpClient(timeout = 800)
   Client.headers = newHttpHeaders({"User-Agent": "curl/7.58.0",
                                     "Accept": "*/*"})
-  var jq_state = libjq.jq_init()
-  var compile_success = libjq.jq_compile(jq_state, source.market_list.jq)
-  if compile_success == 1:
-    var jsonparts: seq[string]
-    for list_url in source.market_list.urls:
-      echo list_url
-      jsonparts.add(Client.getContent(list_url))
-    var json: string = jsonparts.join("")
-    var jdata = libjq.jv_parse(json)
-    libjq.jq_start(jq_state, jdata, 0)
-    var jqmarkets = libjq.jq_next(jq_state)
+  var jsonparts: seq[string]
+  for list_url in source.market_list.urls:
+    echo list_url
+    jsonparts.add(Client.getContent(list_url))
+  var jqmarkets = jqutil.jqrun(jsonparts, source.market_list.jq)
+  echo &"marketlistload jq_value {libjq.jv_is_valid(jqmarkets)}"  
+  if libjq.jv_is_valid(jqmarkets) == 1:
     for idx in 0..jqutil.jqArrayLen(jqmarkets)-1:
       let jqmarket = libjq.jv_array_get(libjq.jv_copy(jqmarkets), idx)
       let new_market = market_format(source, jqmarket)
       markets.add(new_market)
     libjq.jv_free(jqmarkets)
-    libjq.jq_teardown(addr jq_state)
   else:
-    echo "marketlistload jq compile fail ", source.market_list.jq
+    var jerr = libjq.jv_invalid_get_msg(jqmarkets)
+    var err = libjq.jv_string_value(jerr)
+    echo "marketlistload jq compile fail ", err
   markets
 
 

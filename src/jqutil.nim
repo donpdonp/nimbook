@@ -29,14 +29,32 @@ proc jqArrayTupleStrings*(jqarray: libjq.jq_Value, idx: cint): (string, string) 
       element), 1))
   (base_symbol, quote_symbol)
 
-proc jqrun*(json: string, jq_code: string): libjq.jq_Value =
+proc jqrun*(jsons: seq[string], jq_code: string): libjq.jq_Value =
   var jq_state = libjq.jq_init()
   var compile_success = libjq.jq_compile(jq_state, jq_code)
   if compile_success == 1:
-    var jdata = libjq.jv_parse(json)
+    var jdata: libjq.jq_Value
+    if jsons.len == 1:
+      jdata = libjq.jv_parse(jsons[0])
+      if libjq.jv_is_valid(jdata) == 0:
+        echo "jq parse early abort"
+        return jdata
+    else:
+      jdata = libjq.jv_array()
+      for json in jsons:
+        var jpart = libjq.jv_parse(json)
+        if libjq.jv_is_valid(jpart) == 1:
+          jdata = libjq.jv_array_append(jdata, jpart)
+        else:
+          echo "jq parse early abort"
+          return jdata
     libjq.jq_start(jq_state, jdata, 0)
     var jq_result = libjq.jq_next(jq_state)
     libjq.jq_teardown(addr jq_state)
     return jq_result
 
+proc jqrun*(json: string, jq_code: string): libjq.jq_Value =
+  jqrun(@[json], jq_code)
+
 #proc jqfor(array: libjq.jq_Value, p: proc()...
+

@@ -13,8 +13,8 @@
         .[0] | to_entries |
         map(
           (.key|split("_")) as $key_parts |
-          $key_parts.[0] as $base_symbol |
-          $key_parts.[1] as $quote_symbol |
+          $key_parts.[0] as $quote_symbol |
+          $key_parts.[1] as $base_symbol |
           {key, value, base_coin: ($coin.[$base_symbol] + { symbol: $base_symbol }),
            quote_coin: ($coin.[$quote_symbol] + { symbol: $quote_symbol })}
         )|
@@ -28,7 +28,7 @@
           base_contract: .base_coin.address,
           quote_contract: .quote_coin.address
         })
-    url: https://api.idex.market/returnOrderBook?market=%base%_%quote%&count=50
+    url: https://api.idex.market/returnOrderBook?market=%quote%_%base%&count=50
     jq:
       bids: >-
         .bids |

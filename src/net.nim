@@ -41,7 +41,6 @@ proc market_format*(source: Source, value: libjq.jq_value): Market =
   newMarket
 
 proc marketlistload*(source: Source): seq[Market] =
-  echo &"marketlistload {source.name}"
   var markets: seq[Market]
   var Client = newHttpClient(timeout = 800)
   Client.headers = newHttpHeaders({"User-Agent": "curl/7.58.0",
@@ -51,7 +50,6 @@ proc marketlistload*(source: Source): seq[Market] =
     echo list_url
     jsonparts.add(Client.getContent(list_url))
   var jqmarkets = jqutil.jqrun(jsonparts, source.market_list.jq)
-  echo &"marketlistload jq_value {libjq.jv_is_valid(jqmarkets)}"  
   if libjq.jv_is_valid(jqmarkets) == 1:
     for idx in 0..jqutil.jqArrayLen(jqmarkets)-1:
       let jqmarket = libjq.jv_array_get(libjq.jv_copy(jqmarkets), idx)

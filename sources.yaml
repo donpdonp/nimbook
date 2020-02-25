@@ -1,7 +1,7 @@
 ---
   -
     name: idex
-    active: true
+    active: false
     maker_fee: 0.0
     taker_fee: 0.0
     market_list:
@@ -75,15 +75,19 @@
       urls: 
         - https://api.oasisdex.com/v2/pairs
       jq: |
-        .data | to_entries | map({
+        {"ZRX":"99f498", 
+         "BAT":"2887ef",
+         "REP":"45e862",
+         "MKR":"a579a2"
+         } as $contracts | .data | to_entries | map({
         id: .key, 
         base: .value.base, 
         quote: .value.quote, 
         quantity_decimals: .value.basePrecision, 
         price_decimals: .value.quotePrecision, 
         min_order_size: "1",
-        base_contract: "oasis_",
-        quote_contract: "oasis_"
+        base_contract: ($contracts.[.value.base] // "_oasis"),
+        quote_contract: ($contracts.[.value.quote] // "_oasis")
         })
 
     url: https://api.oasisdex.com/v2/orders/%base%/%quote%

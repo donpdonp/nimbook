@@ -1,4 +1,4 @@
-import strformat
+import strformat, strutils
 
 type
   Ticker* = object
@@ -16,8 +16,11 @@ proc normal*(ticker: Ticker): Ticker =
     of "USDx", "USDC", "SAI", "DAI", "USDT", "TUSD", "NUSD": Ticker(symbol: "usd")
     else: ticker
 
+proc generic_symbol(ticker: Ticker): string =
+  ticker.symbol.split("_")[0]
+
 proc `==`*(ticker_a: Ticker, ticker_b: Ticker): bool =
-  ticker_a.normal().symbol == ticker_b.normal().symbol
+  ticker_a.normal().generic_symbol == ticker_b.normal().generic_symbol
 
 proc other_side*(ticker_side: TickerSide): TickerSide =
   if ticker_side == TickerSide.Base:

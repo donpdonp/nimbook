@@ -118,7 +118,7 @@
         quote_contract: .quoteContract
         })
 
-    url: https://api.switcheo.network/v2/offers/book\?pair=%quote%_%base%
+    url: https://api.switcheo.network/v2/offers/book?pair=%base%_%quote%
     jq:
       bids: >-
         .bids |

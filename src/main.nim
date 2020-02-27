@@ -1,5 +1,5 @@
 # nim
-import os, strformat, tables, times
+import os, strformat, tables, times, options
 # local
 import config, nimbook, net, types
 
@@ -25,9 +25,8 @@ proc markets(config: config.Config) =
   config.marketsave(matches)
   echo &"saved."
 
-proc compare(config: Config, market_pair: (Ticker, Ticker),
-    matchingMarkets: var seq[Market]) =
-  let arb_id = arb_id_gen()
+proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
+    matchingMarkets: var seq[Market]): Option[float] =
   var (askbooks, bidbooks) = marketsload(arb_id, market_pair, matchingMarkets)
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
@@ -52,25 +51,28 @@ proc compare(config: Config, market_pair: (Ticker, Ticker),
       arbPush(config, arb_id, market_pair, ask_orders, bid_orders, cost, 
         profit, cost_usd, ratio, avg_price)
       echo &"*Cost {ask_orders.base_total:0.5f}{market_pair[0]}/{cost:0.5f}{market_pair[1]} profit {profit:0.5f}{market_pair[1]} {ratio:0.3f}x {arb_id} {now().`$`}"
+      return some(profit)
   else:
     echo "totally empty."
-  echo ""
+    return none[float]()
 
-proc book(config: Config, base: string, quote: string) =
-  var matches = config.marketload()
+proc book(config: Config, matches: MarketMatches, base: string, quote: string) =  
+  let arb_id = arb_id_gen()
   let market_pair = (Ticker(symbol: base), Ticker(symbol: quote))
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
   echo &"={market_pair[0]}/{market_pair[1]} {market_matches}"
   #var market_equals = marketpairs_equal(market_matches) #future constraint
-  compare(config, market_pair, market_matches)
+  let profit_opt = compare(config, arb_id, market_pair, market_matches)
+  if profit_opt.isSome:
+    let profit = profit_opt.get
+    echo &"book done. profit {profit}"
 
-proc bookall(config: Config) =
+proc bookall(config: Config, matches: MarketMatches) =
   var matches = config.marketload()
   echo &"loaded {len(matches)}"
   for k, v in matches.mpairs:
     if len(v) > 1:
-      echo(&"{k} = {v}")
-      compare(config, (Ticker(symbol: k[0]), Ticker(symbol: k[1])), v)
+      book(config, matches, k[0], k[1])
       if config.settings.delay > 0:
         echo(&"sleep {config.settings.delay}")
         sleep(int(config.settings.delay*1000))
@@ -90,14 +92,14 @@ proc main(args: seq[string]) =
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)
-      of "book": book(config, args[1], args[2])
-      of "books": bookall(config)
+      of "book": book(config, config.marketload(), args[1], args[2])
+      of "books": bookall(config, config.marketload())
       else: help(config) #help_closest(args[0])
   else:
     help(config)
 
 proc ctrlc() {.noconv.} =
-  quit("done")
+  quit("ctrl-c")
 
 setControlCHook(ctrlc)
 

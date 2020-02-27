@@ -27,6 +27,8 @@ type ArbReport = object
   profit: float
   avg_price: float
 
+type MarketMatches* = Table[(string, string), seq[Market]]
+
 var redis_client: redis.Redis
 
 proc load*(filename: string): Config =
@@ -43,7 +45,7 @@ proc load*(filename: string): Config =
   redis_client = redis.open()
   config
 
-proc marketload*(config: Config): Table[(string, string), seq[Market]] =
+proc marketload*(config: Config): MarketMatches =
   var mt: Table[(string, string), seq[Market]]
   var stream = newFileStream("all_markets.yaml")
   load(stream, mt)

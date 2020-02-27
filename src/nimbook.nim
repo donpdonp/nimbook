@@ -120,3 +120,15 @@ proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker),
       let ex = getCurrentException()
       echo &"IOERR {market} : {ex.msg}"
   (askbooks, bidbooks)
+
+proc currency_convert*(value: float, from_symbol: string, to_symbol: string): float =
+  echo &"current_convert value {value} from {from_symbol} to {to_symbol}"
+  if to_symbol == "usd" or to_symbol == "USD":
+    if from_symbol == "usd" or from_symbol == "USD":
+      value
+    else:
+      let url = &"https://api.coincap.io/v2/assets?limit=1&search={from_symbol}"
+      echo url
+      value
+  else:
+    value

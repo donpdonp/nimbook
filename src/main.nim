@@ -64,7 +64,7 @@ proc book(config: Config, matches: MarketMatches, base: string, quote: string) =
   let arb_opt = compare(config, arb_id, market_pair, market_matches)
   if arb_opt.isSome:
     var arb = arb_opt.get
-    let profit_usd = arb.profit
+    let profit_usd = nimbook.currency_convert(arb.profit, arb.pair[1], "USD")
     arb.profit_usd = profit_usd
     arbPush(config, arb)
     echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]} profit {arb.profit:0.5f}{arb.pair[1]} {arb.ratio:0.3f}x {arb.id} {now().`$`}"
@@ -73,7 +73,7 @@ proc book(config: Config, matches: MarketMatches, base: string, quote: string) =
 proc bookall(config: Config, matches: MarketMatches) =
   var matches = config.marketload()
   echo &"loaded {len(matches)}"
-  for k, v in matches.mpairs:
+  for k, v in matches.pairs:
     if len(v) > 1:
       book(config, matches, k[0], k[1])
       if config.settings.delay > 0:

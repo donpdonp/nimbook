@@ -18,15 +18,6 @@ type
     username: string
     password: string
 
-type ArbReport = object
-  id: string
-  pair: (string, string)
-  ask_books: Books
-  bid_books: Books
-  cost: float
-  profit: float
-  avg_price: float
-
 type MarketMatches* = Table[(string, string), seq[Market]]
 
 var redis_client: redis.Redis
@@ -77,15 +68,10 @@ proc jsonsave*(arb_id: string, market_name: string, json: string) =
   let market_file = arb_dir & "/" & market_name
   writeFile(market_file, json)
 
-proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
-    bid_books: Books, cost: float, profit: float, avg_price: float) =
-  let arb_report = ArbReport(id: arb_id,
-        pair: (ticker_pair[0].symbol, ticker_pair[1].symbol),
-        ask_books: ask_books, bid_books: bid_books,
-        cost: cost, profit: profit, avg_price: avg_price)
+proc redisPush(arb_report: ArbReport) =
   # file
   let arbs_root = "arbs"
-  let arb_dir = "." & "/" & arbs_root & "/" & arb_id
+  let arb_dir = "." & "/" & arbs_root & "/" & arb_report.id
   let arb_filename = arb_dir & "/order"
   var stream = newFileStream(arb_filename, fmWrite)
   serialization.dump(arb_report, stream, options = defineOptions(
@@ -94,7 +80,7 @@ proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
   # redis
   let payload = serialization.dump(arb_report, options = defineOptions(
       style = psJson))
-  let rkey = "arb:" & arb_id
+  let rkey = "arb:" & arb_report.id
   let rx = redis_client.hset(rkey, "json", payload)
   let rx2 = redis_client.lpush("orders", arb_report.id)
   let rx3 = redis_client.publish("orders", arb_report.id)
@@ -102,11 +88,8 @@ proc redisPush(arb_id: string, ticker_pair: (Ticker, Ticker), ask_books: Books,
 proc arb_id_gen*(): string =
   ulid()
 
-proc arbPush*(config: Config, arb_id: string, ticker_pair: (Ticker, Ticker),
-    ask_orders: Books, bid_orders: Books, cost: float, profit: float,
-    cost_usd:float, ratio: float, avg_price: float) =
-  redisPush(arb_id, ticker_pair, ask_orders, bid_orders, cost, profit, avg_price)
+proc arbPush*(config: Config, report: ArbReport) =
+  redisPush(report)
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,
-      config.settings.influx.password,
-      ticker_pair, cost, profit, cost_usd, ratio, avg_price, ask_orders, bid_orders)
+      config.settings.influx.password, report)

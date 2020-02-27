@@ -3,4 +3,5 @@ include
   types/source,
   types/market,
   types/offer,
-  types/book
+  types/book,
+  types/arb_report

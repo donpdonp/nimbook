@@ -83,18 +83,16 @@ proc influxline*(books: Books, book: Book, offer: Offer): string =
   &"offer,side={books.askbid},exchange={book.market.source.name},base_token={book.market.base.symbol},quote_token={book.market.quote.symbol} base={offer.base_qty:0.8f},quote={offer.quote:0.8f}"
 
 proc influxpush*(url: string, username: string, password: string,
-                 ticker_pair: (Ticker, Ticker), cost: float, profit: float,
-                 cost_usd: float, ratio: float, avg_price: float,
-                 ask_orders: Books, bid_orders: Books) =
+                 report: ArbReport) =
   var datalines: seq[string] = @[]
-  let pair = &"{ticker_pair[0]}-{ticker_pair[1]}"
-  datalines.add(&"arb,pair={pair},base_token={ticker_pair[0]},quote_token={ticker_pair[1]} profit={profit:0.5f},cost={cost:0.5f},ratio={ratio:0.5f},cost_usd={cost_usd:0.5f},avg_price={avg_price:0.5f}")
-  for book in ask_orders.books:
+  let pair = &"{report.pair[0]}-{report.pair[1]}"
+  datalines.add(&"arb,pair={pair},base_token={report.pair[0]},quote_token={report.pair[1]} profit={report.profit:0.5f},cost={report.cost:0.5f},ratio={report.ratio:0.5f},avg_price={report.avg_price:0.5f}")
+  for book in report.ask_books.books:
     for offer in book.offers:
-      datalines.add(influxline(ask_orders, book, offer))
-  for book in bid_orders.books:
+      datalines.add(influxline(report.ask_books, book, offer))
+  for book in report.bid_books.books:
     for offer in book.offers:
-      datalines.add(influxline(bid_orders, book, offer))
+      datalines.add(influxline(report.bid_books, book, offer))
   for line in datalines:
     echo &"influx: {line}"
   let body = datalines.join("\n")

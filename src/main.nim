@@ -26,7 +26,7 @@ proc markets(config: config.Config) =
   echo &"saved."
 
 proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
-    matchingMarkets: var seq[Market]): Option[float] =
+    matchingMarkets: var seq[Market]): Option[ArbReport] =
   var (askbooks, bidbooks) = marketsload(arb_id, market_pair, matchingMarkets)
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
@@ -47,14 +47,13 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       let avg_price = best_ask.quote + (best_bid.quote - best_ask.quote)/2
       let cost = ask_orders.cost
       let ratio = profit / cost
-      let cost_usd = cost
-      arbPush(config, arb_id, market_pair, ask_orders, bid_orders, cost, 
-        profit, cost_usd, ratio, avg_price)
-      echo &"*Cost {ask_orders.base_total:0.5f}{market_pair[0]}/{cost:0.5f}{market_pair[1]} profit {profit:0.5f}{market_pair[1]} {ratio:0.3f}x {arb_id} {now().`$`}"
-      return some(profit)
+      let report = ArbReport(id: arb_id, pair: (market_pair[0].symbol,market_pair[1].symbol), 
+        ask_books: ask_orders, bid_books: bid_orders, cost: cost, profit: profit,
+        avg_price: avg_price, ratio: ratio)
+      return some(report)
   else:
     echo "totally empty."
-    return none[float]()
+    return none[ArbReport]()
 
 proc book(config: Config, matches: MarketMatches, base: string, quote: string) =  
   let arb_id = arb_id_gen()
@@ -62,10 +61,14 @@ proc book(config: Config, matches: MarketMatches, base: string, quote: string) =
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
   echo &"={market_pair[0]}/{market_pair[1]} {market_matches}"
   #var market_equals = marketpairs_equal(market_matches) #future constraint
-  let profit_opt = compare(config, arb_id, market_pair, market_matches)
-  if profit_opt.isSome:
-    let profit = profit_opt.get
-    echo &"book done. profit {profit}"
+  let arb_opt = compare(config, arb_id, market_pair, market_matches)
+  if arb_opt.isSome:
+    var arb = arb_opt.get
+    let profit_usd = arb.profit
+    arb.profit_usd = profit_usd
+    arbPush(config, arb)
+    echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]} profit {arb.profit:0.5f}{arb.pair[1]} {arb.ratio:0.3f}x {arb.id} {now().`$`}"
+    echo &"book done. profit {arb.profit_usd}"
 
 proc bookall(config: Config, matches: MarketMatches) =
   var matches = config.marketload()

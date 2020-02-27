@@ -15,7 +15,7 @@ proc markets(config: config.Config) =
       let ex = getCurrentException()
       echo &"{source.name} : {ex.msg}"
 
-  var matches: Table[(string, string), seq[Market]] = marketpairs_group(markets)
+  var matches: Table[(string, string), seq[Market]] = nimbook.marketpairs_group(markets)
   var matches_count = 0
   for k, v in matches.mpairs:
     if len(v) > 1:

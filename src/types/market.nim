@@ -30,7 +30,11 @@ proc group_name(ticker: Ticker, contract: string): string =
   let symbol = ticker.symbol
   let normal = ticker.normal.symbol
   if symbol == normal:
-    &"{symbol}_{contract[^6..^1]}"
+    if contract == "0x0000000000000000000000000000000000000000" or 
+       contract == "0x000000000000000000000000000000000000000e": 
+      symbol
+    else:
+      &"{symbol}_{contract[^6..^1]}"
   else:
     normal
 

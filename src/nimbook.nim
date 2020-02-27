@@ -121,14 +121,14 @@ proc marketsload*(arb_id: string, ticker_pair: (Ticker, Ticker),
       echo &"IOERR {market} : {ex.msg}"
   (askbooks, bidbooks)
 
-proc currency_convert*(value: float, from_symbol: string, to_symbol: string): float =
-  echo &"current_convert value {value} from {from_symbol} to {to_symbol}"
-  if to_symbol == "usd" or to_symbol == "USD":
-    if from_symbol == "usd" or from_symbol == "USD":
+proc currency_convert*(value: float, from_ticker: Ticker, to_ticker: Ticker): float =
+  echo &"current_convert value {value} from {from_ticker} to {to_ticker}"
+  if to_ticker.symbol == "usd" or to_ticker.symbol == "USD":
+    if from_ticker.symbol == "usd" or from_ticker.symbol == "USD":
       value
     else:
-      let ratio_usd = net.coincap(from_symbol)
-      echo &"coincap: {from_symbol} {ratio_usd}"
+      let ratio_usd = net.coincap(from_ticker)
+      echo &"coincap: {from_ticker} {ratio_usd}"
       value * ratio_usd
   else:
     value

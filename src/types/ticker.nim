@@ -16,7 +16,7 @@ proc normal*(ticker: Ticker): Ticker =
     of "USDx", "USDC", "SAI", "DAI", "USDT", "TUSD", "NUSD": Ticker(symbol: "usd")
     else: ticker
 
-proc generic_symbol(ticker: Ticker): string =
+proc generic_symbol*(ticker: Ticker): string =
   ticker.symbol.split("_")[0]
 
 proc `==`*(ticker_a: Ticker, ticker_b: Ticker): bool =

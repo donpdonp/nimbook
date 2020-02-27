@@ -55,27 +55,27 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
     echo "totally empty."
     return none[ArbReport]()
 
-proc book(config: Config, matches: MarketMatches, base: string, quote: string) =  
+proc book(config: Config, matches: MarketMatches, base: Ticker, quote: Ticker) =  
+  let usd = Ticker(symbol:"USD")
   let arb_id = arb_id_gen()
-  let market_pair = (Ticker(symbol: base), Ticker(symbol: quote))
+  let market_pair = (base, quote)
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
   echo &"={market_pair[0]}/{market_pair[1]} {market_matches}"
   #var market_equals = marketpairs_equal(market_matches) #future constraint
   let arb_opt = compare(config, arb_id, market_pair, market_matches)
   if arb_opt.isSome:
     var arb = arb_opt.get
-    let profit_usd = nimbook.currency_convert(arb.profit, arb.pair[1], "USD")
+    let profit_usd = nimbook.currency_convert(arb.profit, quote, usd)
     arb.profit_usd = profit_usd
     arbPush(config, arb)
-    echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]} profit {arb.profit:0.5f}{arb.pair[1]} {arb.ratio:0.3f}x {arb.id} {now().`$`}"
-    echo &"book done. profit {arb.profit_usd}"
+    echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]} profit {arb.profit:0.5f}{arb.pair[1]} profit_usd: {arb.profit_usd:0.5f} {arb.ratio:0.3f}x {arb.id} {now().`$`}"
 
 proc bookall(config: Config, matches: MarketMatches) =
   var matches = config.marketload()
   echo &"loaded {len(matches)}"
   for k, v in matches.pairs:
     if len(v) > 1:
-      book(config, matches, k[0], k[1])
+      book(config, matches, Ticker(symbol:k[0]), Ticker(symbol:k[1]))
       if config.settings.delay > 0:
         echo(&"sleep {config.settings.delay}")
         sleep(int(config.settings.delay*1000))
@@ -95,7 +95,7 @@ proc main(args: seq[string]) =
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)
-      of "book": book(config, config.marketload(), args[1], args[2])
+      of "book": book(config, config.marketload(), Ticker(symbol:args[1]), Ticker(symbol:args[2]))
       of "books": bookall(config, config.marketload())
       else: help(config) #help_closest(args[0])
   else:

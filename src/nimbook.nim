@@ -127,8 +127,8 @@ proc currency_convert*(value: float, from_symbol: string, to_symbol: string): fl
     if from_symbol == "usd" or from_symbol == "USD":
       value
     else:
-      let url = &"https://api.coincap.io/v2/assets?limit=1&search={from_symbol}"
-      echo url
-      value
+      let ratio_usd = net.coincap(from_symbol)
+      echo &"coincap: {from_symbol} {ratio_usd}"
+      value * ratio_usd
   else:
     value

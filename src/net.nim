@@ -1,10 +1,28 @@
 # nim
 import httpClient, strutils, strformat, base64, asyncdispatch
 # nimble
-import libjq, jqutil, ws
+import libjq, jqutil, ws, yaml/serialization
 # local
 import types
 
+type CoinCapRate = ref object
+  id: string
+  priceUsd: float
+#{"id":"ethereum",
+#"rank":"2",
+#"symbol":"ETH",
+#"name":"Ethereum",
+#"supply":"109875949.1240000000000000",
+#"maxSupply":null,
+#"marketCapUsd":"26246006217.0385634275207594",
+#"volumeUsd24Hr":"4591339461.5357560467488870",
+#"priceUsd":"238.8694380006561137",
+#"changePercent24Hr":"6.9940096234651106",
+#"vwap24Hr":"225.7362469306255815"}
+
+type CoinCapList = ref object
+  data: seq[CoinCapRate] 
+  timestamp: int
 
 proc getContent*(url: string): string =
   var Client = newHttpClient(timeout = 800)
@@ -103,3 +121,9 @@ proc influxpush*(url: string, username: string, password: string,
   if status < 200 or status >= 300:
     echo &"{response.status} {response.body}"
 
+proc coincap*(symbol: string): float =
+  let url = &"https://api.coincap.io/v2/assets?limit=1&search={symbol}"
+  let json = net.getContent(url)
+  var coincaplist = CoinCapList()
+  serialization.load(json, coincaplist)
+  coincaplist.data[0].priceUsd

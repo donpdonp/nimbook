@@ -121,10 +121,11 @@ proc influxpush*(url: string, username: string, password: string,
 
 proc coincap*(ticker: Ticker): float =
   let url = &"https://api.coincap.io/v2/assets?limit=1&search={ticker.generic_symbol}"
-  let json = net.getContent(url)
-  var coincaplist = CoinCapList()
   try:
+    let json = net.getContent(url)
+    var coincaplist = CoinCapList()
     serialization.load(json, coincaplist)
     coincaplist.data[0].priceUsd
   except:
+    echo &"!coincap fail for {ticker}"
     0

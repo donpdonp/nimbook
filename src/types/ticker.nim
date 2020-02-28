@@ -12,12 +12,27 @@ proc `$`*(t: Ticker): string =
 proc normal*(ticker: Ticker): Ticker =
   case ticker.symbol
     of "ETH", "WETH": Ticker(symbol: "eth")
-    #of "WBTC": Ticker(symbol: "BTC")
-    #of "USDx", "USDC", "SAI", "DAI", "USDT", "TUSD", "NUSD": Ticker(symbol: "usd")
+    of "BTC", "WBTC": Ticker(symbol: "btc")
+    of "USDx", "USDC", "SAI", "DAI", "USDT", "TUSD", "NUSD": Ticker(symbol: "usd")
     else: ticker
 
 proc generic_symbol*(ticker: Ticker): string =
   ticker.symbol.split("_")[0]
+
+proc full_name*(ticker: Ticker, contract: string): string = 
+  let symbol = ticker.symbol
+  if contract == "0x0000000000000000000000000000000000000000" or 
+     contract == "0x000000000000000000000000000000000000000e": 
+    symbol
+  else:
+    &"{symbol}_{contract[^6..^1]}" # use 'full name'
+
+proc group_name(ticker: Ticker, contract: string): string =
+  let normal = ticker.normal.symbol
+  if ticker.symbol == normal: # no generic market
+    ticker.full_name(contract)
+  else:
+    normal
 
 proc `==`*(ticker_a: Ticker, ticker_b: Ticker): bool =
   ticker_a.normal().generic_symbol == ticker_b.normal().generic_symbol

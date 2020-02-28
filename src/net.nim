@@ -123,6 +123,8 @@ proc coincap*(ticker: Ticker): float =
   let url = &"https://api.coincap.io/v2/assets?limit=1&search={ticker.generic_symbol}"
   let json = net.getContent(url)
   var coincaplist = CoinCapList()
-  echo json
-  serialization.load(json, coincaplist)
-  coincaplist.data[0].priceUsd
+  try:
+    serialization.load(json, coincaplist)
+    coincaplist.data[0].priceUsd
+  except:
+    0

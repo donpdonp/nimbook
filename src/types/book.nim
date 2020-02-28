@@ -28,7 +28,7 @@ proc findb*(books: Books, market: Market): Book =
 proc offers_better_than*(books: Books, price: float, ticker: Ticker): Books =
   var wins = Books(askbid: books.askbid)
   for b in books.books:
-    if ticker == b.market.quote:
+    if ticker == b.market.quote.normal:
       var offer_filter: proc (o: Offer): bool
       if books.askbid == AskBid.ask:
         offer_filter = proc (o: Offer): bool = o.quote < price

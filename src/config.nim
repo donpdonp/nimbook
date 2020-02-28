@@ -13,6 +13,7 @@ type
     redis: string
     influx: Influx
     delay*: float
+    profit_minimum*: float
   Influx = object
     url: string
     username: string

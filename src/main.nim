@@ -67,7 +67,7 @@ proc book(config: Config, matches: MarketMatches, base: Ticker, quote: Ticker) =
     var arb = arb_opt.get
     let profit_usd = nimbook.currency_convert(arb.profit, quote, usd)
     arb.profit_usd = profit_usd
-    if profit_usd > config.settings.profit_minimum:
+    if profit_usd > config.settings.profit_minimum and arb.ratio > config.settings.ratio_minimum:
       arbPush(config, arb)
     echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]} profit {arb.profit:0.5f}{arb.pair[1]} profit_usd: {arb.profit_usd:0.5f} {arb.ratio:0.3f}x {arb.id} {now().`$`}"
 

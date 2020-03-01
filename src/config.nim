@@ -14,6 +14,7 @@ type
     influx: Influx
     delay*: float
     profit_minimum*: float
+    ratio_minimum*: float
   Influx = object
     url: string
     username: string

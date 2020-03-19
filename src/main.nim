@@ -47,16 +47,18 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       let avg_price = best_ask.quote + (best_bid.quote - best_ask.quote)/2
       let cost = ask_orders.cost
       let ratio = profit / cost
-      let report = ArbReport(id: arb_id, pair: (market_pair[0].symbol,market_pair[1].symbol), 
-        ask_books: ask_orders, bid_books: bid_orders, cost: cost, profit: profit,
+      let report = ArbReport(id: arb_id, pair: (market_pair[0].symbol,
+          market_pair[1].symbol),
+        ask_books: ask_orders, bid_books: bid_orders, cost: cost,
+            profit: profit,
         avg_price: avg_price, ratio: ratio)
       return some(report)
   else:
     echo "totally empty."
     return none[ArbReport]()
 
-proc book(config: Config, matches: MarketMatches, base: Ticker, quote: Ticker) =  
-  let usd = Ticker(symbol:"USD")
+proc book(config: Config, matches: MarketMatches, base: Ticker, quote: Ticker) =
+  let usd_ticker = Ticker(symbol: "USD")
   let arb_id = arb_id_gen()
   let market_pair = (base, quote)
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
@@ -65,9 +67,10 @@ proc book(config: Config, matches: MarketMatches, base: Ticker, quote: Ticker) =
   let arb_opt = compare(config, arb_id, market_pair, market_matches)
   if arb_opt.isSome:
     var arb = arb_opt.get
-    let profit_usd = nimbook.currency_convert(arb.profit, quote, usd)
-    arb.profit_usd = profit_usd
-    if profit_usd > config.settings.profit_minimum and arb.ratio > config.settings.ratio_minimum:
+    let usd_ratio = nimbook.currency_convert(quote, usd_ticker)
+    arb.profit_usd = arb.profit * usd_ratio
+    if arb.profit_usd > config.settings.profit_minimum and
+       arb.ratio > config.settings.ratio_minimum:
       arbPush(config, arb)
     echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]} profit {arb.profit:0.5f}{arb.pair[1]} profit_usd: {arb.profit_usd:0.5f} {arb.ratio:0.3f}x {arb.id} {now().`$`}"
 
@@ -76,7 +79,7 @@ proc bookall(config: Config, matches: MarketMatches) =
   echo &"loaded {len(matches)}"
   for k, v in matches.pairs:
     if len(v) > 1:
-      book(config, matches, Ticker(symbol:k[0]), Ticker(symbol:k[1]))
+      book(config, matches, Ticker(symbol: k[0]), Ticker(symbol: k[1]))
       if config.settings.delay > 0:
         echo ""
         sleep(int(config.settings.delay*1000))
@@ -96,7 +99,8 @@ proc main(args: seq[string]) =
   if len(args) > 0:
     case args[0]
       of "markets": markets(config)
-      of "book": book(config, config.marketload(), Ticker(symbol:args[1]), Ticker(symbol:args[2]))
+      of "book": book(config, config.marketload(), Ticker(symbol: args[1]),
+          Ticker(symbol: args[2]))
       of "books": bookall(config, config.marketload())
       else: help(config) #help_closest(args[0])
   else:

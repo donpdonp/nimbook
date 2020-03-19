@@ -46,7 +46,7 @@ proc jqrun*(jsons: seq[string], jq_code: string): libjq.jq_Value =
         if libjq.jv_is_valid(jpart) == 1:
           jdata = libjq.jv_array_append(jdata, jpart)
         else:
-          echo "jqrun parse abort on part ",idx, " of ", jsons.len
+          echo "jqrun parse abort on part ", idx, " of ", jsons.len
           return jdata
     libjq.jq_start(jq_state, jdata, 0)
     var jq_result = libjq.jq_next(jq_state)

@@ -19,7 +19,7 @@ type CoinCapRate = ref object
   vwap24Hr: string
 
 type CoinCapList = ref object
-  data: seq[CoinCapRate] 
+  data: seq[CoinCapRate]
   timestamp: int64
 
 proc getContent*(url: string): string =

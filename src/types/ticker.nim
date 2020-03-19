@@ -19,10 +19,10 @@ proc normal*(ticker: Ticker): Ticker =
 proc generic_symbol*(ticker: Ticker): string =
   ticker.symbol.split("_")[0]
 
-proc full_name*(ticker: Ticker, contract: string): string = 
+proc full_name*(ticker: Ticker, contract: string): string =
   let symbol = ticker.symbol
-  if contract == "0x0000000000000000000000000000000000000000" or 
-     contract == "0x000000000000000000000000000000000000000e": 
+  if contract == "0x0000000000000000000000000000000000000000" or
+     contract == "0x000000000000000000000000000000000000000e":
     symbol
   else:
     &"{symbol}_{contract[^6..^1]}" # use 'full name'

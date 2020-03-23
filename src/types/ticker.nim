@@ -12,8 +12,9 @@ proc `$`*(t: Ticker): string =
 proc normal*(ticker: Ticker): Ticker =
   case ticker.symbol
     of "ETH", "WETH": Ticker(symbol: "eth")
-    of "BTC", "WBTC": Ticker(symbol: "btc")
-    of "USDC", "SAI", "DAI", "USDT", "TUSD", "NUSD": Ticker(symbol: "usd")
+    of "WBTC": Ticker(symbol: "btc")
+    of "SAI", "DAI": Ticker(symbol: "dai")
+    of "USDC", "USDT": Ticker(symbol: "usd")
     else: ticker
 
 proc generic_symbol*(ticker: Ticker): string =

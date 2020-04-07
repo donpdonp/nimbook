@@ -102,8 +102,8 @@
   -
     name: switcheo
     active: true
-    maker_fee: 0.0
-    taker_fee: 0.0
+    maker_fee: 0.002
+    taker_fee: 0.002
     market_list:
       urls: 
         - https://api.switcheo.network/v2/exchange/pairs?show_details=1

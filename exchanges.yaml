@@ -109,7 +109,11 @@
         - https://api.switcheo.network/v2/exchange/pairs?show_details=1
         - https://api.switcheo.network/v2/exchange/tokens
       jq: |
-        def dec_to_float(d): (((.|tonumber)/(d|exp10))|tostring);
+        def dec_to_float(d): (. | length) as $len | if $len < d then 
+        "0."+ ("0" * (d-$len))+ .
+        else 
+        .[0:($len-d)]+"."+.[($len-d):$len]
+        end;
         .[1] as $tokens |
         .[0] | reduce .[] as $item 
         ([]; 

@@ -109,6 +109,7 @@
         - https://api.switcheo.network/v2/exchange/pairs?show_details=1
         - https://api.switcheo.network/v2/exchange/tokens
       jq: |
+        def dec_to_float(d): (((.|tonumber)/(d|exp10))|tostring);
         .[1] as $tokens |
         .[0] | reduce .[] as $item 
         ([]; 
@@ -120,7 +121,7 @@
         quote: $item.quoteAssetSymbol, 
         quantity_decimals: $item.precision, 
         price_decimals: $item.precision, 
-        min_order_size: ((($quote_token.minimum_quantity|tonumber)/($quote_token.decimals|exp10))|tostring),
+        min_order_size: ($quote_token.minimum_quantity | dec_to_float($quote_token.decimals)),
         base_contract: $item.baseContract,
         quote_contract: $item.quoteContract
         }] end )

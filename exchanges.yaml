@@ -107,16 +107,23 @@
     market_list:
       urls: 
         - https://api.switcheo.network/v2/exchange/pairs?show_details=1
+        - https://api.switcheo.network/v2/exchange/tokens
       jq: |
-        map({id: .name, 
-        base: .baseAssetSymbol, 
-        quote: .quoteAssetSymbol, 
-        quantity_decimals: .precision, 
-        price_decimals: .precision, 
-        min_order_size: "1",
-        base_contract: .baseContract,
-        quote_contract: .quoteContract
-        })
+        .[1] as $tokens |
+        .[0] | reduce .[] as $item 
+        ([]; 
+        $tokens[$item.baseAssetSymbol] as $base_token |
+        $tokens[$item.quoteAssetSymbol] as $quote_token |
+        if $quote_token and $base_token.trading_active then 
+        . + [{id: $item.name, 
+        base: $item.baseAssetSymbol, 
+        quote: $item.quoteAssetSymbol, 
+        quantity_decimals: $item.precision, 
+        price_decimals: $item.precision, 
+        min_order_size: ((($quote_token.minimum_quantity|tonumber)/($quote_token.decimals|exp10))|tostring),
+        base_contract: $item.baseContract,
+        quote_contract: $item.quoteContract
+        }] end )
 
     url: https://api.switcheo.network/v2/offers/book?pair=%base%_%quote%
     jq:

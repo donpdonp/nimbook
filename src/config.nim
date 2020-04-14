@@ -31,7 +31,7 @@ proc load*(filename: string): Config =
   serialization.load(stream1, config.settings)
   stream1.close()
 
-  var stream2 = newFileStream("sources.yaml")
+  var stream2 = newFileStream("exchanges.yaml")
   serialization.load(stream2, config.sources)
   stream2.close()
 

@@ -1,5 +1,6 @@
 type ArbReport* = ref object
   id*: string
+  date*: string
   pair*: (string, string)
   ask_books*: Books
   bid_books*: Books

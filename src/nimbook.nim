@@ -28,7 +28,7 @@ proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
             let price_diff = blist[1].quote - alist[1].quote
             profit += qty * price_diff
             let buy_offer = Offer(base_qty: qty, quote: alist[1].quote)
-            let sell_offer = Offer(base_qty: qty, quote: blist[1].quote)
+            let sell_offer = Offer(base_qty: qty, quote: alist[1].quote)
             ask_orders.merge(alist[0], buy_offer)
             bid_orders.merge(blist[0], sell_offer)
     (ask_orders, bid_orders, profit)

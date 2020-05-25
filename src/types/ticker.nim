@@ -13,7 +13,6 @@ proc normal*(ticker: Ticker): Ticker =
   case ticker.symbol
     of "ETH", "WETH": Ticker(symbol: "eth")
     of "WBTC": Ticker(symbol: "btc")
-    of "SAI", "DAI": Ticker(symbol: "dai")
     of "USDC", "USDT": Ticker(symbol: "usd")
     else: ticker
 

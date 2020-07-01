@@ -6,7 +6,7 @@
     taker_fee: 0.0
     market_list:
       urls: 
-        - https://api.idex.market/returnTicker
+        - https://api-regional.idex.market/returnTicker?region=USA
         - https://api.idex.market/returnCurrencies   
       jq: |
         .[1] as $coin |

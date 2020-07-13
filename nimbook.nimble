@@ -9,9 +9,9 @@ bin           = @["nimbook"]
 skipDirs      = @["tests"]
 
 # Dependencies
-requires "nim >= 1.0.0"
+requires "nim >= 1.2.0"
 requires "yaml"
 requires "https://github.com/donpdonp/libjq-nim >= 0.1.2"
 requires "redis >= 0.2.0"
-requires "https://github.com/adelq/ulid >= 0.2.1"
+requires "https://github.com/adelq/ulid >= 0.3.0"
 requires "ws >= 0.4.0"

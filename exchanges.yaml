@@ -4,6 +4,7 @@
     active: true
     maker_fee: 0.0
     taker_fee: 0.0
+#    gas_fee: 300000
     market_list:
       urls: 
         - https://api-regional.idex.market/returnTicker?region=USA

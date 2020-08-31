@@ -1,7 +1,7 @@
 # nim
 import os, strformat
 # local
-import config, nimbook, types
+import config, nimbook, types, eth
 
 proc help_closest(word: string) =
   echo word, "not understood"
@@ -18,8 +18,10 @@ proc main(args: seq[string]) =
   if len(args) > 0:
     case args[0]
       of "markets": nimbook.markets(config)
-      of "book": book(config, config.marketload(), Ticker(symbol: args[1]),
-          Ticker(symbol: args[2]))
+      of "book": 
+        var gas_fast = eth.gas()
+        book(config, config.marketload(), Ticker(symbol: args[1]),
+          Ticker(symbol: args[2]), gas_fast)
       of "books": nimbook.bookall(config, config.marketload())
       else: help(config) #help_closest(args[0])
   else:

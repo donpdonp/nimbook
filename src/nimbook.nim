@@ -2,7 +2,7 @@
 import strformat, strutils, tables, sequtils, options, times, os
 # nimble
 # local
-import types, net, config
+import types, net, config, eth
 
 proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
   if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
@@ -191,7 +191,8 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
     echo "totally empty."
     return none[ArbReport]()
 
-proc book*(config: Config, matches: MarketMatches, base: Ticker, quote: Ticker) =
+proc book*(config: Config, matches: MarketMatches, base: Ticker,
+    quote: Ticker, gas_price: int) =
   let usd_ticker = Ticker(symbol: "USD")
   let arb_id = arb_id_gen()
   let market_pair = (base, quote)
@@ -211,9 +212,10 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker, quote: Ticker) 
 proc bookall*(config: Config, matches: MarketMatches) =
   var matches = config.marketload()
   echo &"loaded {len(matches)}"
+  var gas_fast = eth.gas()
   for k, v in matches.pairs:
     if len(v) > 1:
-      book(config, matches, Ticker(symbol: k[0]), Ticker(symbol: k[1]))
+      book(config, matches, Ticker(symbol: k[0]), Ticker(symbol: k[1]), gas_fast)
       if config.settings.delay > 0:
         echo ""
         sleep(int(config.settings.delay*1000))

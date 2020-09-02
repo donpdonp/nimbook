@@ -22,9 +22,13 @@ type CoinCapList = ref object
   data: seq[CoinCapRate]
   timestamp: int64
 
+proc newClient*(timeout: int = 800): HttpClient =
+  var client = newHttpClient(timeout = timeout)
+  return client
+
 proc getContent*(url: string): string =
-  var Client = newHttpClient(timeout = 800)
-  Client.getContent(url)
+  var client = newClient()
+  return client.getContent(url)
 
 proc wsListen*(url: string) {.async, gcsafe.} =
   echo url

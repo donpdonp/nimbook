@@ -192,7 +192,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
     return none[ArbReport]()
 
 proc book*(config: Config, matches: MarketMatches, base: Ticker,
-    quote: Ticker, gas_price: int) =
+    quote: Ticker, gas_price: int64) =
   let usd_ticker = Ticker(symbol: "USD")
   let arb_id = arb_id_gen()
   let market_pair = (base, quote)
@@ -211,8 +211,10 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
 
 proc bookall*(config: Config, matches: MarketMatches) =
   var matches = config.marketload()
-  echo &"loaded {len(matches)}"
+  echo &"loaded {len(matches)} markets"
   var gas_fast = eth.gas()
+  var gas_fast_gwei = gas_fast div 1000000000
+  echo &"ethgasstation fast {gas_fast_gwei}gwei"
   for k, v in matches.pairs:
     if len(v) > 1:
       book(config, matches, Ticker(symbol: k[0]), Ticker(symbol: k[1]), gas_fast)

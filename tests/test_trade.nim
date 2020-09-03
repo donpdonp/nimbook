@@ -66,7 +66,7 @@ proc booksload*(filename: string): Books =
   stream.close()
   books
 
-suite "Trade cache":
+suite "Trade real orderbook data":
   setup:
     let ask_books = booksload("tests/data/ask_wins")
     let bid_books = booksload("tests/data/bid_wins")

@@ -18,7 +18,7 @@ proc main(args: seq[string]) =
   if len(args) > 0:
     case args[0]
       of "markets": nimbook.markets(config)
-      of "book": 
+      of "book":
         var gas_fast = eth.gas()
         book(config, config.marketload(), Ticker(symbol: args[1]),
           Ticker(symbol: args[2]), gas_fast)

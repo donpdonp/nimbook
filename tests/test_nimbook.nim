@@ -39,6 +39,6 @@ suite "nimbook quick":
     var markets: seq[Market]
     markets.add(quick_market("TestExchA", "TKR1", "TKR2"))
     markets.add(quick_market("TestExchB", "TKR1", "TKR2"))
-    var matches:Table[(string, string), seq[Market]] = marketpairs_match(markets)
-    doAssert 1 == len(matches)
+    #var matches:Table[(string, string), seq[Market]] = marketpairs_match(markets)
+    #doAssert 1 == len(matches)
 

@@ -9,7 +9,7 @@ suite "Trade Empty":
 
   test "trade":
     ask_books.books.add(Book())
-    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    let (ask_orders, bid_orders, profit) = trade(ask_books, bid_books)
     check(ask_orders.base_total == 0)
 
 suite "Trade equal supply":
@@ -25,7 +25,7 @@ suite "Trade equal supply":
 
   test "trade":
     ask_books.books.add(Book())
-    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    let (ask_orders, bid_orders, profit) = trade(ask_books, bid_books)
     check(ask_orders.base_total == 1)
 
 suite "Trade excess ask":
@@ -41,7 +41,7 @@ suite "Trade excess ask":
 
   test "trade":
     ask_books.books.add(Book())
-    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    let (ask_orders, bid_orders, profit) = trade(ask_books, bid_books)
     check(ask_orders.base_total == 1)
 
 suite "Trade excess bid":
@@ -56,7 +56,7 @@ suite "Trade excess bid":
     var bid_books = Books(askbid: AskBid.bid, books: @[bbook])
 
   test "trade":
-    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
+    let (ask_orders, bid_orders, profit) = trade(ask_books, bid_books)
     check(ask_orders.base_total == 1)
 
 proc booksload*(filename: string): Books =
@@ -68,9 +68,11 @@ proc booksload*(filename: string): Books =
 
 suite "Trade cache":
   setup:
-    let ask_books = booksload("data/ask_wins")
-    let bid_books = booksload("data/bid_wins")
+    let ask_books = booksload("tests/data/ask_wins")
+    let bid_books = booksload("tests/data/bid_wins")
 
   test "cache":
-    let (ask_orders, bid_orders) = trade(ask_books, bid_books)
-    check(ask_orders.base_total == 1221.892333984375)
+    let (ask_orders, bid_orders, profit) = trade(ask_books, bid_books)
+    check(ask_orders.base_total == 1.5)
+    check(bid_orders.base_total == 1.5)
+    check(abs(profit - 0.0067665) < 1e7)

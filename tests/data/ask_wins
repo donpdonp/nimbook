@@ -1,0 +1,128 @@
+%YAML 1.2
+%TAG !n! tag:nimyaml.org,2016:
+--- !n!custom:Books:ObjectType 
+askbid: ask
+books: 
+  - 
+    market: 
+      source: 
+        name: switcheo
+        active: y
+        url: "https://api.switcheo.network/v2/offers/book?pair=%base%_%quote%"
+        jq: 
+          bids: >-
+            .bids | map([(.quantity | tonumber), (.price | tonumber),
+            .createdDate])
+          asks: >-
+            .asks | map([(.quantity | tonumber), (.price | tonumber),
+            .createdDate])
+        ws_url: "wss://ws.switcheo.io"
+        market_list: 
+          urls: 
+            - "https://api.switcheo.network/v2/exchange/pairs?show_details=1"
+            - "https://api.switcheo.network/v2/exchange/tokens"
+          jq: >
+            def dec_to_float(d): (. | length) as $len | if $len < d then 
+
+            "0."+ ("0" * (d-$len))+ .
+
+            else 
+
+            .[0:($len-d)]+"."+.[($len-d):$len]
+
+            end;
+
+            .[1] as $tokens |
+
+            .[0] | reduce .[] as $item 
+
+            ([]; 
+
+            $tokens[$item.baseAssetSymbol] as $base_token |
+
+            $tokens[$item.quoteAssetSymbol] as $quote_token |
+
+            if $quote_token and $base_token.trading_active then 
+
+            . + [{id: $item.name, 
+
+            base: $item.baseAssetSymbol, 
+
+            quote: $item.quoteAssetSymbol, 
+
+            quantity_decimals: $item.precision, 
+
+            price_decimals: $item.precision, 
+
+            min_order_size: ($quote_token.minimum_quantity |
+            dec_to_float($quote_token.decimals)),
+
+            base_contract: $item.baseContract,
+
+            quote_contract: $item.quoteContract
+
+            }] end )
+        taker_fee: 0.002
+        maker_fee: 0.002
+      base: 
+        symbol: REP
+      base_contract: 0x1985365e9f78359a9b6ad760e32412f4a445e862
+      price_decimals: 4.0
+      quote: 
+        symbol: ETH
+      quote_contract: 0x0000000000000000000000000000000000000000
+      quantity_decimals: 4.0
+      min_order_size: .100000000000000000
+      swapped: n
+    offers: 
+      - 
+        base_qty: 26.791
+        quote: 0.0455
+      - 
+        base_qty: 13.456
+        quote: 0.0461
+      - 
+        base_qty: 4.515
+        quote: 0.0464
+      - 
+        base_qty: 24.042
+        quote: 0.0466
+      - 
+        base_qty: 173.074
+        quote: 0.0467
+      - 
+        base_qty: 275.557
+        quote: 0.047
+      - 
+        base_qty: 13.102
+        quote: 0.0473
+      - 
+        base_qty: 23.629
+        quote: 0.0474
+      - 
+        base_qty: 68.15300000000001
+        quote: 0.0478
+      - 
+        base_qty: 12.93
+        quote: 0.0479
+      - 
+        base_qty: 23.226
+        quote: 0.0482
+      - 
+        base_qty: 35.789
+        quote: 0.0486
+      - 
+        base_qty: 22.833
+        quote: 0.049
+      - 
+        base_qty: 12.596
+        quote: 0.0492
+      - 
+        base_qty: 22.64
+        quote: 0.0494
+      - 
+        base_qty: 12.433
+        quote: 0.0498
+      - 
+        base_qty: 22.45
+        quote: 0.0499

@@ -1,0 +1,47 @@
+%YAML 1.2
+%TAG !n! tag:nimyaml.org,2016:
+--- !n!custom:Books:ObjectType 
+askbid: bid
+books: 
+  - 
+    market: 
+      source: 
+        name: "ddex-v3"
+        active: y
+        url: "https://api.ddex.io/v3/markets/%base%-%quote%/orderbook"
+        jq: 
+          bids: >-
+            .data.orderBook.bids | map([(.amount | tonumber), (.price |
+            tonumber)])
+          asks: >-
+            .data.orderBook.asks | map([(.amount | tonumber), (.price |
+            tonumber)])
+        ws_url: "wss://ws.ddex.io/v3"
+        market_list: 
+          urls: ["https://api.ddex.io/v3/markets"]
+          jq: |
+            .data.markets | map({
+              base: (.id|split("-")[0]), 
+              quote: (.id|split("-")[1]), 
+              quantity_decimals: .amountDecimals, 
+              price_decimals: .priceDecimals, 
+              min_order_size: .minOrderSize,
+              base_contract: .baseTokenAddress,
+              quote_contract: .quoteTokenAddress
+            })
+        taker_fee: 0.3
+        maker_fee: 0.1
+      base: 
+        symbol: REP
+      base_contract: 0x1985365e9f78359a9b6ad760e32412f4a445e862
+      price_decimals: 8.0
+      quote: 
+        symbol: WETH
+      quote_contract: 0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
+      quantity_decimals: 2.0
+      min_order_size: 0.100000000000000000
+      swapped: n
+    offers: 
+      - 
+        base_qty: 1.5
+        quote: 0.050011

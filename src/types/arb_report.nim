@@ -8,7 +8,7 @@ type ArbReport* = ref object
   profit*: float
   profit_usd*: float
   ratio*: float
-  avg_price*: float
+  fee*: float
 
 proc `$`*(a: ArbReport): string =
   a.id

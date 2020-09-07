@@ -143,7 +143,6 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       let fee = quant.fee_calc(ask_orders, bid_orders)
       echo &"*ORDER {ask_orders}"
       echo &"*ORDER {bid_orders}"
-      let avg_price = best_ask.quote + (best_bid.quote - best_ask.quote)/2
       let cost = ask_orders.cost
       let profit = trade_profit - fee
       let ratio = profit / cost
@@ -155,7 +154,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
         bid_books: bid_orders,
         cost: cost,
         profit: profit,
-        avg_price: avg_price,
+        fee: fee,
         ratio: ratio)
       return some(report)
   else:

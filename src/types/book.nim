@@ -20,7 +20,7 @@ proc close_offer(book: Book, price: float): Offer =
       return offer
   return nil
 
-proc findb*(books: Books, market: Market): Book =
+proc find_book_by_market*(books: Books, market: Market): Book =
   for bbook in books.books:
     if bbook.market == market:
       return bbook
@@ -103,7 +103,7 @@ proc `$`*(bs: Books): string =
       b: Book): string = b.`$`).join(", ")
 
 proc merge*(books: Books, book: Book, offer: Offer) =
-  let goodbook = books.findb(book.market)
+  let goodbook = books.find_book_by_market(book.market)
   if goodbook == nil:
     let newbook = Book(market: book.market)
     newbook.offers.add(Offer(base_qty: offer.base_qty, quote: offer.quote))

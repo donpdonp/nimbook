@@ -11,8 +11,14 @@ type
     askbid*: AskBid
     books*: seq[Book]
 
-proc fee*(book: Book): float =
+proc deposit_fee*(book: Book): float =
   0
+
+proc withdrawal_fee*(book: Book): float =
+  0
+
+proc fee*(book: Book, gas_price: int): float =
+  book.deposit_fee + book.withdrawal_fee
 
 proc best*(book: Book): Offer =
   book.offers[0]
@@ -69,10 +75,10 @@ proc base_total*(books: Books): float =
     total += book.base_total
   total
 
-proc fee*(books: Books): float =
+proc fee*(books: Books, gas_price: int): float =
   var total = 0f
   for book in books.books:
-    total += book.fee()
+    total += book.fee(gas_price)
   total
 
 proc cost*(book: Book): float =

@@ -1,6 +1,6 @@
 import unittest, streams
 import yaml/serialization
-import types, nimbook
+import types, quant
 
 suite "Trade Empty":
   setup:

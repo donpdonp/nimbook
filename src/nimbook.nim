@@ -2,38 +2,7 @@
 import strformat, strutils, tables, sequtils, options, times, os
 # nimble
 # local
-import types, net, config, eth
-
-proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
-  if askbooks.askbid == AskBid.ask and bidbooks.askbid == Askbid.bid:
-    # Sell to the asks, buy from the bids
-    var asks_to_buy_from: Books
-    deepCopy(asks_to_buy_from, askbooks)
-    let asklist = asks_to_buy_from.sorted_offers
-    var bids_to_sell_to: Books
-    deepCopy(bids_to_sell_to, bidbooks)
-    let bidlist = bids_to_sell_to.sorted_offers
-
-    let ask_orders = Books(askbid: AskBid.ask)
-    let bid_orders = Books(askbid: AskBid.bid)
-    var profit: float
-
-    for alist in asklist:
-      for blist in bidlist:
-        if alist[1].quote < blist[1].quote: #buy low sell high
-          let qty = min(alist[1].base_qty, blist[1].base_qty)
-          if qty > 0:
-            alist[1].base_qty -= qty
-            blist[1].base_qty -= qty
-            let price_diff = blist[1].quote - alist[1].quote
-            profit += qty * price_diff
-            let buy_offer = Offer(base_qty: qty, quote: alist[1].quote)
-            let sell_offer = Offer(base_qty: qty, quote: alist[1].quote)
-            ask_orders.merge(alist[0], buy_offer)
-            bid_orders.merge(blist[0], sell_offer)
-    (ask_orders, bid_orders, profit)
-  else:
-    raise newException(OSError, "askbooks bidbooks are not ask and bid!")
+import types, net, config, eth, quant
 
 proc bestprice*(books: Books): (Market, Offer) =
   let best_side_price: float = if books.askbid == AskBid.ask: high(float) else: 0
@@ -170,7 +139,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       #bookssave(ask_price_wins, "ask_wins")
       #bookssave(bid_price_wins, "bid_wins")
       let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
-      let (ask_orders, bid_orders, profit) = trade(ask_price_wins, bid_price_wins)
+      let (ask_orders, bid_orders, profit) = quant.trade(ask_price_wins, bid_price_wins)
       echo &"*ORDER {ask_orders}"
       echo &"*ORDER {bid_orders}"
       let avg_price = best_ask.quote + (best_bid.quote - best_ask.quote)/2

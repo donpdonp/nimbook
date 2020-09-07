@@ -84,4 +84,5 @@ suite "Fee Calc":
 
   test "fee 1":
     #let fee = fee_calc(ask_books, bid_books)
-    check(ask_books.fee == 0.0)
+    let gas_price = 100
+    check(ask_books.fee(gas_price) == 0.0)

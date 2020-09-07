@@ -76,3 +76,13 @@ suite "Trade real orderbook data":
     check(ask_orders.base_total == 1.5)
     check(bid_orders.base_total == 1.5)
     check(abs(profit - 0.0067665) < 1e7)
+
+suite "Fee Calc":
+  setup:
+    let ask_books = booksload("tests/data/ask_wins")
+    let bid_books = booksload("tests/data/bid_wins")
+
+    test "fee 1" :
+      let fee = fee_calc(ask_books, bid_books)
+      check(fee = 0)
+      

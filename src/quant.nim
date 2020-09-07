@@ -29,3 +29,5 @@ proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
   else:
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 
+proc fee_calc*(ask_orders: Books, bid_orders: Books): float =
+    return 0

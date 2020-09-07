@@ -139,11 +139,13 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       #bookssave(ask_price_wins, "ask_wins")
       #bookssave(bid_price_wins, "bid_wins")
       let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
-      let (ask_orders, bid_orders, profit) = quant.trade(ask_price_wins, bid_price_wins)
+      let (ask_orders, bid_orders, trade_profit) = quant.trade(ask_price_wins, bid_price_wins)
+      let fee = quant.fee_calc(ask_orders, bid_orders)
       echo &"*ORDER {ask_orders}"
       echo &"*ORDER {bid_orders}"
       let avg_price = best_ask.quote + (best_bid.quote - best_ask.quote)/2
       let cost = ask_orders.cost
+      let profit = trade_profit - fee
       let ratio = profit / cost
       let report = ArbReport(id: arb_id,
         date: now().format("yyyy-MM-dd'T'HH:mm:ss"),

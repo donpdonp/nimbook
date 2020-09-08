@@ -124,7 +124,7 @@ proc markets*(config: config.Config) =
   echo &"saved."
 
 proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
-    matchingMarkets: var seq[Market]): Option[ArbReport] =
+    matchingMarkets: var seq[Market], gas_price: int): Option[ArbReport] =
   var (askbooks, bidbooks) = marketsload(arb_id, market_pair, matchingMarkets)
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
@@ -140,11 +140,11 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       #bookssave(bid_price_wins, "bid_wins")
       let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
       let (ask_orders, bid_orders, trade_profit) = quant.trade(ask_price_wins, bid_price_wins)
-      let fee = quant.fee_calc(ask_orders, bid_orders)
+      let fee_eth = quant.fee_eth(ask_orders, bid_orders, gas_price)      
       echo &"*ORDER {ask_orders}"
       echo &"*ORDER {bid_orders}"
       let cost = ask_orders.cost
-      let profit = trade_profit - fee
+      let profit = trade_profit - fee_eth # todo only works on eth quote token
       let ratio = profit / cost
       let report = ArbReport(id: arb_id,
         date: now().format("yyyy-MM-dd'T'HH:mm:ss"),
@@ -154,7 +154,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
         bid_books: bid_orders,
         cost: cost,
         profit: profit,
-        fee: fee,
+        fee_eth: fee_eth,
         ratio: ratio)
       return some(report)
   else:
@@ -169,7 +169,7 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
   echo &"={market_pair[0]}/{market_pair[1]} {market_matches}"
   #var market_equals = marketpairs_equal(market_matches) #future constraint
-  let arb_opt = compare(config, arb_id, market_pair, market_matches)
+  let arb_opt = compare(config, arb_id, market_pair, market_matches, 0)
   if arb_opt.isSome:
     var arb = arb_opt.get
     let usd_ratio = currency_convert(quote, usd_ticker)

@@ -154,6 +154,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
         ask_books: ask_orders,
         bid_books: bid_orders,
         cost: cost,
+        trade_profit: trade_profit,
         profit: profit,
         fee_eth: fee_eth,
         ratio: ratio)
@@ -179,7 +180,7 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
        arb.ratio > config.settings.ratio_minimum:
       arbPush(config, arb)
     echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]}" &
-    &" fee_eth {arb.fee_eth:0.5f}" &
+    &" trade_profit {arb.trade_profit:0.5f} fee_eth {arb.fee_eth:0.5f}" &
     &" profit {arb.profit:0.5f}{arb.pair[1]} profit_usd: {arb.profit_usd:0.5f} {arb.ratio:0.3f}x" &
     &" {arb.id} {now().`$`}"
 

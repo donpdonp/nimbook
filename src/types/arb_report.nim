@@ -5,6 +5,7 @@ type ArbReport* = ref object
   ask_books*: Books
   bid_books*: Books
   cost*: float
+  trade_profit*: float
   profit*: float
   profit_usd*: float
   ratio*: float

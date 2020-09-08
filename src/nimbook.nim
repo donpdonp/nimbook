@@ -45,10 +45,11 @@ proc marketpairs_group*(markets: seq[Market]): Table[(string, string), seq[Marke
   var winners: Table[(string, string), seq[Market]]
   for market in markets:
     let grouping_pair = market.grouping_pair()
-    if not winners.hasKey(grouping_pair):
-      winners[grouping_pair] = @[market]
-    else:
-      winners[grouping_pair].add(market)
+    if grouping_pair[1] == "eth": ## todo take off eth-only hack
+      if not winners.hasKey(grouping_pair):
+        winners[grouping_pair] = @[market]
+      else:
+        winners[grouping_pair].add(market)
   winners
 
 proc marketpairs_equal*(markets: seq[Market]): seq[Market] =

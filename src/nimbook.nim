@@ -178,7 +178,10 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
     if arb.profit_usd > config.settings.profit_minimum and
        arb.ratio > config.settings.ratio_minimum:
       arbPush(config, arb)
-    echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]} profit {arb.profit:0.5f}{arb.pair[1]} profit_usd: {arb.profit_usd:0.5f} {arb.ratio:0.3f}x {arb.id} {now().`$`}"
+    echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]}" &
+    " fee_eth {arb.fee_eth}" &
+    " profit {arb.profit:0.5f}{arb.pair[1]} profit_usd: {arb.profit_usd:0.5f} {arb.ratio:0.3f}x" &
+    " {arb.id} {now().`$`}"
 
 proc bookall*(config: Config, matches: MarketMatches) =
   var matches = config.marketload()

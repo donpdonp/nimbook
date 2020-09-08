@@ -2,11 +2,11 @@
   -
     name: idex
     active: true
-    maker_fee: 0.0
-    taker_fee: 0.0
-    trade_gas: 300000
-    deposit_gas: 300000
-    withdrawal_gas: 300000
+    maker_fee: 0.1
+    taker_fee: 0.2
+    trade_gas: 140000
+    deposit_gas: 35717
+    withdrawal_gas: 89290
     market_list:
       urls: 
         - https://api-regional.idex.market/returnTicker?region=USA
@@ -111,11 +111,11 @@
   -
     name: switcheo
     active: true
-    maker_fee: 0.002
-    taker_fee: 0.002
-    trade_gas: 300000
-    deposit_gas: 300000
-    withdrawal_gas: 300000
+    maker_fee: 0.2
+    taker_fee: 0.2
+    trade_gas: 90000
+    deposit_gas: 37445
+    withdrawal_gas: 72414
     market_list:
       urls: 
         - https://api.switcheo.network/v2/exchange/pairs?show_details=1

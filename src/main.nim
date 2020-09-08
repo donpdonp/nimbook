@@ -19,7 +19,7 @@ proc main(args: seq[string]) =
     case args[0]
       of "markets": nimbook.markets(config)
       of "book":
-        var gas_fast = eth.gas()
+        var gas_fast = eth.gas_wei()
         book(config, config.marketload(), Ticker(symbol: args[1]),
           Ticker(symbol: args[2]), gas_fast)
       of "books": nimbook.bookall(config, config.marketload())

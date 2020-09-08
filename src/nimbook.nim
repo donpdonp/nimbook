@@ -186,12 +186,10 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
 proc bookall*(config: Config, matches: MarketMatches) =
   var matches = config.marketload()
   echo &"loaded {len(matches)} markets"
-  var gas_fast = eth.gas()
-  var gas_fast_gwei = gas_fast div 1000000000
-  echo &"ethgasstation fast {gas_fast_gwei}gwei"
+  var gas_fast_wei = eth.gas_wei()
   for k, v in matches.pairs:
     if len(v) > 1:
-      book(config, matches, Ticker(symbol: k[0]), Ticker(symbol: k[1]), gas_fast)
+      book(config, matches, Ticker(symbol: k[0]), Ticker(symbol: k[1]), gas_fast_wei)
       if config.settings.delay > 0:
         echo ""
         sleep(int(config.settings.delay*1000))

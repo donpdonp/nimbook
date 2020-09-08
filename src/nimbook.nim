@@ -125,7 +125,7 @@ proc markets*(config: config.Config) =
   echo &"saved."
 
 proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
-    matchingMarkets: var seq[Market], gas_price: int): Option[ArbReport] =
+    matchingMarkets: var seq[Market], gas_price: int64): Option[ArbReport] =
   var (askbooks, bidbooks) = marketsload(arb_id, market_pair, matchingMarkets)
   var (best_ask_market, best_ask) = bestprice(askbooks)
   var (best_bid_market, best_bid) = bestprice(bidbooks)
@@ -145,7 +145,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       echo &"*ORDER {ask_orders}"
       echo &"*ORDER {bid_orders}"
       let cost = ask_orders.cost
-      let profit = trade_profit - fee_eth # todo only works on eth quote token
+      let profit = trade_profit - fee_eth # todo only works on eth quote market
       let ratio = profit / cost
       let report = ArbReport(id: arb_id,
         date: now().format("yyyy-MM-dd'T'HH:mm:ss"),
@@ -170,7 +170,7 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
   var market_matches = matches[(market_pair[0].symbol, market_pair[1].symbol)]
   echo &"={market_pair[0]}/{market_pair[1]} {market_matches}"
   #var market_equals = marketpairs_equal(market_matches) #future constraint
-  let arb_opt = compare(config, arb_id, market_pair, market_matches, 0)
+  let arb_opt = compare(config, arb_id, market_pair, market_matches, gas_price)
   if arb_opt.isSome:
     var arb = arb_opt.get
     let usd_ratio = currency_convert(quote, usd_ticker)

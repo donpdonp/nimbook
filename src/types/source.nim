@@ -1,4 +1,3 @@
-import options
 
 type
   JqBidAsk* = object

@@ -17,8 +17,11 @@ proc deposit_fee*(book: Book): float =
 proc withdrawal_fee*(book: Book): float =
   0
 
+proc trade_fee*(book: Book): float =
+  0
+
 proc fee*(book: Book, gas_price: int): float =
-  book.deposit_fee + book.withdrawal_fee
+  book.deposit_fee + book.withdrawal_fee + book.trade_fee
 
 proc best*(book: Book): Offer =
   book.offers[0]

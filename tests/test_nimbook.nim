@@ -1,5 +1,5 @@
-import unittest, tables
-import types, nimbook
+import unittest
+import types
 
 
 proc quick_market(source_name: string, symbol_base: string, symbol_quote: string): Market =

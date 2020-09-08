@@ -31,6 +31,9 @@ books:
             })
         taker_fee: 0.3
         maker_fee: 0.1
+        trade_gas: 0
+        deposit_gas: 0
+        withdrawal_gas: 0
       base: 
         symbol: REP
       base_contract: 0x1985365e9f78359a9b6ad760e32412f4a445e862

@@ -83,6 +83,7 @@ suite "Fee Calc":
     let bid_books = booksload("tests/data/bid_wins")
 
   test "fee 1":
-    #let fee = fee_calc(ask_books, bid_books)
     let gas_price = 100
-    check(ask_books.fee_eth(gas_price) == 0.0)
+    let book = ask_books.books[0]
+    check(book.fee_eth(gas_price) == 0.00045)
+    check(ask_books.fee_eth(gas_price) == 0.00045)

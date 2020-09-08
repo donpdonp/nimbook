@@ -1,3 +1,5 @@
+import options
+
 type
   JqBidAsk* = object
     bids*: string
@@ -16,3 +18,6 @@ type
     market_list*: JqUrl
     taker_fee*: float
     maker_fee*: float
+    trade_gas*: float
+    deposit_gas*: float
+    withdrawal_gas*: float

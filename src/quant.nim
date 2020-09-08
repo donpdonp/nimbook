@@ -30,4 +30,4 @@ proc trade*(askbooks: Books, bidbooks: Books): (Books, Books, float) =
     raise newException(OSError, "askbooks bidbooks are not ask and bid!")
 
 proc fee_eth*(ask_orders: Books, bid_orders: Books, gas_price: int): float =
-    ask_orders.fee_eth(gas_price) + bid_orders.fee_eth(gas_price)
+  ask_orders.fee_eth(gas_price) + bid_orders.fee_eth(gas_price)

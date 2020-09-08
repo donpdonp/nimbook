@@ -140,7 +140,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
       #bookssave(bid_price_wins, "bid_wins")
       let total_op = min(ask_price_wins.base_total(), bid_price_wins.base_total())
       let (ask_orders, bid_orders, trade_profit) = quant.trade(ask_price_wins, bid_price_wins)
-      let fee_eth = quant.fee_eth(ask_orders, bid_orders, gas_price)      
+      let fee_eth = quant.fee_eth(ask_orders, bid_orders, gas_price)
       echo &"*ORDER {ask_orders}"
       echo &"*ORDER {bid_orders}"
       let cost = ask_orders.cost

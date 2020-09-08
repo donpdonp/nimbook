@@ -3,7 +3,7 @@ import types
 
 suite "Offer":
   setup:
-    var o = Offer(base_qty:1, quote:2)
+    var o = Offer(base_qty: 1, quote: 2)
 
   test "offer":
     check(o.quote_side(TickerSide.Quote).quote == o.quote)

@@ -2,9 +2,11 @@ import unittest
 import types
 
 
-proc quick_market(source_name: string, symbol_base: string, symbol_quote: string): Market =
+proc quick_market(source_name: string, symbol_base: string,
+    symbol_quote: string): Market =
   var source = Source(name: source_name)
-  var market = Market(source: source, base: Ticker(symbol: symbol_base), quote: Ticker(symbol: symbol_quote))
+  var market = Market(source: source, base: Ticker(symbol: symbol_base),
+      quote: Ticker(symbol: symbol_quote))
   market
 
 proc setup_empty(): (Books, Books) =
@@ -18,7 +20,7 @@ proc setup_empty(): (Books, Books) =
 
   var asks = Books(askbid: AskBid.ask, books: @[bookA])
   var bids = Books(askbid: AskBid.bid, books: @[bookB])
-  (asks,bids)
+  (asks, bids)
 
 proc setup_cross(): (Books, Books) =
   var marketA = quick_market("TestExchA", "TKR1", "TKR2")
@@ -31,7 +33,7 @@ proc setup_cross(): (Books, Books) =
 
   var asks = Books(askbid: AskBid.ask, books: @[bookA])
   var bids = Books(askbid: AskBid.bid, books: @[bookB])
-  (asks,bids)
+  (asks, bids)
 
 
 suite "nimbook quick":

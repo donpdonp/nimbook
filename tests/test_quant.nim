@@ -15,7 +15,8 @@ suite "Trade Empty":
 suite "Trade equal supply":
   setup:
     let source = Source(name: "SkamMarket")
-    let market = Market(source: source, base: Ticker(symbol:"A"), quote: Ticker(symbol:"B"))
+    let market = Market(source: source, base: Ticker(symbol: "A"),
+        quote: Ticker(symbol: "B"))
     let aoffer = Offer(base_qty: 1, quote: 1)
     var abook = Book(market: market, offers: @[aoffer])
     var ask_books = Books(askbid: AskBid.ask, books: @[abook])
@@ -31,7 +32,8 @@ suite "Trade equal supply":
 suite "Trade excess ask":
   setup:
     let source = Source(name: "SkamMarket")
-    let market = Market(source: source, base: Ticker(symbol:"A"), quote: Ticker(symbol:"B"))
+    let market = Market(source: source, base: Ticker(symbol: "A"),
+        quote: Ticker(symbol: "B"))
     let aoffer = Offer(base_qty: 2, quote: 1)
     var abook = Book(market: market, offers: @[aoffer])
     var ask_books = Books(askbid: AskBid.ask, books: @[abook])
@@ -47,7 +49,8 @@ suite "Trade excess ask":
 suite "Trade excess bid":
   setup:
     let source = Source(name: "SkamMarket")
-    let market = Market(source: source, base: Ticker(symbol:"A"), quote: Ticker(symbol:"B"))
+    let market = Market(source: source, base: Ticker(symbol: "A"),
+        quote: Ticker(symbol: "B"))
     let aoffer = Offer(base_qty: 1, quote: 1)
     var abook = Book(market: market, offers: @[aoffer])
     var ask_books = Books(askbid: AskBid.ask, books: @[abook])
@@ -79,8 +82,13 @@ suite "Trade real orderbook data":
 
 suite "Fee Calc":
   setup:
-    let ask_books = booksload("tests/data/ask_wins")
-    let bid_books = booksload("tests/data/bid_wins")
+    let source = Source(name: "SkamMarket", trade_gas: 500000000000.0,
+        deposit_gas: 2000000000000.0, withdrawal_gas: 2000000000000.0) # yaml demands float
+    let market = Market(source: source, base: Ticker(symbol: "A"),
+        quote: Ticker(symbol: "B"))
+    let aoffer = Offer(base_qty: 1, quote: 1)
+    var abook = Book(market: market, offers: @[aoffer])
+    var ask_books = Books(askbid: AskBid.ask, books: @[abook])
 
   test "fee 1":
     let gas_price = 100

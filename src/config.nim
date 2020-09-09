@@ -17,7 +17,7 @@ type
     trade_profit_minimum*: float
     trade_ratio_minimum*: float
     chart_profit_minimum*: float
-    chrat_ratio_minimum*: float
+    chart_ratio_minimum*: float
 
   Influx = object
     url: string
@@ -96,6 +96,8 @@ proc arb_id_gen*(): string =
 
 proc arbPush*(config: Config, report: ArbReport) =
   redisPush(report)
+
+proc chartPush*(config: Config, report: ArbReport) =
   if config.settings.influx.url.len > 0:
     net.influxpush(config.settings.influx.url, config.settings.influx.username,
       config.settings.influx.password, report)

@@ -107,6 +107,7 @@ proc influxpush*(url: string, username: string, password: string,
   var datalines: seq[string] = @[]
   let pair = &"{report.pair[0]}-{report.pair[1]}"
   datalines.add(&"arb,pair={pair},base_token={report.pair[0]},quote_token={report.pair[1]} " &
+    &"trade_profit={report.trade_profit:0.5f},trade_profit_usd={report.trade_profit*report.quote_usd:0.5f}," &
     &"profit={report.profit:0.5f},profit_usd={report.profit*report.quote_usd:0.5f}," &
     &"cost={report.cost:0.5f},ratio={report.ratio:0.5f},fee_network={report.fee_network:0.5f}")
   for book in report.ask_books.books:

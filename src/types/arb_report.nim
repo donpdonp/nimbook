@@ -5,12 +5,12 @@ type ArbReport* = ref object
   ask_books*: Books
   bid_books*: Books
   cost*: float
-  trade_profit*: float
-  trade_profit_usd*: float
-  profit*: float
-  profit_usd*: float
   ratio*: float
-  fee_eth*: float
+  trade_profit*: float
+  profit*: float
+  fee_network*: float
+  quote_usd*: float
+  network_usd*: float
 
 proc `$`*(a: ArbReport): string =
   a.id

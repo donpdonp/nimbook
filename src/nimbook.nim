@@ -156,7 +156,7 @@ proc compare(config: Config, arb_id: string, market_pair: (Ticker, Ticker),
         cost: cost,
         trade_profit: trade_profit,
         profit: profit,
-        fee_eth: fee_eth,
+        fee_network: fee_eth,
         ratio: ratio)
       return some(report)
   else:
@@ -174,15 +174,17 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
   let arb_opt = compare(config, arb_id, market_pair, market_matches, gas_price)
   if arb_opt.isSome:
     var arb = arb_opt.get
-    let usd_ratio = currency_convert(quote, usd_ticker)
-    arb.trade_profit_usd = arb.trade_profit * usd_ratio
-    arb.profit_usd = arb.profit * usd_ratio
-    if arb.profit_usd > config.settings.profit_minimum and
+    let usd_price = currency_convert(quote, usd_ticker)
+    arb.quote_usd = usd_price
+    arb.network_usd = usd_price # todo: fix to eth
+    let profit_usd = arb.profit * usd_price
+    if profit_usd > config.settings.profit_minimum and
        arb.ratio > config.settings.ratio_minimum:
       arbPush(config, arb)
     echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]}" &
-    &" trade_profit {arb.trade_profit:0.5f}/${arb.trade_profit_usd:0.5f} fee_eth {arb.fee_eth:0.5f}" &
-    &" profit {arb.profit:0.5f}{arb.pair[1]}/${arb.profit_usd:0.5f} {arb.ratio:0.3f}x" &
+    &" trade_profit {arb.trade_profit:0.5f}/${arb.trade_profit*arb.quote_usd:0.5f}" &
+    &" fee_network {arb.fee_network:0.5f}/${arb.fee_network*arb.network_usd:0.5f}" &
+    &" profit {arb.profit:0.5f}{arb.pair[1]}/${arb.profit*arb.quote_usd:0.5f} {arb.ratio:0.3f}x" &
     &" {arb.id} {now().`$`}"
 
 proc bookall*(config: Config, matches: MarketMatches) =

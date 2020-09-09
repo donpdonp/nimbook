@@ -106,7 +106,9 @@ proc influxpush*(url: string, username: string, password: string,
                  report: ArbReport) =
   var datalines: seq[string] = @[]
   let pair = &"{report.pair[0]}-{report.pair[1]}"
-  datalines.add(&"arb,pair={pair},base_token={report.pair[0]},quote_token={report.pair[1]} profit={report.profit:0.5f},profit_usd={report.profit_usd:0.5f},cost={report.cost:0.5f},ratio={report.ratio:0.5f},fee_eth={report.fee_eth:0.5f}")
+  datalines.add(&"arb,pair={pair},base_token={report.pair[0]},quote_token={report.pair[1]} " &
+    &"profit={report.profit:0.5f},profit_usd={report.profit*report.quote_usd:0.5f}," &
+    &"cost={report.cost:0.5f},ratio={report.ratio:0.5f},fee_network={report.fee_network:0.5f}")
   for book in report.ask_books.books:
     for offer in book.offers:
       datalines.add(influxline(report.ask_books, book, offer))

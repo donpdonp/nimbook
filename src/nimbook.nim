@@ -181,10 +181,11 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
     if profit_usd > config.settings.profit_minimum and
        arb.ratio > config.settings.ratio_minimum:
       arbPush(config, arb)
+    let word = if arb.profit > 0: "profit" else: "loss"
     echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]}" &
     &" trade_profit {arb.trade_profit:0.5f}/${arb.trade_profit*arb.quote_usd:0.5f}" &
     &" fee_network {arb.fee_network:0.5f}/${arb.fee_network*arb.network_usd:0.5f}" &
-    &" profit {arb.profit:0.5f}{arb.pair[1]}/${arb.profit*arb.quote_usd:0.5f} {arb.ratio:0.3f}x" &
+    &" {word} {arb.profit:0.5f}{arb.pair[1]}/${arb.profit*arb.quote_usd:0.5f} {arb.ratio:0.3f}x" &
     &" {arb.id} {now().`$`}"
 
 proc bookall*(config: Config, matches: MarketMatches) =

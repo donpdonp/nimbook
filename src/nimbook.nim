@@ -178,8 +178,8 @@ proc book*(config: Config, matches: MarketMatches, base: Ticker,
     arb.quote_usd = usd_price
     arb.network_usd = usd_price # todo: fix to eth
     let profit_usd = arb.profit * usd_price
-    if profit_usd > config.settings.profit_minimum and
-       arb.ratio > config.settings.ratio_minimum:
+    if profit_usd > config.settings.trade_profit_minimum and
+       arb.ratio > config.settings.trade_ratio_minimum:
       arbPush(config, arb)
     let word = if arb.profit > 0: "profit" else: "loss"
     echo &"*Cost {arb.ask_books.base_total:0.5f}{arb.pair[0]}/{arb.cost:0.5f}{arb.pair[1]}" &

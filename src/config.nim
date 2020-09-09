@@ -9,12 +9,16 @@ type
   Config* = object
     settings*: Settings
     sources*: seq[Source]
+
   Settings* = object
     redis: string
     influx: Influx
     delay*: float
-    profit_minimum*: float
-    ratio_minimum*: float
+    trade_profit_minimum*: float
+    trade_ratio_minimum*: float
+    chart_profit_minimum*: float
+    chrat_ratio_minimum*: float
+
   Influx = object
     url: string
     username: string

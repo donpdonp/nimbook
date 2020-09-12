@@ -6,7 +6,7 @@
     taker_fee: 0.2
     trade_gas: 140000
     deposit_gas: 35717
-    withdrawal_gas: 89290
+    withdrawal_gas: 101504 # their estimate
     market_list:
       urls: 
         - https://api-regional.idex.market/returnTicker?region=USA
@@ -113,9 +113,9 @@
     active: true
     maker_fee: 0.2
     taker_fee: 0.2
-    trade_gas: 90000
-    deposit_gas: 37445
-    withdrawal_gas: 72414
+    trade_gas: 180000 # two fills
+    deposit_gas: 102105 # deposit + erc20 approve
+    withdrawal_gas: 97000 # their estimate
     market_list:
       urls: 
         - https://api.switcheo.network/v2/exchange/pairs?show_details=1

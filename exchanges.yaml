@@ -9,36 +9,31 @@
     withdrawal_gas: 101504 # their estimate
     market_list:
       urls: 
-        - https://api-regional.idex.market/returnTicker?region=USA
-        - https://api.idex.market/returnCurrencies   
+        - https://api.idex.io/v1/markets
+        - https://api.idex.io/v1/assets
+        - https://api.idex.io/v1/exchange
       jq: |
-        .[1] as $coin |
-        .[0] | to_entries |
-        map(
-          (.key|split("_")) as $key_parts |
-          $key_parts.[0] as $quote_symbol |
-          $key_parts.[1] as $base_symbol |
-          {key, value, base_coin: ($coin.[$base_symbol] + { symbol: $base_symbol }),
-           quote_coin: ($coin.[$quote_symbol] + { symbol: $quote_symbol })}
-        )|
-        map({
-          id: .key,
-          base: .base_coin.symbol,
-          quote: .quote_coin.symbol,
-          quantity_decimals: .base_coin.decimals,
-          price_decimals: .quote_coin.decimals,
-          min_order_size: "1",
-          base_contract: .base_coin.address,
-          quote_contract: .quote_coin.address
-        })
-    url: https://api.idex.market/returnOrderBook?market=%quote%_%base%&count=50
+        .[1] as $assets |
+        .[2] as $exchange |
+        .[0] | 
+        map(.baseAsset as $baseAsset | .quoteAsset as $quoteAsset | {
+            id: .market,
+            base: .baseAsset,
+            quote: .quoteAsset,
+            quantity_decimals: .baseAssetPrecision,
+            price_decimals: .quoteAssetPrecision,
+            min_order_size: $exchange.takerTradeMinimum,
+            base_contract: ($assets[] | select(.symbol == $baseAsset)).contractAddress,
+            quote_contract: ($assets[] | select(.symbol == $quoteAsset)).contractAddress
+          })
+    url: https://api.idex.io/v1/orderbook?market=%base%-%quote%&level=2&limit=50
     jq:
       bids: >-
         .bids |
-        map([(.amount | tonumber), (.price | tonumber)])
+        map([(.[1] | tonumber), (.[0] | tonumber)])
       asks: >-
         .asks |
-        map([(.amount | tonumber), (.price | tonumber)])
+        map([(.[1] | tonumber), (.[0] | tonumber)])
     ws_url: 
   -
     name: kyber
